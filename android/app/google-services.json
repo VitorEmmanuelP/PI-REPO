@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "444886074893",
+    "project_id": "pi-faculdade",
+    "storage_bucket": "pi-faculdade.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444886074893:android:29c4eda821ce7c39f8b744",
+        "android_client_info": {
+          "package_name": "com.example.pi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "444886074893-37lr2uhhagsqgiulh5mg56k9nqsofi1r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKNaMKjR0srnSJ8SsxAJSTSXR8DaVuR8M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "444886074893-37lr2uhhagsqgiulh5mg56k9nqsofi1r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

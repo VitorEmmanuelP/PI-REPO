@@ -1,0 +1,296 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+
+import '../constants/routes.dart';
+import '../utils/validador_registro.dart';
+
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
+
+  @override
+  State<RegisterView> createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  late final TextEditingController _nomeCompleto;
+  late final TextEditingController _cpf;
+  late final TextEditingController _faculdade;
+  late final TextEditingController _cursoAluno;
+  late final TextEditingController _telefone;
+  late final TextEditingController _data;
+
+  var nomesError = false;
+  var cpfError = false;
+  var telefoneError = false;
+  var dataError = false;
+
+  @override
+  void initState() {
+    _nomeCompleto = TextEditingController();
+    _cpf = TextEditingController();
+    _faculdade = TextEditingController();
+    _cursoAluno = TextEditingController();
+    _telefone = TextEditingController();
+    _data = TextEditingController();
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _nomeCompleto.dispose();
+    _cpf.dispose();
+    _faculdade.dispose();
+    _cursoAluno.dispose();
+    _telefone.dispose();
+    _data.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final maskFormatTelef = MaskTextInputFormatter(
+        mask: '(##)#####-####', filter: {"#": RegExp(r'[0-9]')});
+
+    final maskFormatterData = MaskTextInputFormatter(
+        mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
+
+    final maskFormatterCpf = MaskTextInputFormatter(
+        mask: '###-###-###-##', filter: {"#": RegExp(r'[0-9]')});
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: appBar(),
+        body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _nomeCompleto,
+                  decoration: estiloTextField("Nome Completo",
+                      erro: nomesError,
+                      msg: "Digite pelo menos o Nome e Sobrenome"),
+                  onChanged: (value) {
+                    if (nomesError) {
+                      setState(() {
+                        nomesError = false;
+                      });
+                    }
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _cpf,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [maskFormatterCpf],
+                  decoration: estiloTextField("CPF",
+                      erro: cpfError, msg: "Digite um CPF valido"),
+                  onChanged: (value) {
+                    if (cpfError) {
+                      setState(() {
+                        cpfError = false;
+                      });
+                    }
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _faculdade,
+                  decoration: estiloTextField("Faculdade"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _cursoAluno,
+                  decoration: estiloTextField("Curso do Aluno"),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _telefone,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [maskFormatTelef],
+                  decoration: estiloTextField("Telefone",
+                      erro: telefoneError, msg: "Digite um numero completo"),
+                  onChanged: (value) {
+                    if (telefoneError) {
+                      setState(() {
+                        telefoneError = false;
+                      });
+                    }
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  controller: _data,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [maskFormatterData],
+                  decoration: estiloTextField("Data de nascimento",
+                      erro: dataError, msg: "Digite uma data valida"),
+                  onChanged: (value) {
+                    if (dataError) {
+                      setState(() {
+                        dataError = false;
+                      });
+                    }
+                  },
+                ),
+              ),
+              OutlinedButton(
+                  onPressed: () async {
+                    final nome = _nomeCompleto.text;
+                    final cpf = maskFormatterCpf.unmaskText(_cpf.text);
+                    final faculdade = _faculdade.text;
+                    final cursoAluno = _cursoAluno.text;
+                    final telefone = maskFormatTelef.unmaskText(_telefone.text);
+                    final data = maskFormatterData.unmaskText(_data.text);
+                    final corAvatar = getRandomColor();
+
+                    validarRegistros(nome, cpf, telefone, data);
+
+                    if (checarErros()) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: Colors.green,
+                        content: Text("Adicionado"),
+                      ));
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: Colors.red,
+                        content: Text("Erro"),
+                      ));
+                    }
+
+                    // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    //   behavior: SnackBarBehavior.floating,
+                    //   backgroundColor: Colors.green,
+                    //   content: Text("Adicionado"),
+                    // ));
+
+                    await FirebaseFirestore.instance
+                        .collection("prefeituras/lAlYlZc4FiroLCSZ6oQK/users/")
+                        .add({
+                      'nome': nome,
+                      'cpf': cpf,
+                      'faculdade': faculdade,
+                      'cursoAluno': cursoAluno,
+                      'telefone': telefone,
+                      'corAvatar': corAvatar,
+                      'senha': data,
+                      'data': data,
+                    });
+
+                    await FirebaseFirestore.instance.collection("users").add({
+                      'cpf': cpf,
+                      'senha': data,
+                    });
+
+                    // mudarTela();
+                  },
+                  child: const Text("PRINTAR")),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+                  },
+                  child: const Text("Login")),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  mudarTela() {
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      loginRoute,
+      (route) => false,
+    );
+  }
+
+  bool checarErros() {
+    if (!cpfError && !nomesError && !telefoneError && !dataError) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void validarRegistros(String nome, String cpf, String telefone, String data) {
+    nome = nome.trim();
+    List<String> nomes = nome.split(' ');
+
+    setState(() {
+      if (nomes.length < 2) {
+        nomesError = true;
+      }
+      if (!isCPFValid(cpf)) {
+        cpfError = true;
+      }
+      if (telefone.length < 11) {
+        telefoneError = true;
+      }
+      if (data.length < 8) {
+        setState(() {
+          dataError = true;
+        });
+      }
+    });
+  }
+
+  InputDecoration estiloTextField(String label,
+      {bool erro = false, String msg = ''}) {
+    return InputDecoration(
+      labelText: label,
+      errorText: erro ? msg : null,
+      labelStyle:
+          const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+      enabledBorder: fazerBorda(),
+      focusedBorder: fazerBorda(),
+      errorBorder: fazerBorda(erro: erro),
+      focusedErrorBorder: fazerBorda(erro: erro),
+    );
+  }
+
+  OutlineInputBorder fazerBorda({bool erro = false}) {
+    return OutlineInputBorder(
+      borderSide: BorderSide(color: erro ? Colors.red : Colors.black),
+      borderRadius: BorderRadius.circular(10),
+    );
+  }
+
+  String getRandomColor() {
+    Random random = Random();
+    final cor =
+        "${random.nextInt(256)},${random.nextInt(256)},${random.nextInt(256)}";
+    return cor;
+  }
+
+  AppBar appBar() {
+    return AppBar(
+      title: const Text(
+        "Register",
+        style: TextStyle(color: Colors.black),
+      ),
+      backgroundColor: Colors.white,
+      elevation: 0,
+    );
+  }
+}
