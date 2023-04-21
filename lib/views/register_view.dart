@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:pi/utils/dadosUsers.dart';
 
 import '../constants/routes.dart';
 import '../utils/validador_registro.dart';
@@ -195,11 +196,13 @@ class _RegisterViewState extends State<RegisterView> {
                       'corAvatar': corAvatar,
                       'senha': data,
                       'data': data,
+                      'status': 'aluno'
                     });
-
+                    final id = await getInfoUser();
                     await FirebaseFirestore.instance.collection("users").add({
                       'cpf': cpf,
                       'senha': data,
+                      'id': id['id'],
                     });
 
                     // mudarTela();

@@ -3,6 +3,7 @@ import 'package:pi/constants/routes.dart';
 import 'package:pi/views/agenda_view.dart';
 import 'package:pi/views/home_view.dart';
 import 'package:pi/views/info_bus_view.dart';
+import 'package:pi/views/list_view.dart';
 import 'package:pi/views/login_view.dart';
 import 'package:pi/views/presenca_view.dart';
 import 'package:pi/views/profile_view.dart';
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
           agendaRoute: (context) => const AgendaView(),
           presencaRoute: (context) => const PresencaView(),
           infoBusRoute: (context) => const InfoBusView(),
+          listaAlunoRoute: (context) => const ListaAlunoView(),
         },
         home: HomeView()
         //home: dados == 'Falso' ? const LoginView() : const HomeView(),

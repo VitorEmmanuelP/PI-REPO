@@ -34,9 +34,17 @@ checkarBancoUser(cpf, senha, getData) async {
       .get();
 
   if (snapshot.size > 0) {
-    final data = await getData(snapshot.docs[0].id, 'users');
+    final dadosLogin = await getData(snapshot.docs[0].id, 'users');
+    if (dadosLogin['senha'] == senha) {
+      final loginId = dadosLogin["id"];
 
-    if (data['senha'] == senha) {
+      final userId = await FirebaseFirestore.instance
+          .collection("prefeituras/${loginId}/users/")
+          .where('cpf', isEqualTo: cpf)
+          .limit(1)
+          .get();
+
+      final data = await getUserData(userId.docs[0].id, loginId);
       return data;
     } else {
       return 'wrong-password';
@@ -63,6 +71,26 @@ checkarBancoPrefeitura(nome, senha, getData) async {
     }
   } else {
     return false;
+  }
+}
+
+getUserData(id, loginId) async {
+  final users = await FirebaseFirestore.instance
+      .collection('prefeituras/${loginId}/users/')
+      .doc(id)
+      .get()
+      .then((value) => value.data());
+
+  if (users != null) {
+    return {
+      'nome': users['nome'],
+      'cpf': users['cpf'],
+      'corAvatar': users['corAvatar'],
+      'curso': users['cursoAluno'],
+      'faculdade': users['faculdade'],
+      'telefone': users['telefone'],
+      'senha': users['senha'],
+    };
   }
 }
 

@@ -131,16 +131,12 @@ class _LoginViewState extends State<LoginView> {
         .doc(id)
         .get()
         .then((value) => value.data());
-    print(users);
+
     if (users != null) {
       return {
-        'nome': users['nome'],
         'cpf': users['cpf'],
-        'corAvatar': users['corAvatar'],
-        'curso': users['cursoAluno'],
-        'faculdade': users['faculdade'],
-        'telefone': users['telefone'],
-        'senha': users['password'],
+        'senha': users['senha'],
+        'id': users['id'],
       };
     }
   }
@@ -156,6 +152,8 @@ class _LoginViewState extends State<LoginView> {
       return {
         'nome': prefeitura['nome'],
         'senha': prefeitura['password'],
+        'id': prefeitura['id'],
+        'status': prefeitura['status'],
       };
     }
   }

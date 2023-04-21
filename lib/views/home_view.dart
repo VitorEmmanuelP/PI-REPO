@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
+import 'package:pi/utils/dadosUsers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatefulWidget {
@@ -13,6 +15,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   Map? dados;
+  List listaAlunos = [];
 
   @override
   void initState() {
@@ -23,35 +26,56 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: appBar(),
-      body: Center(
-          child: Column(
-        //mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            "assets/images/logo.png",
-            height: 250,
-          ),
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(registerRoute);
-              },
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(80),
-                side: const BorderSide(color: Colors.black, width: 2),
-              ),
-              child: const Text(
-                "Registrar Aluno",
-                style: TextStyle(color: Colors.black),
-              ),
+        backgroundColor: Colors.white,
+        appBar: appBar(),
+        body: dados?['status'] == 'prefeitura'
+            ? prefeituraHomeView(context)
+            : alunoHomeView(context));
+  }
+
+  Center prefeituraHomeView(BuildContext context) {
+    return Center(
+        child: Column(
+      //mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          "assets/images/logo.png",
+          height: 250,
+        ),
+        Container(
+          padding: const EdgeInsets.all(20),
+          child: OutlinedButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(registerRoute);
+            },
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(80),
+              side: const BorderSide(color: Colors.black, width: 2),
+            ),
+            child: const Text(
+              "Registrar Aluno",
+              style: TextStyle(color: Colors.black),
             ),
           ),
-        ],
-      )),
-    );
+        ),
+        Container(
+          padding: const EdgeInsets.all(20),
+          child: OutlinedButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(listaAlunoRoute);
+            },
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(80),
+              side: const BorderSide(color: Colors.black, width: 2),
+            ),
+            child: const Text(
+              "Lista de Alunos",
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
+        ),
+      ],
+    ));
   }
 
   Center alunoHomeView(BuildContext context) {
@@ -115,13 +139,25 @@ class _HomeViewState extends State<HomeView> {
   }
 
   void loadData() async {
-    SharedPreferences shared = await SharedPreferences.getInstance();
-    final dadosString = shared.getString("dados");
-
-    final a = jsonDecode(dadosString!);
+    final dadosString = await getInfoUser();
     setState(() {
-      dados = a;
+      dados = dadosString;
     });
+    if (dadosString['status'] == 'prefeitura') {
+      final snapshot = await FirebaseFirestore.instance
+          .collection("prefeituras/${dadosString['id']}/users/")
+          .get();
+
+      for (var doc in snapshot.docs) {
+        listaAlunos.add(doc.data());
+      }
+    }
+
+    SharedPreferences shared = await SharedPreferences.getInstance();
+
+    final encodedList = listaAlunos.map((item) => jsonEncode(item)).toList();
+
+    shared.setStringList('listaAlunos', encodedList);
   }
 
   AppBar appBar() {
