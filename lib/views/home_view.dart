@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
@@ -16,6 +14,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   Map? dados;
   List listaAlunos = [];
+  List listaOnibus = [];
 
   @override
   void initState() {
@@ -26,11 +25,14 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar: appBar(),
-        body: dados?['status'] == 'prefeitura'
-            ? prefeituraHomeView(context)
-            : alunoHomeView(context));
+      backgroundColor: Colors.white,
+      appBar: appBar(),
+      body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: dados?['status'] == 'prefeitura'
+              ? prefeituraHomeView(context)
+              : alunoHomeView(context)),
+    );
   }
 
   Center prefeituraHomeView(BuildContext context) {
@@ -46,14 +48,15 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(registerRoute);
+              Navigator.of(context)
+                  .pushNamed(onibusRoute, arguments: listaOnibus);
             },
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(80),
               side: const BorderSide(color: Colors.black, width: 2),
             ),
             child: const Text(
-              "Registrar Aluno",
+              "Onibus",
               style: TextStyle(color: Colors.black),
             ),
           ),
@@ -62,7 +65,8 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(listaAlunoRoute);
+              Navigator.of(context)
+                  .pushNamed(listaAlunoRoute, arguments: listaAlunos);
             },
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(80),
@@ -143,6 +147,7 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       dados = dadosString;
     });
+
     if (dadosString['status'] == 'prefeitura') {
       final snapshot = await FirebaseFirestore.instance
           .collection("prefeituras/${dadosString['id']}/users/")
@@ -151,13 +156,15 @@ class _HomeViewState extends State<HomeView> {
       for (var doc in snapshot.docs) {
         listaAlunos.add(doc.data());
       }
+
+      final snapshotBus = await FirebaseFirestore.instance
+          .collection("prefeituras/${dadosString['id']}/onibus/")
+          .get();
+
+      for (var doc in snapshotBus.docs) {
+        listaOnibus.add(doc.data());
+      }
     }
-
-    SharedPreferences shared = await SharedPreferences.getInstance();
-
-    final encodedList = listaAlunos.map((item) => jsonEncode(item)).toList();
-
-    shared.setStringList('listaAlunos', encodedList);
   }
 
   AppBar appBar() {

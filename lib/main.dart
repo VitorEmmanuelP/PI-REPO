@@ -5,11 +5,14 @@ import 'package:pi/views/home_view.dart';
 import 'package:pi/views/info_bus_view.dart';
 import 'package:pi/views/list_view.dart';
 import 'package:pi/views/login_view.dart';
+import 'package:pi/views/onibus_view.dart';
 import 'package:pi/views/presenca_view.dart';
 import 'package:pi/views/profile_view.dart';
 import 'package:pi/views/register_view.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:pi/views/registrar_bus.dart';
 import 'package:pi/views/teste.dart';
+import 'package:pi/views/user_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -46,11 +49,14 @@ class MyApp extends StatelessWidget {
           profileRoute: (context) => const ProfileView(),
           homeRoute: (context) => const HomeView(),
           loginRoute: (context) => const LoginView(),
-          registerRoute: (context) => const RegisterView(),
+          registerAlunoRoute: (context) => const RegistrarAlunoView(),
+          registerBusRoute: (context) => const RegistrarOnibusView(),
+          onibusRoute: (context) => const OnibusView(),
           agendaRoute: (context) => const AgendaView(),
           presencaRoute: (context) => const PresencaView(),
           infoBusRoute: (context) => const InfoBusView(),
           listaAlunoRoute: (context) => const ListaAlunoView(),
+          userRoute: (context) => const UserView(),
         },
         home: HomeView()
         //home: dados == 'Falso' ? const LoginView() : const HomeView(),

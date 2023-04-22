@@ -99,12 +99,6 @@ class _LoginViewState extends State<LoginView> {
                       side: const BorderSide(color: Colors.black, width: 1),
                     ),
                     child: const Text("Login")),
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          registerRoute, (route) => false);
-                    },
-                    child: const Text("Register")),
               ],
             ),
           ),

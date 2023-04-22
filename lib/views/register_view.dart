@@ -1,21 +1,23 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pi/utils/dadosUsers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../constants/routes.dart';
 import '../utils/validador_registro.dart';
 
-class RegisterView extends StatefulWidget {
-  const RegisterView({super.key});
+class RegistrarAlunoView extends StatefulWidget {
+  const RegistrarAlunoView({super.key});
 
   @override
-  State<RegisterView> createState() => _RegisterViewState();
+  State<RegistrarAlunoView> createState() => _RegistrarAlunoViewState();
 }
 
-class _RegisterViewState extends State<RegisterView> {
+class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
   late final TextEditingController _nomeCompleto;
   late final TextEditingController _cpf;
   late final TextEditingController _faculdade;
@@ -171,6 +173,41 @@ class _RegisterViewState extends State<RegisterView> {
                         backgroundColor: Colors.green,
                         content: Text("Adicionado"),
                       ));
+
+                      Map registro = {
+                        'nome': nome,
+                        'cpf': cpf,
+                        'faculdade': faculdade,
+                        'cursoAluno': cursoAluno,
+                        'telefone': telefone,
+                        'corAvatar': corAvatar,
+                        'senha': data,
+                        'data': data,
+                        'status': 'aluno'
+                      };
+                      await FirebaseFirestore.instance
+                          .collection("prefeituras/lAlYlZc4FiroLCSZ6oQK/users/")
+                          .add({
+                        'nome': nome,
+                        'cpf': cpf,
+                        'faculdade': faculdade,
+                        'cursoAluno': cursoAluno,
+                        'telefone': telefone,
+                        'corAvatar': corAvatar,
+                        'senha': data,
+                        'data': data,
+                        'status': 'aluno',
+                        'onibusid': '',
+                      });
+
+                      await addListaAluno(registro);
+
+                      final id = await getInfoUser();
+                      await FirebaseFirestore.instance.collection("users").add({
+                        'cpf': cpf,
+                        'senha': data,
+                        'id': id['id'],
+                      });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         behavior: SnackBarBehavior.floating,
@@ -179,35 +216,9 @@ class _RegisterViewState extends State<RegisterView> {
                       ));
                     }
 
-                    // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    //   behavior: SnackBarBehavior.floating,
-                    //   backgroundColor: Colors.green,
-                    //   content: Text("Adicionado"),
-                    // ));
-
-                    await FirebaseFirestore.instance
-                        .collection("prefeituras/lAlYlZc4FiroLCSZ6oQK/users/")
-                        .add({
-                      'nome': nome,
-                      'cpf': cpf,
-                      'faculdade': faculdade,
-                      'cursoAluno': cursoAluno,
-                      'telefone': telefone,
-                      'corAvatar': corAvatar,
-                      'senha': data,
-                      'data': data,
-                      'status': 'aluno'
-                    });
-                    final id = await getInfoUser();
-                    await FirebaseFirestore.instance.collection("users").add({
-                      'cpf': cpf,
-                      'senha': data,
-                      'id': id['id'],
-                    });
-
                     // mudarTela();
                   },
-                  child: const Text("PRINTAR")),
+                  child: const Text("Adicionar")),
               TextButton(
                   onPressed: () {
                     Navigator.of(context)
@@ -219,6 +230,25 @@ class _RegisterViewState extends State<RegisterView> {
         ),
       ),
     );
+  }
+
+  addListaAluno(registro) async {
+    SharedPreferences shared = await SharedPreferences.getInstance();
+    final a = shared.getStringList('listaAlunos');
+
+    if (a != null) {
+      final mapList = a.map((string) {
+        return json.decode(string);
+      }).toList();
+
+      if (!mapList.contains(registro)) {
+        mapList.add(registro);
+
+        final encodedList = mapList.map((item) => jsonEncode(item)).toList();
+
+        shared.setStringList('listaAlunos', encodedList);
+      }
+    }
   }
 
   mudarTela() {
@@ -294,6 +324,7 @@ class _RegisterViewState extends State<RegisterView> {
       ),
       backgroundColor: Colors.white,
       elevation: 0,
+      iconTheme: const IconThemeData(color: Colors.black),
     );
   }
 }
