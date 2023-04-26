@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:pi/utils/dadosUsers.dart';
-import 'package:pi/widgets/profile_pic.dart';
+import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/show_error_message.dart';
 
 class UserView extends StatefulWidget {
   const UserView({super.key});
@@ -27,19 +27,60 @@ class _UserViewState extends State<UserView> {
 
     if (args != null) {
       dados = args;
-      print(dados);
     }
-
+    print(dados);
     return Scaffold(
       appBar: appBar(),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Center(
             child: Column(
-          children: <Widget>[Text("${dados!['nome']}")],
+          children: <Widget>[
+            Text("${dados!['nome']}"),
+            ElevatedButton(
+                onPressed: () async {
+                  print(dados);
+                  final bool shouldDelete = await showDeleteDialog(context);
+
+                  if (shouldDelete) {
+                    final user = FirebaseFirestore.instance
+                        .collection(
+                            'prefeituras/${dados!['idPrefeitura']}/users/')
+                        .doc('${dados!['id']}');
+
+                    user.delete();
+
+                    final userId = await FirebaseFirestore.instance
+                        .collection('users')
+                        .where('cpf', isEqualTo: dados!['cpf'])
+                        .limit(1)
+                        .snapshots()
+                        .first;
+
+                    final userLogin = FirebaseFirestore.instance
+                        .collection('users')
+                        .doc('${userId.docs.first.id}');
+
+                    userLogin.delete();
+
+                    atualizarStored();
+
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('Delete'))
+          ],
         )),
       ),
     );
+  }
+
+  atualizarStored() async {
+    final List listaAlunos = await getListShared('listaAlunos');
+
+    listaAlunos.removeWhere((mapa) => mapa['id'] == dados!['id']);
+
+    setListShared('listaAlunos', listaAlunos);
   }
 
   Color getRandomColor() {

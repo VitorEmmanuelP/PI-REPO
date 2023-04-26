@@ -10,6 +10,6 @@ class PresencaView extends StatefulWidget {
 class _PresencaViewState extends State<PresencaView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return const Scaffold();
   }
 }

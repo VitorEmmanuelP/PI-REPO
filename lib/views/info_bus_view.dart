@@ -1,4 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pi/constants/routes.dart';
+import 'package:pi/views/add_aluno_onibus_view.dart';
+
+import '../utils/dados_users.dart';
+import '../utils/show_error_message.dart';
 
 class InfoBusView extends StatefulWidget {
   const InfoBusView({super.key});
@@ -9,6 +15,7 @@ class InfoBusView extends StatefulWidget {
 
 class _InfoBusViewState extends State<InfoBusView> {
   Map? dados;
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic>? args =
@@ -16,7 +23,6 @@ class _InfoBusViewState extends State<InfoBusView> {
     if (args != null) {
       dados = args;
     }
-
     return Scaffold(
       appBar: appBar(),
       body: SingleChildScrollView(
@@ -25,10 +31,135 @@ class _InfoBusViewState extends State<InfoBusView> {
             child: Column(
           children: <Widget>[
             Text('${dados!['motorista']}'),
+            Container(
+              height: MediaQuery.of(context).size.height - 230,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection("prefeituras/${dados!['idPrefeitura']}/users")
+                    .where('onibusid', isEqualTo: dados!['id'])
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      radius: 70,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  } else {
+                    List<QueryDocumentSnapshot> sortedDocs =
+                        List<QueryDocumentSnapshot>.from(snapshot.data!.docs);
+
+                    sortedDocs.sort((a, b) {
+                      var nomeA = a.data() as Map;
+                      var nomeB = b.data() as Map;
+
+                      String aa = nomeA['nome'];
+                      String bb = nomeB['nome'];
+
+                      aa = aa.toString().toUpperCase();
+                      bb = bb.toString().toUpperCase();
+
+                      return aa.compareTo(bb);
+                    });
+
+                    return ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: sortedDocs.length,
+                        itemBuilder: (context, index) {
+                          var data =
+                              sortedDocs[index].data() as Map<String, dynamic>;
+
+                          if (data.isEmpty) {
+                            return Container(
+                              color: Colors.amber,
+                            );
+                          }
+
+                          return Column(children: [
+                            Container(
+                              width: 5000,
+                              height: 100,
+                              margin: const EdgeInsets.all(20),
+                              decoration:
+                                  BoxDecoration(border: Border.all(width: 2)),
+                              child: Row(children: [
+                                data['profilePic'] != ''
+                                    ? CircleAvatar(
+                                        backgroundColor: Colors.red,
+                                        radius: 60,
+                                        backgroundImage:
+                                            NetworkImage(data['profilePic']),
+                                      )
+                                    : const CircleAvatar(
+                                        backgroundColor: Colors.blue,
+                                        radius: 60,
+                                        child: Text("A"),
+                                      ),
+                                Text('${data['nome']}'),
+                              ]),
+                            )
+                          ]);
+                        });
+                  }
+                },
+              ),
+            ),
+            deletarOnibus(context),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(
+                        builder: (context) => const AddALunoONibusView(),
+                        settings: RouteSettings(
+                          arguments: dados, // pass your data here
+                        ),
+                      ))
+                      .then((value) {});
+                },
+                child: const Text("Adicionar aluno ao onibusr"))
           ],
         )),
       ),
     );
+  }
+
+  ElevatedButton deletarOnibus(BuildContext context) {
+    return ElevatedButton(
+        onPressed: () async {
+          final bool shouldDelete = await showDeleteDialog(context);
+
+          if (shouldDelete) {
+            final user = FirebaseFirestore.instance
+                .collection('prefeituras/${dados!['idPrefeitura']}/onibus/')
+                .doc('${dados!['id']}');
+
+            user.delete();
+
+            atualizarStored();
+            removerDadosAlunos();
+            Navigator.of(context).pop();
+          }
+        },
+        child: const Text('Deletar'));
+  }
+
+  removerDadosAlunos() async {
+    final user = await FirebaseFirestore.instance
+        .collection('prefeituras/${dados!['idPrefeitura']}/users/')
+        .where('onibusid', isEqualTo: dados!['id'])
+        .get();
+
+    for (var aluno in user.docs) {
+      aluno.reference.update({'onibusid': ''});
+    }
+  }
+
+  atualizarStored() async {
+    final List listaOnibus = await getListShared('listaOnibus');
+
+    listaOnibus.removeWhere((mapa) => mapa['id'] == dados!['id']);
+
+    setListShared('listaOnibus', listaOnibus);
   }
 
   AppBar appBar() {

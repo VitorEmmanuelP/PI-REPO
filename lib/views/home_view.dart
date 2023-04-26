@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
-import 'package:pi/utils/dadosUsers.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pi/utils/dados_users.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -145,6 +144,7 @@ class _HomeViewState extends State<HomeView> {
   void loadData() async {
     final dadosString = await getInfoUser();
     setState(() {
+      print(dadosString);
       dados = dadosString;
     });
 
@@ -157,6 +157,8 @@ class _HomeViewState extends State<HomeView> {
         listaAlunos.add(doc.data());
       }
 
+      setListShared('listaAlunos', listaAlunos);
+
       final snapshotBus = await FirebaseFirestore.instance
           .collection("prefeituras/${dadosString['id']}/onibus/")
           .get();
@@ -164,6 +166,8 @@ class _HomeViewState extends State<HomeView> {
       for (var doc in snapshotBus.docs) {
         listaOnibus.add(doc.data());
       }
+
+      setListShared('listaOnibus', listaOnibus);
     }
   }
 
@@ -172,8 +176,8 @@ class _HomeViewState extends State<HomeView> {
       leading: Builder(
         builder: (context) {
           return IconButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(profileRoute);
+            onPressed: () async {
+              Navigator.of(context).pushNamed(profileRoute, arguments: dados);
             },
             icon: const Icon(
               Icons.account_circle_outlined,
@@ -194,7 +198,7 @@ class _HomeViewState extends State<HomeView> {
             )),
         IconButton(
             onPressed: () async {
-              SharedPreferences shared = await SharedPreferences.getInstance();
+              //SharedPreferences shared = await SharedPreferences.getInstance();
 
               //shared.setString('dados', 'Falso');
 

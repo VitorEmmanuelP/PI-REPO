@@ -9,3 +9,4 @@ const infoBusRoute = "/infobus/";
 const loginRoute = "/login/";
 const listaAlunoRoute = "/listaAluno/";
 const userRoute = "/user/";
+const addAlunoOnibusRoute = "/addAlunoOnibusRoute/";

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
+import 'package:pi/views/add_aluno_onibus_view.dart';
 import 'package:pi/views/agenda_view.dart';
 import 'package:pi/views/home_view.dart';
 import 'package:pi/views/info_bus_view.dart';
-import 'package:pi/views/list_view.dart';
+import 'package:pi/views/aluno_list_view.dart';
 import 'package:pi/views/login_view.dart';
-import 'package:pi/views/onibus_view.dart';
+import 'package:pi/views/onibus_list_view.dart';
 import 'package:pi/views/presenca_view.dart';
 import 'package:pi/views/profile_view.dart';
-import 'package:pi/views/register_view.dart';
+import 'package:pi/views/register_aluno_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pi/views/registrar_bus.dart';
-import 'package:pi/views/teste.dart';
+
 import 'package:pi/views/user_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,7 +23,7 @@ void main() async {
   SharedPreferences shared = await SharedPreferences.getInstance();
 
   final dados = shared.getString('dados');
-  print(dados);
+
   runApp(MyApp(dados: dados));
 }
 
@@ -57,8 +58,9 @@ class MyApp extends StatelessWidget {
           infoBusRoute: (context) => const InfoBusView(),
           listaAlunoRoute: (context) => const ListaAlunoView(),
           userRoute: (context) => const UserView(),
+          addAlunoOnibusRoute: (context) => const AddALunoONibusView(),
         },
-        home: HomeView()
+        home: const HomeView()
         //home: dados == 'Falso' ? const LoginView() : const HomeView(),
         );
   }

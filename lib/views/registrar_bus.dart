@@ -2,10 +2,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:pi/constants/routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../utils/dadosUsers.dart';
+import '../utils/dados_users.dart';
 
 class RegistrarOnibusView extends StatefulWidget {
   const RegistrarOnibusView({super.key});
@@ -86,31 +84,40 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                 ),
                 OutlinedButton(
                     onPressed: () async {
+                      FocusScope.of(context).unfocus();
                       final nome = _nomeMotorista.text;
                       final modelo = _modeloOnibus.text;
                       final placa = _placa.text;
                       final destino = _destino.text;
 
-                      await FirebaseFirestore.instance
+                      final dadosString = await getInfoUser();
+
+                      final docRef = await FirebaseFirestore.instance
                           .collection(
-                              "prefeituras/lAlYlZc4FiroLCSZ6oQK/onibus/")
+                              "prefeituras/${dadosString['id']}/onibus/")
                           .add({
                         'motorista': nome,
                         'modelo': modelo,
                         'placa': placa,
                         'destino': destino,
+                        'idPrefeitura': dadosString['id'],
+                        'id': '',
                       });
+
+                      final idCurrent = docRef.id.toString();
+
+                      final usera = FirebaseFirestore.instance
+                          .collection(
+                              "prefeituras/${dadosString['id']}/onibus/")
+                          .doc(idCurrent);
+
+                      usera.update({'id': idCurrent});
 
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         behavior: SnackBarBehavior.floating,
                         backgroundColor: Colors.green,
                         content: Text("Adicionado"),
                       ));
-
-                      final dadosString = await getInfoUser();
-
-                      SharedPreferences shared =
-                          await SharedPreferences.getInstance();
 
                       final snapshotBus = await FirebaseFirestore.instance
                           .collection(
@@ -123,10 +130,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                         listaBus.add(doc.data());
                       }
 
-                      final encodedBus =
-                          listaBus.map((item) => jsonEncode(item)).toList();
-
-                      shared.setStringList('listaOnibus', encodedBus);
+                      setListShared('listaOnibus', listaBus);
 
                       Navigator.pop(context);
                     },

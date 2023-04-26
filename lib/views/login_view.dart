@@ -1,12 +1,12 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/services/auth_expection.dart';
+import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
 import 'package:pi/utils/validador_login.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -43,7 +43,7 @@ class _LoginViewState extends State<LoginView> {
         backgroundColor: Colors.white,
         appBar: appBar(),
         body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -71,6 +71,7 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 OutlinedButton(
                     onPressed: () async {
+                      FocusScope.of(context).unfocus();
                       final cpf = _user.text;
                       final password = _password.text;
 
@@ -79,10 +80,11 @@ class _LoginViewState extends State<LoginView> {
                             await validarLogin(cpf, password, getData);
 
                         if (dadosUser != null) {
-                          SharedPreferences shared =
-                              await SharedPreferences.getInstance();
+                          setVaribleShared('dados', dadosUser);
 
-                          shared.setString("dados", jsonEncode(dadosUser));
+                          FirebaseAuth auth = FirebaseAuth.instance;
+
+                          await auth.signInAnonymously();
 
                           mudarTela();
                         }
@@ -131,6 +133,7 @@ class _LoginViewState extends State<LoginView> {
         'cpf': users['cpf'],
         'senha': users['senha'],
         'id': users['id'],
+        'idPrefeitura': users['idPrefeitura'],
       };
     }
   }
@@ -145,7 +148,7 @@ class _LoginViewState extends State<LoginView> {
     if (prefeitura != null) {
       return {
         'nome': prefeitura['nome'],
-        'senha': prefeitura['password'],
+        'senha': prefeitura['senha'],
         'id': prefeitura['id'],
         'status': prefeitura['status'],
       };

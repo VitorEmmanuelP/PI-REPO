@@ -4,10 +4,8 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:pi/utils/dadosUsers.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pi/utils/dados_users.dart';
 
-import '../constants/routes.dart';
 import '../utils/validador_registro.dart';
 
 class RegistrarAlunoView extends StatefulWidget {
@@ -157,13 +155,14 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
               ),
               OutlinedButton(
                   onPressed: () async {
+                    FocusScope.of(context).unfocus();
                     final nome = _nomeCompleto.text;
                     final cpf = maskFormatterCpf.unmaskText(_cpf.text);
                     final faculdade = _faculdade.text;
                     final cursoAluno = _cursoAluno.text;
                     final telefone = maskFormatTelef.unmaskText(_telefone.text);
                     final data = maskFormatterData.unmaskText(_data.text);
-                    final corAvatar = getRandomColor();
+                    //final corAvatar = getRandomColor();
 
                     validarRegistros(nome, cpf, telefone, data);
 
@@ -174,39 +173,55 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                         content: Text("Adicionado"),
                       ));
 
-                      Map registro = {
-                        'nome': nome,
-                        'cpf': cpf,
-                        'faculdade': faculdade,
-                        'cursoAluno': cursoAluno,
-                        'telefone': telefone,
-                        'corAvatar': corAvatar,
-                        'senha': data,
-                        'data': data,
-                        'status': 'aluno'
-                      };
-                      await FirebaseFirestore.instance
-                          .collection("prefeituras/lAlYlZc4FiroLCSZ6oQK/users/")
+                      final id = await getInfoUser();
+
+                      final docRef = await FirebaseFirestore.instance
+                          .collection("prefeituras/${id['id']}/users/")
                           .add({
                         'nome': nome,
                         'cpf': cpf,
                         'faculdade': faculdade,
                         'cursoAluno': cursoAluno,
                         'telefone': telefone,
-                        'corAvatar': corAvatar,
+                        'profilePic': '',
                         'senha': data,
                         'data': data,
                         'status': 'aluno',
                         'onibusid': '',
+                        'id': '',
+                        'idPrefeitura': id['id']
                       });
+
+                      final idCurrent = docRef.id.toString();
+
+                      final usera = FirebaseFirestore.instance
+                          .collection("prefeituras/${id['id']}/users/")
+                          .doc(idCurrent);
+
+                      usera.update({'id': idCurrent});
+
+                      Map registro = {
+                        'nome': nome,
+                        'cpf': cpf,
+                        'faculdade': faculdade,
+                        'cursoAluno': cursoAluno,
+                        'telefone': telefone,
+                        'profilePic': '',
+                        'senha': data,
+                        'data': data,
+                        'status': 'aluno',
+                        'onibusid': '',
+                        'id': idCurrent,
+                        'idPrefeitura': id['id']
+                      };
 
                       await addListaAluno(registro);
 
-                      final id = await getInfoUser();
                       await FirebaseFirestore.instance.collection("users").add({
                         'cpf': cpf,
                         'senha': data,
-                        'id': id['id'],
+                        'idPrefeitura': id['id'],
+                        'id': idCurrent,
                       });
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -215,16 +230,10 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                         content: Text("Erro"),
                       ));
                     }
-
-                    // mudarTela();
+                    Navigator.of(context).pop();
+                    //mudarTela();
                   },
                   child: const Text("Adicionar")),
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil(loginRoute, (route) => false);
-                  },
-                  child: const Text("Login")),
             ],
           ),
         ),
@@ -233,29 +242,17 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
   }
 
   addListaAluno(registro) async {
-    SharedPreferences shared = await SharedPreferences.getInstance();
-    final a = shared.getStringList('listaAlunos');
+    final mapList = await getListShared('listaAlunos');
 
-    if (a != null) {
-      final mapList = a.map((string) {
-        return json.decode(string);
-      }).toList();
+    if (!mapList.contains(registro)) {
+      mapList.add(registro);
 
-      if (!mapList.contains(registro)) {
-        mapList.add(registro);
-
-        final encodedList = mapList.map((item) => jsonEncode(item)).toList();
-
-        shared.setStringList('listaAlunos', encodedList);
-      }
+      setListShared('listaAlunos', mapList);
     }
   }
 
   mudarTela() {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      loginRoute,
-      (route) => false,
-    );
+    Navigator.of(context).pop();
   }
 
   bool checarErros() {

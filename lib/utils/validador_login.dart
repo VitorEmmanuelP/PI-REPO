@@ -35,16 +35,18 @@ checkarBancoUser(cpf, senha, getData) async {
 
   if (snapshot.size > 0) {
     final dadosLogin = await getData(snapshot.docs[0].id, 'users');
+
     if (dadosLogin['senha'] == senha) {
-      final loginId = dadosLogin["id"];
+      final loginId = dadosLogin["idPrefeitura"];
 
       final userId = await FirebaseFirestore.instance
-          .collection("prefeituras/${loginId}/users/")
+          .collection("prefeituras/$loginId/users/")
           .where('cpf', isEqualTo: cpf)
           .limit(1)
           .get();
 
       final data = await getUserData(userId.docs[0].id, loginId);
+
       return data;
     } else {
       return 'wrong-password';
@@ -76,7 +78,7 @@ checkarBancoPrefeitura(nome, senha, getData) async {
 
 getUserData(id, loginId) async {
   final users = await FirebaseFirestore.instance
-      .collection('prefeituras/${loginId}/users/')
+      .collection('prefeituras/$loginId/users/')
       .doc(id)
       .get()
       .then((value) => value.data());
@@ -85,11 +87,15 @@ getUserData(id, loginId) async {
     return {
       'nome': users['nome'],
       'cpf': users['cpf'],
-      'corAvatar': users['corAvatar'],
+      'profilePic': users['profilePic'],
       'curso': users['cursoAluno'],
       'faculdade': users['faculdade'],
       'telefone': users['telefone'],
       'senha': users['senha'],
+      'status': users['status'],
+      'id': users['id'],
+      'idPrefeitura': users['idPrefeitura'],
+      'idOnibus': users['onibusid'],
     };
   }
 }
