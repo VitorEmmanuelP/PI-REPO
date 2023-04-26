@@ -36,32 +36,33 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
-          children: [
-            Card(
-              child: TextField(
-                onChanged: (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black)),
-                    prefixIcon: Icon(Icons.search),
-                    hintText: "Search.."),
-              ),
-            ),
-            listaAdd()
-          ],
+          children: [searchBar(), listAlunos()],
         ),
       ),
     );
   }
 
-  Container listaAdd() {
+  Card searchBar() {
+    return Card(
+      child: TextField(
+        onChanged: (value) {
+          setState(() {
+            name = value;
+          });
+        },
+        decoration: const InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
+            focusedBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+            prefixIcon: Icon(Icons.search),
+            hintText: "Search.."),
+      ),
+    );
+  }
+
+  Container listAlunos() {
     return Container(
       height: MediaQuery.of(context).size.height - 230,
       child: StreamBuilder<QuerySnapshot>(

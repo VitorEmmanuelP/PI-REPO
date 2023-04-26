@@ -29,20 +29,24 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
           listaDeAlunos.isEmpty
               ? const Text("Sem alunos")
               : listaAluno(context),
-          OutlinedButton(
-              onPressed: () {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(
-                  builder: (context) => const RegistrarAlunoView(),
-                ))
-                    .then((value) {
-                  loadLista();
-                });
-              },
-              child: const Text('Adicionar Alunos'))
+          addAluno(context)
         ],
       ),
     );
+  }
+
+  OutlinedButton addAluno(BuildContext context) {
+    return OutlinedButton(
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(
+            builder: (context) => const RegistrarAlunoView(),
+          ))
+              .then((value) {
+            loadLista();
+          });
+        },
+        child: const Text('Adicionar Alunos'));
   }
 
   Container listaAluno(BuildContext context) {

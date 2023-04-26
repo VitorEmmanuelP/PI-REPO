@@ -28,19 +28,23 @@ class _OnibusViewState extends State<OnibusView> {
       body: Column(
         children: [
           listaBus.isEmpty ? const Text("Sem Onibus") : listaOnibus(context),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(
-                      builder: (context) => const RegistrarOnibusView()))
-                  .then((value) {
-                loadBusData();
-              });
-            },
-            child: const Text('Adicionar Onibus'),
-          ),
+          addButton(context),
         ],
       ),
+    );
+  }
+
+  ElevatedButton addButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+                builder: (context) => const RegistrarOnibusView()))
+            .then((value) {
+          loadBusData();
+        });
+      },
+      child: const Text('Adicionar Onibus'),
     );
   }
 

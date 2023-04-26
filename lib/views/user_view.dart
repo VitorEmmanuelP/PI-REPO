@@ -28,7 +28,7 @@ class _UserViewState extends State<UserView> {
     if (args != null) {
       dados = args;
     }
-    print(dados);
+
     return Scaffold(
       appBar: appBar(),
       body: SingleChildScrollView(
@@ -39,7 +39,6 @@ class _UserViewState extends State<UserView> {
             Text("${dados!['nome']}"),
             ElevatedButton(
                 onPressed: () async {
-                  print(dados);
                   final bool shouldDelete = await showDeleteDialog(context);
 
                   if (shouldDelete) {
