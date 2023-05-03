@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
-import 'package:pi/constants/routes.dart';
+
 import 'package:pi/views/add_aluno_onibus_view.dart';
 
+import '../utils/check_internet.dart';
 import '../utils/dados_users.dart';
 import '../utils/show_error_message.dart';
 
@@ -42,26 +44,32 @@ class _InfoBusViewState extends State<InfoBusView> {
 
   ElevatedButton addButton(BuildContext context) {
     return ElevatedButton(
-        onPressed: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(
-                builder: (context) => const AddALunoONibusView(),
-                settings: RouteSettings(
-                  arguments: dados, // pass your data here
-                ),
-              ))
-              .then((value) {});
+        onPressed: () async {
+          bool isConnected = await checkInternetConnection();
+
+          if (isConnected) {
+            Navigator.of(context)
+                .push(MaterialPageRoute(
+                  builder: (context) => const AddALunoONibusView(),
+                  settings: RouteSettings(
+                    arguments: dados, // pass your data here
+                  ),
+                ))
+                .then((value) {});
+          } else {
+            await showErrorMessage(context, "Not internet");
+          }
         },
         child: const Text("Adicionar aluno ao onibusr"));
   }
 
-  Container listaDeAlunosDoOnibus(BuildContext context) {
-    return Container(
+  SizedBox listaDeAlunosDoOnibus(BuildContext context) {
+    return SizedBox(
       height: MediaQuery.of(context).size.height - 230,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("prefeituras/${dados!['idPrefeitura']}/users")
-            .where('onibusid', isEqualTo: dados!['id'])
+            .where('idOnibus', isEqualTo: dados!['id'])
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -71,6 +79,7 @@ class _InfoBusViewState extends State<InfoBusView> {
               child: Center(child: CircularProgressIndicator()),
             );
           } else {
+            print(snapshot.data!.docs);
             List<QueryDocumentSnapshot> sortedDocs =
                 List<QueryDocumentSnapshot>.from(snapshot.data!.docs);
 
@@ -119,6 +128,17 @@ class _InfoBusViewState extends State<InfoBusView> {
                                 child: Text("A"),
                               ),
                         Text('${data['nome']}'),
+                        const Spacer(),
+                        IconButton(
+                            onPressed: () {
+                              final id = data['id'];
+
+                              removerAlunoBus(id);
+                            },
+                            icon: const Icon(
+                              Icons.highlight_remove,
+                              size: 30,
+                            ))
                       ]),
                     )
                   ]);
@@ -127,6 +147,20 @@ class _InfoBusViewState extends State<InfoBusView> {
         },
       ),
     );
+  }
+
+  removerAlunoBus(id) {
+    final usera = FirebaseFirestore.instance
+        .collection("prefeituras/${dados!['idPrefeitura']}/users/")
+        .doc(id);
+
+    usera.update({'idOnibus': ''});
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: Colors.red,
+      content: Text("Usuario Removido"),
+    ));
   }
 
   ElevatedButton deletarButton(BuildContext context) {
@@ -152,11 +186,11 @@ class _InfoBusViewState extends State<InfoBusView> {
   removerDadosAlunos() async {
     final user = await FirebaseFirestore.instance
         .collection('prefeituras/${dados!['idPrefeitura']}/users/')
-        .where('onibusid', isEqualTo: dados!['id'])
+        .where('idOnibus', isEqualTo: dados!['id'])
         .get();
 
     for (var aluno in user.docs) {
-      aluno.reference.update({'onibusid': ''});
+      aluno.reference.update({'idOnibus': ''});
     }
   }
 

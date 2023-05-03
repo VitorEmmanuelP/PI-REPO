@@ -5,7 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/validador_login.dart';
 
+import '../utils/show_error_message.dart';
 import '../utils/validador_registro.dart';
 
 class RegistrarAlunoView extends StatefulWidget {
@@ -22,11 +24,14 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
   late final TextEditingController _cursoAluno;
   late final TextEditingController _telefone;
   late final TextEditingController _data;
+  bool? _checkBoxValue1 = false;
+  bool? _checkBoxValue2 = false;
 
   var nomesError = false;
   var cpfError = false;
   var telefoneError = false;
   var dataError = false;
+  var checkBoxErro = true;
 
   @override
   void initState() {
@@ -78,11 +83,49 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
               cursoTextField(),
               numeroTextField(maskFormatTelef),
               dataTextField(maskFormatterData),
+              checkButtons(),
               addButton(context, maskFormatterCpf, maskFormatTelef,
                   maskFormatterData),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Center checkButtons() {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Switch(
+                activeColor: Colors.red,
+                value: _checkBoxValue1!,
+                onChanged: (newValue) {
+                  setState(() {
+                    _checkBoxValue1 = newValue;
+                  });
+                },
+              ),
+              Text('Aluno'),
+            ],
+          ),
+          Row(
+            children: [
+              Checkbox(
+                value: _checkBoxValue2,
+                onChanged: (newValue) {
+                  setState(() {
+                    _checkBoxValue2 = newValue;
+                  });
+                },
+              ),
+              Text('Condernador'),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -94,83 +137,87 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
       MaskTextInputFormatter maskFormatterData) {
     return OutlinedButton(
         onPressed: () async {
-          FocusScope.of(context).unfocus();
-          final nome = _nomeCompleto.text;
-          final cpf = maskFormatterCpf.unmaskText(_cpf.text);
-          final faculdade = _faculdade.text;
-          final cursoAluno = _cursoAluno.text;
-          final telefone = maskFormatTelef.unmaskText(_telefone.text);
-          final data = maskFormatterData.unmaskText(_data.text);
-          //final corAvatar = getRandomColor();
+          bool isConnected = await checkInternetConnection();
 
-          validarRegistros(nome, cpf, telefone, data);
+          if (isConnected) {
+            FocusScope.of(context).unfocus();
+            final nome = _nomeCompleto.text;
+            final cpf = maskFormatterCpf.unmaskText(_cpf.text);
+            final faculdade = _faculdade.text;
+            final cursoAluno = _cursoAluno.text;
+            final telefone = maskFormatTelef.unmaskText(_telefone.text);
+            final data = maskFormatterData.unmaskText(_data.text);
 
-          if (checarErros()) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green,
-              content: Text("Adicionado"),
-            ));
+            validarRegistros(nome, cpf, telefone, data);
 
-            final id = await getInfoUser();
+            if (checarErros()) {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Colors.green,
+                content: Text("Adicionado"),
+              ));
 
-            final docRef = await FirebaseFirestore.instance
-                .collection("prefeituras/${id['id']}/users/")
-                .add({
-              'nome': nome,
-              'cpf': cpf,
-              'faculdade': faculdade,
-              'cursoAluno': cursoAluno,
-              'telefone': telefone,
-              'profilePic': '',
-              'senha': data,
-              'data': data,
-              'status': 'aluno',
-              'onibusid': '',
-              'id': '',
-              'idPrefeitura': id['id']
-            });
+              final id = await getInfoUser();
 
-            final idCurrent = docRef.id.toString();
+              final docRef = await FirebaseFirestore.instance
+                  .collection("prefeituras/${id['id']}/users/")
+                  .add({
+                'nome': nome,
+                'cpf': cpf,
+                'faculdade': faculdade,
+                'cursoAluno': cursoAluno,
+                'telefone': telefone,
+                'profilePic': '',
+                'senha': data,
+                'data': data,
+                'status': 'aluno',
+                'idOnibus': '',
+                'id': '',
+                'idPrefeitura': id['id']
+              });
 
-            final usera = FirebaseFirestore.instance
-                .collection("prefeituras/${id['id']}/users/")
-                .doc(idCurrent);
+              final idCurrent = docRef.id.toString();
 
-            usera.update({'id': idCurrent});
+              final usera = FirebaseFirestore.instance
+                  .collection("prefeituras/${id['id']}/users/")
+                  .doc(idCurrent);
 
-            Map registro = {
-              'nome': nome,
-              'cpf': cpf,
-              'faculdade': faculdade,
-              'cursoAluno': cursoAluno,
-              'telefone': telefone,
-              'profilePic': '',
-              'senha': data,
-              'data': data,
-              'status': 'aluno',
-              'onibusid': '',
-              'id': idCurrent,
-              'idPrefeitura': id['id']
-            };
+              usera.update({'id': idCurrent});
 
-            await addListaAluno(registro);
+              Map registro = {
+                'nome': nome,
+                'cpf': cpf,
+                'faculdade': faculdade,
+                'cursoAluno': cursoAluno,
+                'telefone': telefone,
+                'profilePic': '',
+                'senha': data,
+                'data': data,
+                'status': 'aluno',
+                'idOnibus': '',
+                'id': idCurrent,
+                'idPrefeitura': id['id']
+              };
 
-            await FirebaseFirestore.instance.collection("users").add({
-              'cpf': cpf,
-              'senha': data,
-              'idPrefeitura': id['id'],
-              'id': idCurrent,
-            });
+              await addListaAluno(registro);
+
+              await FirebaseFirestore.instance.collection("users").add({
+                'cpf': cpf,
+                'senha': data,
+                'idPrefeitura': id['id'],
+                'id': idCurrent,
+              });
+              Navigator.of(context).pop();
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Colors.red,
+                content: Text("Erro"),
+              ));
+            }
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.red,
-              content: Text("Erro"),
-            ));
+            await showErrorMessage(context, "Not internet");
           }
-          Navigator.of(context).pop();
-          //mudarTela();
         },
         child: const Text("Adicionar"));
   }

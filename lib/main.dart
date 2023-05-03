@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
+import 'package:pi/utils/dados_users.dart';
 import 'package:pi/views/add_aluno_onibus_view.dart';
 import 'package:pi/views/agenda_view.dart';
 import 'package:pi/views/home_view.dart';
@@ -14,17 +15,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:pi/views/registrar_bus.dart';
 
 import 'package:pi/views/user_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  SharedPreferences shared = await SharedPreferences.getInstance();
+  //final dados = await getInfoUser();
 
-  final dados = shared.getString('dados');
-
-  runApp(MyApp(dados: dados));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -60,8 +58,8 @@ class MyApp extends StatelessWidget {
           userRoute: (context) => const UserView(),
           addAlunoOnibusRoute: (context) => const AddALunoONibusView(),
         },
-        home: const HomeView()
-        //home: dados == 'Falso' ? const LoginView() : const HomeView(),
+        home: HomeView()
+        //home: dados == null ? const LoginView() : const HomeView(),
         );
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/show_error_message.dart';
+import 'package:pi/utils/validador_login.dart';
 import 'package:pi/views/info_bus_view.dart';
 
 import 'package:pi/views/registrar_bus.dart';
-
-import '../constants/routes.dart';
 
 class OnibusView extends StatefulWidget {
   const OnibusView({super.key});
@@ -15,6 +15,7 @@ class OnibusView extends StatefulWidget {
 
 class _OnibusViewState extends State<OnibusView> {
   List listaBus = [];
+  bool isConnected = false;
   @override
   void initState() {
     super.initState();
@@ -27,7 +28,7 @@ class _OnibusViewState extends State<OnibusView> {
       appBar: appBar(),
       body: Column(
         children: [
-          listaBus.isEmpty ? const Text("Sem Onibus") : listaOnibus(context),
+          listaOnibus(context),
           addButton(context),
         ],
       ),
@@ -36,20 +37,26 @@ class _OnibusViewState extends State<OnibusView> {
 
   ElevatedButton addButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(
-                builder: (context) => const RegistrarOnibusView()))
-            .then((value) {
-          loadBusData();
-        });
+      onPressed: () async {
+        bool isConnected = await checkInternetConnection();
+
+        if (isConnected) {
+          Navigator.of(context)
+              .push(MaterialPageRoute(
+                  builder: (context) => const RegistrarOnibusView()))
+              .then((value) {
+            loadBusData();
+          });
+        } else {
+          await showErrorMessage(context, 'Internet Missing');
+        }
       },
       child: const Text('Adicionar Onibus'),
     );
   }
 
-  Container listaOnibus(BuildContext context) {
-    return Container(
+  SizedBox listaOnibus(BuildContext context) {
+    return SizedBox(
       height: MediaQuery.of(context).size.height - 230,
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
@@ -93,11 +100,12 @@ class _OnibusViewState extends State<OnibusView> {
 
   loadBusData() async {
     final mapList = await getListShared('listaOnibus');
-
+    final connected = await checkInternetConnection();
     mapList.removeWhere((mapa) => mapa.length == 0);
 
     setState(() {
       listaBus = mapList;
+      isConnected = connected;
     });
   }
 }

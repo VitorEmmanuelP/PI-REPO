@@ -95,7 +95,7 @@ getUserData(id, loginId) async {
       'status': users['status'],
       'id': users['id'],
       'idPrefeitura': users['idPrefeitura'],
-      'idOnibus': users['onibusid'],
+      'idOnibus': users['idOnibus'],
     };
   }
 }

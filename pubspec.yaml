@@ -45,6 +45,7 @@ dependencies:
   cloud_firestore: ^4.5.1
   mask_text_input_formatter: ^2.4.0
   firebase_storage: ^11.1.1
+  connectivity: ^3.0.6
 
 dev_dependencies:
   flutter_test:

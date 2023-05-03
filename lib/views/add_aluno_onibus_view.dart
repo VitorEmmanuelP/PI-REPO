@@ -42,32 +42,37 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
     );
   }
 
-  Card searchBar() {
-    return Card(
-      child: TextField(
-        onChanged: (value) {
-          setState(() {
-            name = value;
-          });
-        },
-        decoration: const InputDecoration(
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.black),
-            ),
-            focusedBorder:
-                OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
-            prefixIcon: Icon(Icons.search),
-            hintText: "Search.."),
+  Center searchBar() {
+    return Center(
+      child: Container(
+        width: MediaQuery.of(context).size.width - 35,
+        child: TextField(
+          onChanged: (value) {
+            setState(() {
+              name = value;
+            });
+          },
+          decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                  borderRadius: BorderRadius.circular(10)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black),
+                  borderRadius: BorderRadius.circular(10)),
+              prefixIcon: Icon(Icons.search),
+              hintText: "Search.."),
+        ),
       ),
     );
   }
 
-  Container listAlunos() {
-    return Container(
+  SizedBox listAlunos() {
+    return SizedBox(
       height: MediaQuery.of(context).size.height - 230,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('prefeituras/${dadosOnibus!['idPrefeitura']}/users')
+            .where('idOnibus', isEqualTo: '')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -77,26 +82,6 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
               child: Center(child: CircularProgressIndicator()),
             );
           } else {
-            // snapshot.data!.docs.sort((a, b) {
-            //   var onibusA = a.data() as Map;
-            //   var onibusB = b.data() as Map;
-
-            //   final onibusIdA = onibusA['onibusid'];
-            //   final onibusIdB = onibusB['onibusid'];
-
-            //   if (onibusIdA == null && onibusIdB == null) {
-            //     return 0;
-            //   } else if (onibusIdA == null) {
-            //     return -1;
-            //   } else if (onibusIdB == null) {
-            //     return 1;
-            //   } else {
-            //     return onibusA['nome']
-            //         .toString()
-            //         .toUpperCase()
-            //         .compareTo(onibusB['nome'].toString().toUpperCase());
-            //   }
-            // });
             List<QueryDocumentSnapshot> sortedDocs =
                 List<QueryDocumentSnapshot>.from(snapshot.data!.docs);
             sortedDocs.sort((a, b) {
@@ -117,7 +102,6 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                 itemCount: sortedDocs.length,
                 itemBuilder: (context, index) {
                   var data = sortedDocs[index].data() as Map<String, dynamic>;
-
                   if (data.isEmpty) {
                     return Container(
                       color: Colors.amber,
@@ -148,23 +132,15 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                                 ),
                           Text('${data['nome']}'),
                           const Spacer(),
-                          data['onibusid'] == ''
-                              ? IconButton(
-                                  onPressed: () {
-                                    final id = data['id'];
+                          IconButton(
+                              onPressed: () {
+                                final id = data['id'];
 
-                                    addAlunoBus(id);
-                                  },
-                                  icon: const Icon(
-                                    Icons.add_sharp,
-                                  ))
-                              : IconButton(
-                                  onPressed: () {
-                                    final id = data['id'];
-
-                                    removerAlunoBus(id);
-                                  },
-                                  icon: const Icon(Icons.check))
+                                addAlunoBus(id);
+                              },
+                              icon: const Icon(
+                                Icons.add_sharp,
+                              ))
                         ]),
                       )
                     ]);
@@ -174,6 +150,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                       .toString()
                       .toLowerCase()
                       .startsWith(name.toLowerCase())) {
+                    nomes = data['nome'].split(' ');
                     return Column(children: [
                       Container(
                         width: 5000,
@@ -219,26 +196,12 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
         .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/users/")
         .doc(id);
 
-    usera.update({'onibusid': dadosOnibus!['id'].toString()});
+    usera.update({'idOnibus': dadosOnibus!['id'].toString()});
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.green,
       content: Text("Usuario adicionado ao onibus"),
-    ));
-  }
-
-  removerAlunoBus(id) {
-    final usera = FirebaseFirestore.instance
-        .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/users/")
-        .doc(id);
-
-    usera.update({'onibusid': ''});
-
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.red,
-      content: Text("Usuario Removido"),
     ));
   }
 

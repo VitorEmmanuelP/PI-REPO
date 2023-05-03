@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/views/aluno_list_view.dart';
+import 'package:pi/views/presenca_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -47,6 +49,9 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
             onPressed: () {
+              // Navigator.of(context).push(MaterialPageRoute(
+              //     builder: (context) => const ListaAlunoView(),
+              //     settings: RouteSettings(arguments: dados)));
               Navigator.of(context)
                   .pushNamed(onibusRoute, arguments: listaOnibus);
             },
@@ -64,8 +69,10 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
             onPressed: () {
-              Navigator.of(context)
-                  .pushNamed(listaAlunoRoute, arguments: listaAlunos);
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const ListaAlunoView(),
+                settings: RouteSettings(arguments: dados),
+              ));
             },
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(80),
@@ -110,7 +117,10 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(presencaRoute);
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const PresencaView(),
+                settings: RouteSettings(arguments: dados),
+              ));
             },
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(80),
@@ -144,7 +154,6 @@ class _HomeViewState extends State<HomeView> {
   void loadData() async {
     final dadosString = await getInfoUser();
     setState(() {
-      print(dadosString);
       dados = dadosString;
     });
 
@@ -168,6 +177,18 @@ class _HomeViewState extends State<HomeView> {
       }
 
       setListShared('listaOnibus', listaOnibus);
+    }
+
+    if (dadosString['status'] == 'aluno') {
+      final snapshot = await FirebaseFirestore.instance
+          .collection("prefeituras/${dadosString['idPrefeitura']}/users/")
+          .get();
+
+      for (var doc in snapshot.docs) {
+        listaAlunos.add(doc.data());
+      }
+
+      setListShared('listaAlunos', listaAlunos);
     }
   }
 

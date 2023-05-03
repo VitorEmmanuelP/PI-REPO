@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pi/utils/show_error_message.dart';
 
+import '../utils/check_internet.dart';
 import '../utils/dados_users.dart';
 
 class RegistrarOnibusView extends StatefulWidget {
@@ -85,54 +87,60 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                 OutlinedButton(
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
-                      final nome = _nomeMotorista.text;
-                      final modelo = _modeloOnibus.text;
-                      final placa = _placa.text;
-                      final destino = _destino.text;
+                      bool isConnected = await checkInternetConnection();
+                      if (isConnected) {
+                        final nome = _nomeMotorista.text;
+                        final modelo = _modeloOnibus.text;
+                        final placa = _placa.text;
+                        final destino = _destino.text;
 
-                      final dadosString = await getInfoUser();
+                        final dadosString = await getInfoUser();
 
-                      final docRef = await FirebaseFirestore.instance
-                          .collection(
-                              "prefeituras/${dadosString['id']}/onibus/")
-                          .add({
-                        'motorista': nome,
-                        'modelo': modelo,
-                        'placa': placa,
-                        'destino': destino,
-                        'idPrefeitura': dadosString['id'],
-                        'id': '',
-                      });
+                        final docRef = await FirebaseFirestore.instance
+                            .collection(
+                                "prefeituras/${dadosString['id']}/onibus/")
+                            .add({
+                          'motorista': nome,
+                          'modelo': modelo,
+                          'placa': placa,
+                          'destino': destino,
+                          'idPrefeitura': dadosString['id'],
+                          'id': '',
+                        });
 
-                      final idCurrent = docRef.id.toString();
+                        final idCurrent = docRef.id.toString();
 
-                      final usera = FirebaseFirestore.instance
-                          .collection(
-                              "prefeituras/${dadosString['id']}/onibus/")
-                          .doc(idCurrent);
+                        final usera = FirebaseFirestore.instance
+                            .collection(
+                                "prefeituras/${dadosString['id']}/onibus/")
+                            .doc(idCurrent);
 
-                      usera.update({'id': idCurrent});
+                        usera.update({'id': idCurrent});
 
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: Colors.green,
-                        content: Text("Adicionado"),
-                      ));
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Colors.green,
+                          content: Text("Adicionado"),
+                        ));
 
-                      final snapshotBus = await FirebaseFirestore.instance
-                          .collection(
-                              "prefeituras/${dadosString['id']}/onibus/")
-                          .get();
+                        final snapshotBus = await FirebaseFirestore.instance
+                            .collection(
+                                "prefeituras/${dadosString['id']}/onibus/")
+                            .get();
 
-                      List listaBus = [];
+                        List listaBus = [];
 
-                      for (var doc in snapshotBus.docs) {
-                        listaBus.add(doc.data());
+                        for (var doc in snapshotBus.docs) {
+                          listaBus.add(doc.data());
+                        }
+
+                        setListShared('listaOnibus', listaBus);
+
+                        Navigator.pop(context);
+                      } else {
+                        showErrorMessage(context, "Missing Internet");
                       }
-
-                      setListShared('listaOnibus', listaBus);
-
-                      Navigator.pop(context);
                     },
                     child: const Text("Adicionar"))
               ],
