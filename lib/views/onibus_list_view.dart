@@ -81,16 +81,17 @@ class _OnibusViewState extends State<OnibusView> {
               margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                   border: Border.all(width: 2, color: Colors.black)),
-              child: Row(children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.red,
-                  radius: 60,
-                  backgroundImage: NetworkImage(
-                      'https://png.pngtree.com/png-vector/20191101/ourmid/pngtree-cartoon-color-simple-male-avatar-png-image_1934459.jpg'),
-                ),
-                Text(
-                    "${listaBus[index]['motorista']}\n${listaBus[index]['destino']}"),
-              ]),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 60,
+                    backgroundImage: AssetImage('assets/images/avatar.jpg'),
+                  ),
+                  Text(
+                      "${listaBus[index].motorista}\n${listaBus[index].destino}"),
+                ],
+              ),
             ),
           );
         },
@@ -99,9 +100,9 @@ class _OnibusViewState extends State<OnibusView> {
   }
 
   loadBusData() async {
-    final mapList = await getListShared('listaOnibus');
+    final mapList = await getListOnibus();
     final connected = await checkInternetConnection();
-    mapList.removeWhere((mapa) => mapa.length == 0);
+    //mapList.removeWhere((mapa) => mapa.length == 0);
 
     setState(() {
       listaBus = mapList;

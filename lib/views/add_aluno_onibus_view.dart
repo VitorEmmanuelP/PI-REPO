@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pi/models/bus_data.dart';
 import 'package:pi/utils/dados_users.dart';
 
 class AddALunoONibusView extends StatefulWidget {
@@ -11,7 +12,7 @@ class AddALunoONibusView extends StatefulWidget {
 
 class _AddALunoONibusViewState extends State<AddALunoONibusView> {
   String name = '';
-  Map? dadosOnibus;
+  BusData? dadosOnibus;
   List nomes = [];
   List listaAlunos = [];
 
@@ -23,8 +24,8 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final BusData? args =
+        ModalRoute.of(context)?.settings.arguments as BusData?;
 
     if (args != null) {
       dadosOnibus = args;
@@ -44,7 +45,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
 
   Center searchBar() {
     return Center(
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width - 35,
         child: TextField(
           onChanged: (value) {
@@ -54,12 +55,12 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
           },
           decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
+                  borderSide: const BorderSide(color: Colors.black),
                   borderRadius: BorderRadius.circular(10)),
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),
+                  borderSide: const BorderSide(color: Colors.black),
                   borderRadius: BorderRadius.circular(10)),
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
               hintText: "Search.."),
         ),
       ),
@@ -71,7 +72,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
       height: MediaQuery.of(context).size.height - 230,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('prefeituras/${dadosOnibus!['idPrefeitura']}/users')
+            .collection('prefeituras/${dadosOnibus!.idPrefeitura}/users')
             .where('idOnibus', isEqualTo: '')
             .snapshots(),
         builder: (context, snapshot) {
@@ -128,7 +129,8 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                               : CircleAvatar(
                                   backgroundColor: Colors.blue,
                                   radius: 60,
-                                  child: Text("${nomes[0][0]}${nomes[1][0]}"),
+                                  child: Text(
+                                      "${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}"),
                                 ),
                           Text('${data['nome']}'),
                           const Spacer(),
@@ -168,7 +170,8 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                               : CircleAvatar(
                                   backgroundColor: Colors.blue,
                                   radius: 60,
-                                  child: Text("${nomes[0][0]}${nomes[1][0]}"),
+                                  child: Text(
+                                      "${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}"),
                                 ),
                           Text('${data['nome']}'),
                           const Spacer(),
@@ -193,10 +196,10 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
 
   addAlunoBus(id) {
     final usera = FirebaseFirestore.instance
-        .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/users/")
+        .collection("prefeituras/${dadosOnibus!.idPrefeitura}/users/")
         .doc(id);
 
-    usera.update({'idOnibus': dadosOnibus!['id'].toString()});
+    usera.update({'idOnibus': dadosOnibus!.id.toString()});
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       behavior: SnackBarBehavior.floating,
@@ -206,8 +209,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
   }
 
   loadData() async {
-    final maplist = await getListShared('listaAlunos');
-    maplist.removeWhere((mapa) => mapa.length == 0);
+    final maplist = await getListUsers();
 
     setState(() {
       listaAlunos = maplist;

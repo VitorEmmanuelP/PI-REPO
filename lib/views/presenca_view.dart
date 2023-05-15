@@ -1,10 +1,15 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:intl/intl.dart';
-import 'package:pi/utils/dados_users.dart';
+
+import 'package:pi/models/user_data.dart';
 
 class PresencaView extends StatefulWidget {
-  const PresencaView({super.key});
+  const PresencaView({Key? key}) : super(key: key);
 
   @override
   State<PresencaView> createState() => _PresencaViewState();
@@ -12,19 +17,15 @@ class PresencaView extends StatefulWidget {
 
 class _PresencaViewState extends State<PresencaView> {
   int _numberOfTabs = 0;
-  Map? dados;
+  UserData? dados;
   List nome = [];
   String formattedDate = '';
-
-  @override
-  void initState() {
-    super.initState();
-  }
+  String? infoQr;
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final UserData? args =
+        ModalRoute.of(context)?.settings.arguments as UserData?;
     DateTime now = DateTime.now();
 
     if (args != null) {
@@ -32,11 +33,18 @@ class _PresencaViewState extends State<PresencaView> {
       formattedDate = DateFormat('dd-MM-yyyy').format(now);
     }
 
+    return dados!.idOnibus != ''
+        ? presensa()
+        : const Scaffold(
+            body: Center(child: Text('Nao esta cadastrado em nenhum onibus')),
+          );
+  }
+
+  StreamBuilder<QuerySnapshot<Map<String, dynamic>>> presensa() {
     return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection(
-              '/prefeituras/SiAA09DYyS5UgeJtYG8r/onibus/YvQQCyRr3EZHXRhd0yCx/listaPresensa')
-          .orderBy('nome')
+              '/prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa')
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -46,10 +54,9 @@ class _PresencaViewState extends State<PresencaView> {
           return const Center(child: Text('Erro ao carregar os dados'));
         }
 
-        _numberOfTabs = snapshot.data!.docs.length;
         final tabsData = snapshot.data!.docs;
 
-        final listaData = [];
+        var listaData = [];
 
         for (var i in tabsData) {
           listaData.add(i.data());
@@ -59,81 +66,163 @@ class _PresencaViewState extends State<PresencaView> {
         listaData.sort((a, b) =>
             format.parse(b['nome']).compareTo(format.parse(a['nome'])));
 
+        if (listaData.length > 10) {
+          listaData = listaData.sublist(0, 10);
+          _numberOfTabs = listaData.length;
+        } else {
+          _numberOfTabs = snapshot.data!.docs.length;
+        }
+
         return DefaultTabController(
           length: _numberOfTabs,
           child: Scaffold(
-            appBar: AppBar(
-              title: const Text('Minha App',
-                  style: TextStyle(color: Colors.black)),
-              backgroundColor: Colors.white,
-              elevation: 0,
-              iconTheme: const IconThemeData(color: Colors.black),
-              actions: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: IconButton(
-                      onPressed: () {
-                        createLista();
-                      },
-                      icon: const Icon(Icons.add)),
-                )
-              ],
-              bottom: TabBar(
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.transparent,
-                physics: const BouncingScrollPhysics(),
-                isScrollable: _numberOfTabs < 4 ? false : true,
-                tabs: [
-                  for (int i = 0; i < _numberOfTabs; i++)
-                    Tab(
-                      text: '${listaData[i]['nome']}',
-                    ),
-                ],
-              ),
-            ),
-            body: tabsView(context, listaData),
-          ),
+              appBar: appBar(listaData),
+              body: _numberOfTabs != 0
+                  ? tabsView(context, listaData)
+                  : const Center(
+                      child: Text("Nao existe lista de presensa"),
+                    )),
         );
       },
     );
   }
 
+  AppBar appBar(List<dynamic> listaData) {
+    return AppBar(
+      title: const Text('Lista de presensa',
+          style: TextStyle(color: Colors.black)),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      iconTheme: const IconThemeData(color: Colors.black),
+      actions: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(right: 5),
+          child: IconButton(
+              onPressed: () {
+                createLista();
+              },
+              icon: const Icon(Icons.add)),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 5),
+          child: IconButton(
+              onPressed: () {
+                //reloadLista();
+              },
+              icon: const Icon(Icons.replay_outlined)),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: IconButton(
+              onPressed: () async {
+                await readQrCode();
+
+                var info = '=$infoQr';
+
+                info = info.split('').reversed.join();
+                info = utf8.decode(base64.decode(info));
+
+                if (infoQr != '-1') {
+                  final ref = await FirebaseFirestore.instance
+                      .collection(
+                          'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/alunos/')
+                      .where("id", isEqualTo: info)
+                      .limit(1)
+                      .get();
+
+                  if (ref.docs.isNotEmpty) {
+                    ref.docs[0].reference.update({"status": "confirmado"});
+                  }
+                }
+              },
+              icon: const Icon(Icons.qr_code)),
+        )
+      ],
+      bottom: TabBar(
+        labelColor: Colors.black,
+        unselectedLabelColor: Colors.grey,
+        indicatorColor: Colors.transparent,
+        physics: const BouncingScrollPhysics(),
+        isScrollable: _numberOfTabs < 4 ? false : true,
+        tabs: [
+          for (int i = 0; i < _numberOfTabs; i++)
+            Tab(
+              text: '${listaData[i]['nome']}',
+            ),
+        ],
+      ),
+    );
+  }
+
   TabBarView tabsView(BuildContext context, List<dynamic> listaData) {
     return TabBarView(
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       children: [
         for (int i = 0; i < _numberOfTabs; i++)
           SizedBox(
             height: MediaQuery.of(context).size.height - 230,
-            child: StreamBuilder<QuerySnapshot>(
+            child: StreamBuilder(
               stream: FirebaseFirestore.instance
                   .collection(
-                      'prefeituras/SiAA09DYyS5UgeJtYG8r/onibus/YvQQCyRr3EZHXRhd0yCx/listaPresensa/${listaData[i]['nome']}/alunos')
-                  .snapshots(),
+                      'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/${listaData[i]['nome']}/alunos')
+                  .snapshots()
+                  .asyncMap((querySnapshot1) async {
+                var querySnapshot2 = await FirebaseFirestore.instance
+                    .collection('prefeituras/${dados!.idPrefeitura}/users/')
+                    .where('idOnibus', isEqualTo: dados!.idOnibus)
+                    .get();
+                return [querySnapshot1, querySnapshot2];
+              }),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else {
-                  List<QueryDocumentSnapshot> sortedDocs =
-                      List<QueryDocumentSnapshot>.from(snapshot.data!.docs);
+                  if (snapshot.data != null) {
+                    final snapshot1 = snapshot.data![0];
+                    final snapshot2 = snapshot.data![1];
 
-                  sortedDocs.sort((a, b) {
-                    var nomeA = a.data() as Map;
-                    var nomeB = b.data() as Map;
+                    List<QueryDocumentSnapshot> sortedDocs1 =
+                        List<QueryDocumentSnapshot>.from(snapshot1.docs);
 
-                    String aa = nomeA['nome'];
-                    String bb = nomeB['nome'];
+                    int? inde;
 
-                    aa = aa.toString().toUpperCase();
-                    bb = bb.toString().toUpperCase();
+                    sortedDocs1.removeWhere((element) {
+                      var info = element.data() as Map;
+                      if (info['nome'] == dados!.nome) {
+                        inde = sortedDocs1.indexOf(element);
+                        return true;
+                      }
+                      return false;
+                    });
 
-                    return aa.compareTo(bb);
-                  });
+                    sortedDocs1.sort((a, b) {
+                      var nomeA = a.data() as Map;
+                      var nomeB = b.data() as Map;
 
-                  return listaPresensa(sortedDocs);
+                      String aa = nomeA['nome'];
+                      String bb = nomeB['nome'];
+
+                      aa = aa.toString().toUpperCase();
+                      bb = bb.toString().toUpperCase();
+
+                      return aa.compareTo(bb);
+                    });
+
+                    sortedDocs1.insert(0, snapshot1.docs[inde!]);
+
+                    final mapzada = {};
+
+                    for (var i in snapshot2.docs) {
+                      final dados = i.data() as Map;
+                      mapzada[dados['id']] = dados['profilePic'];
+                    }
+
+                    return listaPresensa(sortedDocs1, mapzada);
+                  } else {
+                    return Container();
+                  }
                 }
               },
             ),
@@ -142,11 +231,15 @@ class _PresencaViewState extends State<PresencaView> {
     );
   }
 
-  ListView listaPresensa(List<QueryDocumentSnapshot<Object?>> sortedDocs) {
+  ListView listaPresensa(
+      List<QueryDocumentSnapshot<Object?>> sortedDocs, Map mapzada) {
     return ListView.builder(
+      physics: const BouncingScrollPhysics(),
       itemCount: sortedDocs.length,
       itemBuilder: (context, index) {
         var data = sortedDocs[index].data() as Map<String, dynamic>;
+
+        nome = data['nome'].toUpperCase().split(' ');
 
         return Column(
           children: [
@@ -162,26 +255,52 @@ class _PresencaViewState extends State<PresencaView> {
                         : Colors.green),
               ),
               child: Row(children: [
-                data['profilePic'] != ''
-                    ? CircleAvatar(
-                        backgroundColor: Colors.red,
-                        radius: 60,
-                        backgroundImage: NetworkImage(data['profilePic']),
-                      )
-                    : const CircleAvatar(
-                        radius: 70,
-                        child: Center(
-                          child: Text(
-                            "A",
-                            style: TextStyle(color: Colors.white, fontSize: 35),
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: mapzada.containsKey(data['id']) &&
+                          mapzada['${data['id']}'] != ''
+                      ? CachedNetworkImage(
+                          imageUrl: mapzada[data['id']],
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => CircleAvatar(
+                            radius: 60,
+                            child: Center(
+                              child: Text(
+                                "${nome[0][0]}${nome[1][0]}",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 35),
+                              ),
+                            ),
+                          ),
+                          imageBuilder: (context, imageProvider) =>
+                              CircleAvatar(
+                            backgroundColor: Colors.red,
+                            radius: 60,
+                            backgroundImage: imageProvider,
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 60,
+                          child: Center(
+                            child: Text(
+                              "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 35),
+                            ),
                           ),
                         ),
-                      ),
-                Text('${data['nome']}\n ${data['status']}'),
-                const Spacer(),
+                ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: IconButton(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Text('${data['nome']}\n${data['status']}'),
+                ),
+                const Spacer(),
+                if (data['id'] == dados!.id && data['data'] == formattedDate)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: IconButton(
                       onPressed: () async {
                         final aluno = sortedDocs[index].reference;
                         if (data['status'] == 'ausente') {
@@ -190,8 +309,9 @@ class _PresencaViewState extends State<PresencaView> {
                           aluno.update({'status': 'ausente'});
                         }
                       },
-                      icon: const Icon(Icons.highlight_remove_sharp)),
-                ),
+                      icon: const Icon(Icons.highlight_remove_sharp),
+                    ),
+                  ),
               ]),
             ),
           ],
@@ -200,62 +320,46 @@ class _PresencaViewState extends State<PresencaView> {
     );
   }
 
-  createLista() async {
-    final listadeAlunos = await getListShared('listaAlunos');
-    listadeAlunos.removeWhere((mapa) => mapa.length == 0);
+  readQrCode() async {
+    String code = await FlutterBarcodeScanner.scanBarcode(
+        "#FFFFFF", "Cancelar", false, ScanMode.QR);
 
+    if (code != '') {
+      setState(() {
+        infoQr = code;
+      });
+    }
+  }
+
+  createLista() async {
     final usera = FirebaseFirestore.instance
         .collection(
-            "prefeituras/${dados!['idPrefeitura']}/onibus/${dados!['idOnibus']}/listaPresensa/")
-        .doc('$formattedDate');
+            "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/")
+        .doc(formattedDate);
 
     usera.set({'nome': formattedDate});
 
     final alunos = usera.collection('alunos');
 
-    for (var pessoa in listadeAlunos) {
-      final aluno = alunos.doc(pessoa['nome']);
+    final alunoDados = await FirebaseFirestore.instance
+        .collection("prefeituras/${dados!.idPrefeitura}/users/")
+        .where('idOnibus', isEqualTo: dados!.idOnibus)
+        .get();
 
+    for (var data in alunoDados.docs) {
+      final a = data.data();
+
+      final aluno = alunos.doc(a['nome']);
       aluno.set({
-        'id': '${pessoa['id']}',
-        'nome': '${pessoa['nome']}',
-        'profilePic': '${pessoa['profilePic']}',
-        'idOnibus': '${pessoa['idOnibus']}',
-        'status': 'ausente'
+        'id': a['id'],
+        'nome': a['nome'],
+        'status': 'ausente',
+        'data': formattedDate,
       });
     }
   }
-  // }
 
-  //   loadDados() async {
-  //     final listadeAlunos = await getListShared('listaAlunos');
-  //     listadeAlunos.removeWhere((mapa) => mapa.length == 0);
-  //     //final map = await getInfoUser();
-
-  //     // setState(() {
-  //     //   dados = map;
-  //     // });
-
-  //     final usera = FirebaseFirestore.instance
-  //         .collection(
-  //             "prefeituras/${dados!['idPrefeitura']}/onibus/${dados!['idOnibus']}/listaPresensa/")
-  //         .doc('$formattedDate');
-
-  //     usera.set({});
-
-  //     final alunos = usera.collection('alunos');
-
-  //     for (var pessoa in listadeAlunos) {
-  //       final aluno = alunos.doc(pessoa['nome']);
-
-  //       aluno.set({
-  //         'id': '${pessoa['id']}',
-  //         'nome': '${pessoa['nome']}',
-  //         'profilePic': '${pessoa['profilePic']}',
-  //         'idOnibus': '${pessoa['idOnibus']}',
-  //         'status': 'ausente'
-  //       });
-  //     }
-  //   }
-  // }
+  reloadLista() async {
+    print('a');
+  }
 }

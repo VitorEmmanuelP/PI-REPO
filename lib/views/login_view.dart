@@ -80,7 +80,7 @@ class _LoginViewState extends State<LoginView> {
                             await validarLogin(cpf, password, getData);
 
                         if (dadosUser != null) {
-                          setVaribleShared('dados', dadosUser);
+                          saveUserOrPrefeitura('dados', dadosUser);
 
                           FirebaseAuth auth = FirebaseAuth.instance;
 

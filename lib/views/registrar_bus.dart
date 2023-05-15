@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/utils/show_error_message.dart';
@@ -94,25 +92,23 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                         final placa = _placa.text;
                         final destino = _destino.text;
 
-                        final dadosString = await getInfoUser();
+                        final prefeitura = await getUser();
 
                         final docRef = await FirebaseFirestore.instance
-                            .collection(
-                                "prefeituras/${dadosString['id']}/onibus/")
+                            .collection("prefeituras/${prefeitura.id}/onibus/")
                             .add({
                           'motorista': nome,
                           'modelo': modelo,
                           'placa': placa,
                           'destino': destino,
-                          'idPrefeitura': dadosString['id'],
+                          'idPrefeitura': prefeitura.id,
                           'id': '',
                         });
 
                         final idCurrent = docRef.id.toString();
 
                         final usera = FirebaseFirestore.instance
-                            .collection(
-                                "prefeituras/${dadosString['id']}/onibus/")
+                            .collection("prefeituras/${prefeitura.id}/onibus/")
                             .doc(idCurrent);
 
                         usera.update({'id': idCurrent});
@@ -125,8 +121,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                         ));
 
                         final snapshotBus = await FirebaseFirestore.instance
-                            .collection(
-                                "prefeituras/${dadosString['id']}/onibus/")
+                            .collection("prefeituras/${prefeitura.id}/onibus/")
                             .get();
 
                         List listaBus = [];
@@ -135,7 +130,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                           listaBus.add(doc.data());
                         }
 
-                        setListShared('listaOnibus', listaBus);
+                        saveListModels('listaOnibus', listaBus);
 
                         Navigator.pop(context);
                       } else {

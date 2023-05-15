@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:pi/models/prefeitura_data.dart';
+import 'package:pi/models/user_data.dart';
+import 'package:pi/utils/dados_users.dart';
 import '../services/auth_expection.dart';
 
 Future validarLogin(String cpf, String senha, Function getData) async {
@@ -67,7 +70,11 @@ checkarBancoPrefeitura(nome, senha, getData) async {
     final data = await getData(snapshot.docs[0].id, 'prefeitura');
 
     if (data['senha'] == senha) {
-      return data;
+      return PrefeituraData(
+          nome: data['nome'],
+          senha: data['senha'],
+          id: data['id'],
+          status: data['status']);
     } else {
       return 'wrong-password';
     }
@@ -77,27 +84,48 @@ checkarBancoPrefeitura(nome, senha, getData) async {
 }
 
 getUserData(id, loginId) async {
-  final users = await FirebaseFirestore.instance
+  final user = await FirebaseFirestore.instance
       .collection('prefeituras/$loginId/users/')
       .doc(id)
-      .get()
-      .then((value) => value.data());
+      .get();
 
-  if (users != null) {
-    return {
-      'nome': users['nome'],
-      'cpf': users['cpf'],
-      'profilePic': users['profilePic'],
-      'curso': users['cursoAluno'],
-      'faculdade': users['faculdade'],
-      'telefone': users['telefone'],
-      'senha': users['senha'],
-      'status': users['status'],
-      'id': users['id'],
-      'idPrefeitura': users['idPrefeitura'],
-      'idOnibus': users['idOnibus'],
-    };
+  final token = await getToken();
+
+  user.reference.update({'token': token});
+
+  final userdata = user.data();
+
+  if (user != null) {
+    return UserData(
+      nome: user['nome'],
+      cpf: user['cpf'],
+      profilePic: user['profilePic'],
+      data: user['data'],
+      curso: user['cursoAluno'],
+      faculdade: user['faculdade'],
+      telefone: user['telefone'],
+      senha: user['senha'],
+      status: user['status'],
+      id: user['id'],
+      idPrefeitura: user['idPrefeitura'],
+      idOnibus: user['idOnibus'],
+      token: user['token'],
+    );
   }
+  // return {
+  //   'nome': users['nome'],
+  //   'cpf': users['cpf'],
+  //   'profilePic': users['profilePic'],
+  //   'curso': users['cursoAluno'],
+  //   'faculdade': users['faculdade'],
+  //   'telefone': users['telefone'],
+  //   'senha': users['senha'],
+  //   'status': users['status'],
+  //   'id': users['id'],
+  //   'idPrefeitura': users['idPrefeitura'],
+  //   'idOnibus': users['idOnibus'],
+  // };
+  //}
 }
 
 Future<bool> checkInternetConnection() async {

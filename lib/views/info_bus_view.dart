@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
+import 'package:pi/models/bus_data.dart';
 
 import 'package:pi/views/add_aluno_onibus_view.dart';
 
@@ -16,12 +18,12 @@ class InfoBusView extends StatefulWidget {
 }
 
 class _InfoBusViewState extends State<InfoBusView> {
-  Map? dados;
+  BusData? dados;
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final BusData? args =
+        ModalRoute.of(context)?.settings.arguments as BusData?;
     if (args != null) {
       dados = args;
     }
@@ -32,7 +34,7 @@ class _InfoBusViewState extends State<InfoBusView> {
         child: Center(
             child: Column(
           children: <Widget>[
-            Text('${dados!['motorista']}'),
+            Text(dados!.motorista),
             listaDeAlunosDoOnibus(context),
             deletarButton(context),
             addButton(context)
@@ -68,8 +70,8 @@ class _InfoBusViewState extends State<InfoBusView> {
       height: MediaQuery.of(context).size.height - 230,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection("prefeituras/${dados!['idPrefeitura']}/users")
-            .where('idOnibus', isEqualTo: dados!['id'])
+            .collection("prefeituras/${dados!.idPrefeitura}/users")
+            .where('idOnibus', isEqualTo: dados!.id)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -79,7 +81,6 @@ class _InfoBusViewState extends State<InfoBusView> {
               child: Center(child: CircularProgressIndicator()),
             );
           } else {
-            print(snapshot.data!.docs);
             List<QueryDocumentSnapshot> sortedDocs =
                 List<QueryDocumentSnapshot>.from(snapshot.data!.docs);
 
@@ -107,6 +108,7 @@ class _InfoBusViewState extends State<InfoBusView> {
                       color: Colors.amber,
                     );
                   }
+                  var nome = sortedDocs[index]['nome'].split(' ');
 
                   return Column(children: [
                     Container(
@@ -114,32 +116,58 @@ class _InfoBusViewState extends State<InfoBusView> {
                       height: 100,
                       margin: const EdgeInsets.all(20),
                       decoration: BoxDecoration(border: Border.all(width: 2)),
-                      child: Row(children: [
-                        data['profilePic'] != ''
-                            ? CircleAvatar(
-                                backgroundColor: Colors.red,
-                                radius: 60,
-                                backgroundImage:
-                                    NetworkImage(data['profilePic']),
-                              )
-                            : const CircleAvatar(
-                                backgroundColor: Colors.blue,
-                                radius: 60,
-                                child: Text("A"),
-                              ),
-                        Text('${data['nome']}'),
-                        const Spacer(),
-                        IconButton(
-                            onPressed: () {
-                              final id = data['id'];
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: data['profilePic'] != ''
+                                ? CachedNetworkImage(
+                                    imageUrl: data['profilePic'],
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.blue,
+                                      radius: 70,
+                                      child: Center(
+                                        child:
+                                            Text('${nome[0][0]}${nome[1][0]}'),
+                                      ),
+                                    ),
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      radius: 60,
+                                      backgroundImage: imageProvider,
+                                    ),
+                                  )
+                                : CircleAvatar(
+                                    backgroundColor: Colors.blue,
+                                    radius: 70,
+                                    child: Center(
+                                      child: Text(
+                                          '${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'),
+                                    ),
+                                  ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: Text('${data['nome']}'),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                              onPressed: () {
+                                final id = data['id'];
 
-                              removerAlunoBus(id);
-                            },
-                            icon: const Icon(
-                              Icons.highlight_remove,
-                              size: 30,
-                            ))
-                      ]),
+                                removerAlunoBus(id);
+                              },
+                              icon: const Icon(
+                                Icons.highlight_remove,
+                                size: 30,
+                              ))
+                        ],
+                      ),
                     )
                   ]);
                 });
@@ -151,7 +179,7 @@ class _InfoBusViewState extends State<InfoBusView> {
 
   removerAlunoBus(id) {
     final usera = FirebaseFirestore.instance
-        .collection("prefeituras/${dados!['idPrefeitura']}/users/")
+        .collection("prefeituras/${dados!.idPrefeitura}/users/")
         .doc(id);
 
     usera.update({'idOnibus': ''});
@@ -167,17 +195,21 @@ class _InfoBusViewState extends State<InfoBusView> {
     return ElevatedButton(
         onPressed: () async {
           final bool shouldDelete = await showDeleteDialog(context);
-
+          bool isConnected = await checkInternetConnection();
           if (shouldDelete) {
-            final user = FirebaseFirestore.instance
-                .collection('prefeituras/${dados!['idPrefeitura']}/onibus/')
-                .doc('${dados!['id']}');
+            if (isConnected) {
+              final user = FirebaseFirestore.instance
+                  .collection('prefeituras/${dados!.idPrefeitura}/onibus/')
+                  .doc(dados!.id);
 
-            user.delete();
+              user.delete();
 
-            atualizarStored();
-            removerDadosAlunos();
-            Navigator.of(context).pop();
+              atualizarStored();
+              removerDadosAlunos();
+              Navigator.of(context).pop();
+            } else {
+              await showErrorMessage(context, 'Internet Missing');
+            }
           }
         },
         child: const Text('Deletar'));
@@ -185,8 +217,8 @@ class _InfoBusViewState extends State<InfoBusView> {
 
   removerDadosAlunos() async {
     final user = await FirebaseFirestore.instance
-        .collection('prefeituras/${dados!['idPrefeitura']}/users/')
-        .where('idOnibus', isEqualTo: dados!['id'])
+        .collection('prefeituras/${dados!.idPrefeitura}/users/')
+        .where('idOnibus', isEqualTo: dados!.id)
         .get();
 
     for (var aluno in user.docs) {
@@ -195,11 +227,11 @@ class _InfoBusViewState extends State<InfoBusView> {
   }
 
   atualizarStored() async {
-    final List listaOnibus = await getListShared('listaOnibus');
+    final List listaOnibus = await getListOnibus();
 
-    listaOnibus.removeWhere((mapa) => mapa['id'] == dados!['id']);
+    listaOnibus.removeWhere((mapa) => mapa.id == dados!.id);
 
-    setListShared('listaOnibus', listaOnibus);
+    saveListModels('listaOnibus', listaOnibus);
   }
 
   AppBar appBar() {

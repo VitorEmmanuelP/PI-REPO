@@ -10,3 +10,5 @@ const loginRoute = "/login/";
 const listaAlunoRoute = "/listaAluno/";
 const userRoute = "/user/";
 const addAlunoOnibusRoute = "/addAlunoOnibusRoute/";
+const pagamentoRoute = '/pagamento/';
+const qrScanner = '/qrScanner/';

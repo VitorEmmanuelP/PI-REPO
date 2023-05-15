@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:image_picker/image_picker.dart' show ImagePicker, ImageSource;
 import 'package:pi/classes/profile_picture.dart';
+import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,8 +21,8 @@ class ProfilePictureWidget extends StatefulWidget {
 class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
   String? imagepath;
   ProfileImage? user;
-  Map? dados;
-  String imageUrl = '';
+  UserData? dados;
+  String? imageUrl = '';
   List<String> nome = [];
 
   final picker = ImagePicker();
@@ -40,61 +41,7 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('prefeituras/${dados?['idPrefeitura']}/users')
-            .where('id', isEqualTo: dados?['id'])
-            .limit(1)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircleAvatar(
-              backgroundColor: Colors.transparent,
-              radius: 70,
-              child: Center(child: CircularProgressIndicator()),
-            );
-          } else if (!snapshot.hasData || snapshot.data == null) {
-            return CircleAvatar(
-              radius: 70,
-              child: Center(
-                child: Text(
-                  "${nome.isNotEmpty ? nome[0][0] : ''}${nome.isNotEmpty && nome.length > 1 ? nome[1][0] : ''}",
-                  style: const TextStyle(color: Colors.white, fontSize: 35),
-                ),
-              ),
-            );
-          } else {
-            final a = snapshot.data?.docs.first.data() as Map?;
-
-            if (a?['profilePic'] == '') {
-              return GestureDetector(
-                onTap: () => user?.showImagePicker(context),
-                child: CircleAvatar(
-                  radius: 70,
-                  child: Center(
-                    child: Text(
-                      "${nome.isNotEmpty ? nome[0][0] : ''}${nome.isNotEmpty && nome.length > 1 ? nome[1][0] : ''}",
-                      style: const TextStyle(color: Colors.white, fontSize: 35),
-                    ),
-                  ),
-                ),
-              );
-            } else {
-              return GestureDetector(
-                onTap: () => user?.showImagePicker(context),
-                child: ClipOval(
-                  child: Image.network(
-                    a?['profilePic'] ??
-                        'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-                    width: MediaQuery.of(context).size.width / 2,
-                    height: MediaQuery.of(context).size.width / 2,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              );
-            }
-          }
-        });
+    return ImagemUsuario(dados: dados, user: user, nome: nome);
   }
 
   void imgFromGallery() async {
@@ -105,8 +52,6 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
     await uploadFile(File(file.path));
 
     loadDados();
-    // setState(() => arquivo = File(file.path));
-    // saveImage(arquivo?.path);
   }
 
   void imgFromCamera() async {
@@ -116,16 +61,6 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
 
     await uploadFile(File(file.path));
     loadDados();
-    // setState(() => arquivo = File(file.path));
-    // saveImage(arquivo?.path);
-  }
-
-  void saveImage(arquivo) async {
-    SharedPreferences saveimage = await SharedPreferences.getInstance();
-    saveimage.setString("imagepath", arquivo);
-    setState(() {
-      imagepath = saveimage.getString("imagepath");
-    });
   }
 
   void loadImage() async {
@@ -135,53 +70,116 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
     });
   }
 
-  Future<Map?> loadDados() async {
-    final userdata = await getInfoUser();
+  Future<UserData?> loadDados() async {
+    final userdata = await getUser();
 
     setState(() {
       dados = userdata;
-      nome = dados?['nome'].split(' ');
+      nome = dados!.nome.split(' ');
 
-      imageUrl = dados!['profilePic'];
+      imageUrl = dados!.profilePic;
     });
 
     return dados;
   }
 
   Future<void> uploadFile(File file) async {
-    // final firestore = FirebaseFirestore.instance;
-    // final userDoc =
-    //     await firestore.collection('users').doc('${dados!['id']}').get();
-
-    // if (!userDoc.exists) {
-    //   print('Usuário não existe no Firestore Database. Acesso negado.');
-    //   return;
-    // }
-
-    String filename = DateTime.now().millisecondsSinceEpoch.toString();
-
-    final storageRef = FirebaseStorage.instance.ref().child('image/$filename');
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('images/${dados!.id}/${dados!.id}');
 
     try {
       final uploadTask = storageRef.putFile(file);
       await uploadTask;
 
-      // Obter a URL de download do arquivo
       final downloadURL = await storageRef.getDownloadURL();
 
       final usera = FirebaseFirestore.instance
-          .collection("prefeituras/${dados!['idPrefeitura']}/users/")
-          .doc("${dados!['id']}");
+          .collection("prefeituras/${dados!.idPrefeitura}/users/")
+          .doc(dados!.id);
 
       usera.update({'profilePic': downloadURL});
 
-      dados!['profilePic'] = downloadURL;
+      dados!.profilePic = downloadURL;
 
-      setVaribleShared('dados', dados);
+      saveUserOrPrefeitura('dados', dados);
 
       //print('Arquivo enviado com sucesso: $downloadURL');
     } catch (error) {
       //print('Erro ao enviar arquivo: $error');
     }
+  }
+}
+
+class ImagemUsuario extends StatelessWidget {
+  UserData? dados;
+  ProfileImage? user;
+  List<String> nome = [];
+
+  ImagemUsuario(
+      {super.key, required this.dados, required this.user, required this.nome});
+
+  @override
+  Widget build(BuildContext context) {
+    return dados != null
+        ? StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('prefeituras/${dados!.idPrefeitura}/users')
+                .where('id', isEqualTo: dados!.id)
+                .limit(1)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container();
+              } else {
+                final data = snapshot.data?.docs.first.data() as Map?;
+                if (data!['profilePic'] == '') {}
+                if (data['profilePic'] == '') {
+                  return GestureDetector(
+                    onTap: () => user?.showImagePicker(context),
+                    child: ClipOval(
+                      child: CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        radius: 70,
+                        child: Center(
+                          child: Text(
+                            "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 35),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  return GestureDetector(
+                    onTap: () => user?.showImagePicker(context),
+                    child: ClipOval(
+                        child: CachedNetworkImage(
+                      imageUrl: data['profilePic'],
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        radius: 70,
+                        child: Center(
+                          child: Text(
+                            "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 35),
+                          ),
+                        ),
+                      ),
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                        backgroundColor: Colors.red,
+                        radius: 60,
+                        backgroundImage: imageProvider,
+                      ),
+                    )),
+                  );
+                }
+              }
+            })
+        : Container();
   }
 }

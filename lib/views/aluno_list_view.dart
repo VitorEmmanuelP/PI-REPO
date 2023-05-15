@@ -1,9 +1,13 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pi/constants/routes.dart';
+import 'package:pi/models/prefeitura_data.dart';
+import 'package:pi/models/user_data.dart';
 
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/validador_login.dart';
-import 'package:pi/views/register_aluno_view.dart';
+
 import 'package:pi/views/user_view.dart';
 
 import '../utils/show_error_message.dart';
@@ -17,8 +21,8 @@ class ListaAlunoView extends StatefulWidget {
 
 class _ListaAlunoViewState extends State<ListaAlunoView> {
   String name = '';
-  Map? dados;
-  List listaDeAlunos = [];
+  PrefeituraData? dados;
+  List<UserData> listaDeAlunos = [];
   List<String> nome = [];
   bool isConnected = false;
 
@@ -43,8 +47,8 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
   }
 
   SizedBox listaAluno(BuildContext context) {
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final PrefeituraData? args =
+        ModalRoute.of(context)?.settings.arguments as PrefeituraData?;
 
     if (args != null) {
       dados = args;
@@ -53,7 +57,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
         height: MediaQuery.of(context).size.height - 230,
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
-              .collection('prefeituras/${dados!['id']}/users')
+              .collection('prefeituras/${dados!.id}/users')
               .where("nome", isNotEqualTo: '')
               .snapshots(),
           builder: (context, snapshot) {
@@ -77,133 +81,179 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
                 return aa.compareTo(bb);
               });
 
-              return ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: sortedDocs.length,
-                itemBuilder: (context, index) {
-                  //print(sortedDocs[0].data());
-                  //sortedDocs.removeWhere((mapa) => mapa.data() == 0);
-
-                  var data = sortedDocs[index].data() as Map<String, dynamic>;
-
-                  nome = sortedDocs[index]['nome'].split(' ');
-
-                  if (data.isEmpty) {
-                    return Container(
-                      color: Colors.amber,
-                    );
-                  }
-
-                  if (name.isEmpty) {
-                    return GestureDetector(
-                      onTap: () async {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(
-                          builder: (context) => const UserView(),
-                          settings: RouteSettings(
-                            arguments: data, // pass your data here
-                          ),
-                        ))
-                            .then((value) {
-                          loadLista();
-                        });
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 5000,
-                            height: 100,
-                            margin: const EdgeInsets.all(20),
-                            decoration:
-                                BoxDecoration(border: Border.all(width: 2)),
-                            child: Row(children: [
-                              data['profilePic'] != '' && isConnected
-                                  ? CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      radius: 60,
-                                      backgroundImage:
-                                          NetworkImage(data['profilePic']),
-                                    )
-                                  : CircleAvatar(
-                                      radius: 70,
-                                      child: Center(
-                                        child: Text(
-                                          "${nome.isNotEmpty ? nome[0][0] : ''}${nome.isNotEmpty && nome.length > 1 ? nome[1][0] : ''}",
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 35),
-                                        ),
-                                      ),
-                                    ),
-                              Text('${data['nome']}\n ${data['status']}'),
-                            ]),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  if (data['nome']
-                      .toString()
-                      .toLowerCase()
-                      .startsWith(name.toLowerCase())) {
-                    return GestureDetector(
-                      onTap: () async {
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(
-                          builder: (context) => const UserView(),
-                          settings: RouteSettings(
-                            arguments: data, // pass your data here
-                          ),
-                        ))
-                            .then((value) {
-                          loadLista();
-                        });
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 5000,
-                            height: 100,
-                            margin: const EdgeInsets.all(20),
-                            decoration:
-                                BoxDecoration(border: Border.all(width: 2)),
-                            child: Row(children: [
-                              data['profilePic'] != '' && isConnected
-                                  ? CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      radius: 60,
-                                      backgroundImage:
-                                          NetworkImage(data['profilePic']),
-                                    )
-                                  : CircleAvatar(
-                                      radius: 70,
-                                      child: Center(
-                                        child: Text(
-                                          "${nome.isNotEmpty ? nome[0][0] : ''}${nome.isNotEmpty && nome.length > 1 ? nome[1][0] : ''}",
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 35),
-                                        ),
-                                      ),
-                                    ),
-                              Text('${data['nome']}\n ${data['status']}'),
-                            ]),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              );
+              return listView(sortedDocs);
             }
           },
         ));
   }
 
-  Container searchBar() {
-    return Container(
+  ListView listView(List<QueryDocumentSnapshot<Object?>> sortedDocs) {
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      itemCount: sortedDocs.length,
+      itemBuilder: (context, index) {
+        var data = sortedDocs[index].data() as Map<String, dynamic>;
+        nome = sortedDocs[index]['nome'].split(' ');
+
+        if (data.isEmpty) {
+          return Container(
+            color: Colors.amber,
+          );
+        }
+
+        if (name.isEmpty) {
+          return GestureDetector(
+            onTap: () async {
+              Navigator.of(context)
+                  .pushNamed(userRoute, arguments: data)
+                  .then((value) {
+                loadLista();
+              });
+            },
+            child: Column(
+              children: [
+                Container(
+                  width: 5000,
+                  height: 100,
+                  margin: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(border: Border.all(width: 2)),
+                  child: cardUser(data),
+                ),
+              ],
+            ),
+          );
+        }
+        return logicaDeBusca(data, context);
+      },
+    );
+  }
+
+  StatelessWidget logicaDeBusca(
+      Map<String, dynamic> data, BuildContext context) {
+    if (data['nome'].toString().toLowerCase().startsWith(name.toLowerCase())) {
+      return GestureDetector(
+        onTap: () async {
+          Navigator.of(context)
+              .push(MaterialPageRoute(
+            builder: (context) => const UserView(),
+            settings: RouteSettings(
+              arguments: data,
+            ),
+          ))
+              .then((value) {
+            loadLista();
+          });
+        },
+        child: Column(
+          children: [
+            Container(
+              width: 5000,
+              height: 100,
+              margin: const EdgeInsets.all(20),
+              decoration: BoxDecoration(border: Border.all(width: 2)),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: data['profilePic'] != ''
+                        ? CachedNetworkImage(
+                            imageUrl: data['profilePic'],
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                              backgroundColor: Colors.blue,
+                              radius: 70,
+                              child: Center(
+                                child: Text(
+                                  "'${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'",
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 35),
+                                ),
+                              ),
+                            ),
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 60,
+                              backgroundImage: imageProvider,
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 70,
+                            child: Center(
+                              child: Text(
+                                "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                                style: const TextStyle(
+                                    color: Color.fromARGB(255, 53, 30, 30),
+                                    fontSize: 35),
+                              ),
+                            ),
+                          ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: Text('${data['nome']}\n${data['status']}'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Row cardUser(Map<String, dynamic> data) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 100,
+          height: 100,
+          child: data['profilePic'] != ''
+              ? CachedNetworkImage(
+                  imageUrl: data['profilePic'],
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => CircleAvatar(
+                    backgroundColor: Colors.blue,
+                    radius: 70,
+                    child: Center(
+                      child: Text(
+                        "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 35),
+                      ),
+                    ),
+                  ),
+                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                    backgroundColor: Colors.red,
+                    radius: 60,
+                    backgroundImage: imageProvider,
+                  ),
+                )
+              : CircleAvatar(
+                  radius: 70,
+                  child: Center(
+                    child: Text(
+                      "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                      style: const TextStyle(color: Colors.white, fontSize: 35),
+                    ),
+                  ),
+                ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0),
+          child: Text('${data['nome']}\n${data['status']}'),
+        ),
+      ],
+    );
+  }
+
+  SizedBox searchBar() {
+    return SizedBox(
       width: MediaQuery.of(context).size.width - 35,
       child: TextField(
         onChanged: (value) {
@@ -213,12 +263,12 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
         },
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.black),
                 borderRadius: BorderRadius.circular(10)),
             focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.black),
                 borderRadius: BorderRadius.circular(10)),
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: const Icon(Icons.search),
             hintText: "Search.."),
       ),
     );
@@ -230,11 +280,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
           bool isConnected = await checkInternetConnection();
 
           if (isConnected) {
-            Navigator.of(context)
-                .push(MaterialPageRoute(
-              builder: (context) => const RegistrarAlunoView(),
-            ))
-                .then((value) {
+            Navigator.of(context).pushNamed(registerAlunoRoute).then((value) {
               loadLista();
             });
           } else {
@@ -245,8 +291,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
   }
 
   loadLista() async {
-    final mapList = await getListShared('listaAlunos');
-    mapList.removeWhere((mapa) => mapa.length == 0);
+    final mapList = await getListUsers();
     bool connected = await checkInternetConnection();
 
     setState(() {

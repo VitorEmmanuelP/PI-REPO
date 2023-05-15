@@ -1,9 +1,13 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
+
+import '../utils/check_internet.dart';
 
 class UserView extends StatefulWidget {
   const UserView({super.key});
@@ -40,31 +44,16 @@ class _UserViewState extends State<UserView> {
             ElevatedButton(
                 onPressed: () async {
                   final bool shouldDelete = await showDeleteDialog(context);
+                  bool isConnected = await checkInternetConnection();
 
                   if (shouldDelete) {
-                    final user = FirebaseFirestore.instance
-                        .collection(
-                            'prefeituras/${dados!['idPrefeitura']}/users/')
-                        .doc('${dados!['id']}');
+                    if (isConnected) {
+                      await deletarUser();
 
-                    user.delete();
-
-                    final userId = await FirebaseFirestore.instance
-                        .collection('users')
-                        .where('cpf', isEqualTo: dados!['cpf'])
-                        .limit(1)
-                        .snapshots()
-                        .first;
-
-                    final userLogin = FirebaseFirestore.instance
-                        .collection('users')
-                        .doc('${userId.docs.first.id}');
-
-                    userLogin.delete();
-
-                    atualizarStored();
-
-                    Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    } else {
+                      await showErrorMessage(context, 'Internet Missing');
+                    }
                   }
                 },
                 child: const Text('Delete'))
@@ -74,12 +63,41 @@ class _UserViewState extends State<UserView> {
     );
   }
 
+  Future<void> deletarUser() async {
+    final user = FirebaseFirestore.instance
+        .collection('prefeituras/${dados!['idPrefeitura']}/users/')
+        .doc('${dados!['id']}');
+
+    user.delete();
+
+    final userId = await FirebaseFirestore.instance
+        .collection('users')
+        .where('cpf', isEqualTo: dados!['cpf'])
+        .limit(1)
+        .snapshots()
+        .first;
+
+    final userLogin = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId.docs.first.id);
+
+    userLogin.delete();
+
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('images/${dados!['id']}/${dados!['id']}');
+
+    storageRef.delete();
+
+    atualizarStored();
+  }
+
   atualizarStored() async {
-    final List listaAlunos = await getListShared('listaAlunos');
+    final List<UserData> listaAlunos = await getListUsers();
 
-    listaAlunos.removeWhere((mapa) => mapa['id'] == dados!['id']);
+    listaAlunos.removeWhere((mapa) => mapa.id == dados!['id']);
 
-    setListShared('listaAlunos', listaAlunos);
+    saveListModels('listaAlunos', listaAlunos);
   }
 
   Color getRandomColor() {

@@ -1,9 +1,14 @@
-import 'dart:convert';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/validador_login.dart';
 
@@ -24,8 +29,8 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
   late final TextEditingController _cursoAluno;
   late final TextEditingController _telefone;
   late final TextEditingController _data;
-  bool? _checkBoxValue1 = false;
-  bool? _checkBoxValue2 = false;
+  bool? checkBoxValue1 = false;
+  late Uint8List qrCodeBytes;
 
   var nomesError = false;
   var cpfError = false;
@@ -100,29 +105,19 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
         children: [
           Row(
             children: [
-              Switch(
-                activeColor: Colors.red,
-                value: _checkBoxValue1!,
-                onChanged: (newValue) {
-                  setState(() {
-                    _checkBoxValue1 = newValue;
-                  });
-                },
-              ),
-              Text('Aluno'),
-            ],
-          ),
-          Row(
-            children: [
               Checkbox(
-                value: _checkBoxValue2,
+                value: checkBoxValue1,
                 onChanged: (newValue) {
                   setState(() {
-                    _checkBoxValue2 = newValue;
+                    checkBoxValue1 = newValue;
                   });
                 },
               ),
-              Text('Condernador'),
+              Row(
+                children: const [
+                  Text('O aluno é um cordernador'),
+                ],
+              ),
             ],
           ),
         ],
@@ -147,8 +142,10 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
             final cursoAluno = _cursoAluno.text;
             final telefone = maskFormatTelef.unmaskText(_telefone.text);
             final data = maskFormatterData.unmaskText(_data.text);
+            final status = checkBoxValue1! ? 'cordenador' : 'aluno';
 
             validarRegistros(nome, cpf, telefone, data);
+            //generateQrCode(nome);
 
             if (checarErros()) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -157,10 +154,9 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                 content: Text("Adicionado"),
               ));
 
-              final id = await getInfoUser();
-
+              final prefeitura = await getUser();
               final docRef = await FirebaseFirestore.instance
-                  .collection("prefeituras/${id['id']}/users/")
+                  .collection("prefeituras/${prefeitura.id}/users/")
                   .add({
                 'nome': nome,
                 'cpf': cpf,
@@ -170,44 +166,48 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                 'profilePic': '',
                 'senha': data,
                 'data': data,
-                'status': 'aluno',
+                'status': status,
                 'idOnibus': '',
                 'id': '',
-                'idPrefeitura': id['id']
+                'idPrefeitura': prefeitura.id,
+                'token': '',
               });
 
               final idCurrent = docRef.id.toString();
 
               final usera = FirebaseFirestore.instance
-                  .collection("prefeituras/${id['id']}/users/")
+                  .collection("prefeituras/${prefeitura.id}/users/")
                   .doc(idCurrent);
 
               usera.update({'id': idCurrent});
 
-              Map registro = {
-                'nome': nome,
-                'cpf': cpf,
-                'faculdade': faculdade,
-                'cursoAluno': cursoAluno,
-                'telefone': telefone,
-                'profilePic': '',
-                'senha': data,
-                'data': data,
-                'status': 'aluno',
-                'idOnibus': '',
-                'id': idCurrent,
-                'idPrefeitura': id['id']
-              };
+              final registro = UserData(
+                nome: nome,
+                cpf: cpf,
+                faculdade: faculdade,
+                curso: cursoAluno,
+                telefone: telefone,
+                profilePic: '',
+                senha: data,
+                data: data,
+                status: 'aluno',
+                idOnibus: '',
+                id: idCurrent,
+                idPrefeitura: 'prefeitura.id',
+                token: '',
+              );
 
               await addListaAluno(registro);
 
               await FirebaseFirestore.instance.collection("users").add({
                 'cpf': cpf,
                 'senha': data,
-                'idPrefeitura': id['id'],
+                'idPrefeitura': prefeitura.id,
                 'id': idCurrent,
               });
-              Navigator.of(context).pop();
+              print('a');
+
+              //Navigator.of(context).pop();
             } else {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 behavior: SnackBarBehavior.floating,
@@ -220,6 +220,13 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
           }
         },
         child: const Text("Adicionar"));
+  }
+
+  Future<String> getQrCodeImageFile() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final imagePath = '${directory.path}/qr_code.png';
+
+    return imagePath;
   }
 
   Padding dataTextField(MaskTextInputFormatter maskFormatterData) {
@@ -321,12 +328,12 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
   }
 
   addListaAluno(registro) async {
-    final mapList = await getListShared('listaAlunos');
+    final mapList = await getListUsers();
 
     if (!mapList.contains(registro)) {
       mapList.add(registro);
 
-      setListShared('listaAlunos', mapList);
+      saveListModels('listaAlunos', mapList);
     }
   }
 
