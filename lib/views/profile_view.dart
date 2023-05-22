@@ -17,7 +17,6 @@ class _ProfileViewState extends State<ProfileView> {
   UserData? dados;
   List<String>? nome = [];
   Future<Map?>? dadosFuture;
-  String qrData = '';
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +25,6 @@ class _ProfileViewState extends State<ProfileView> {
     if (args != null) {
       dados = args;
       nome = dados?.nome.split(' ');
-
-      qrData = base64Encode(utf8.encode(dados!.id));
-
-      qrData = qrData.substring(0, qrData.length - 1);
     }
 
     return Scaffold(
@@ -72,21 +67,12 @@ class _ProfileViewState extends State<ProfileView> {
               height: 330,
               width: double.infinity,
               child: Center(
-                  child: MyQrCode(qrData: qrData.split('').reversed.join())),
+                  child: MyQrCode(
+                      qrData: dados!.qrCode.split('').reversed.join())),
             ),
           ],
         )),
       ),
-    );
-  }
-
-  Color getRandomColor() {
-    Random random = Random();
-    return Color.fromRGBO(
-      random.nextInt(256), // Red value (0-255)
-      random.nextInt(256), // Green value (0-255)
-      random.nextInt(256), // Blue value (0-255)
-      1.0,
     );
   }
 

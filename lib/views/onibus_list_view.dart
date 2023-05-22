@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
 import 'package:pi/utils/validador_login.dart';
-import 'package:pi/views/info_bus_view.dart';
+import 'package:pi/views/onibus_view.dart';
 
 import 'package:pi/views/registrar_bus.dart';
 

@@ -127,59 +127,70 @@ class _PixState extends State<Pix> {
                   },
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (user!.idOnibus == '') {
-                    showErrorMessage(context,
-                        "E preciso estar cadrastado em um onibus para criar Qr Codes Pix");
-                  } else {
-                    String cpfText = _cpf.text;
-                    final valor = _valor.text;
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (user!.idOnibus == '') {
+                          showErrorMessage(context,
+                              "E preciso estar cadrastado em um onibus para criar Qr Codes Pix");
+                        } else {
+                          String cpfText = _cpf.text;
+                          final valor = _valor.text;
 
-                    validarRegistros(cpfText, valor);
+                          validarRegistros(cpfText, valor);
 
-                    if (validarNumeroCelular(cpfText) && !isCPFValid(cpfText)) {
-                      cpfText = '+55$cpfText';
-                    }
-                    if (checarErros()) {
-                      final payload = PayloadPix(
-                        pixKey: cpfText,
-                        description: "Passagem do onibus",
-                        merchantName: user!.nome,
-                        merchantCity: 'Minas Gerais',
-                        amount: valor,
-                        txId: randomkey!,
-                      );
-                      DateTime now = DateTime.now();
+                          if (validarNumeroCelular(cpfText) &&
+                              !isCPFValid(cpfText)) {
+                            cpfText = '+55$cpfText';
+                          }
+                          if (checarErros()) {
+                            final payload = PayloadPix(
+                              pixKey: cpfText,
+                              description: "Passagem do onibus",
+                              merchantName: user!.nome,
+                              merchantCity: 'Minas Gerais',
+                              amount: valor,
+                              txId: randomkey!,
+                            );
+                            DateTime now = DateTime.now();
 
-                      String formattedDateTime =
-                          DateFormat('dd-MM-yyyy HH:mm').format(now);
+                            String formattedDateTime =
+                                DateFormat('dd-MM-yyyy HH:mm').format(now);
 
-                      await FirebaseFirestore.instance
-                          .collection(
-                              "prefeituras/${user!.idPrefeitura}/onibus/${user!.idOnibus}/pagamentos")
-                          .add({
-                        'criador': user!.nome,
-                        'idCriador': user!.id,
-                        'data': formattedDateTime,
-                        'status': 'pendente',
-                        'valor': valor,
-                        'qrcode': payload.getPayload(),
-                      });
+                            await FirebaseFirestore.instance
+                                .collection(
+                                    "prefeituras/${user!.idPrefeitura}/onibus/${user!.idOnibus}/pagamentos")
+                                .add({
+                              'criador': user!.nome,
+                              'idCriador': user!.id,
+                              'data': formattedDateTime,
+                              'status': 'pendente',
+                              'valor': valor,
+                              'qrcode': payload.getPayload(),
+                            });
 
-                      Navigator.of(context)
-                          .pushNamed(pagamentoPreviwRoute, arguments: payload);
-                    }
-                  }
-                },
-                child: const Text("AD"),
+                            Navigator.of(context).pushNamed(
+                                pagamentoPreviwRoute,
+                                arguments: payload);
+                          }
+                        }
+                      },
+                      child: const Text("Criar"),
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed(
+                              listaPagamentoPixRoute,
+                              arguments: user);
+                        },
+                        child: const Text("Lista de QrCodes"))
+                  ],
+                ),
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .pushNamed(listaPagamentoPixRoute, arguments: user);
-                  },
-                  child: const Text("Lista de QrCodes"))
             ],
           )),
         ),

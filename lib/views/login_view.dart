@@ -86,7 +86,7 @@ class _LoginViewState extends State<LoginView> {
 
                           await auth.signInAnonymously();
 
-                          mudarTela();
+                          mudarTela(dadosUser);
                         }
                       } on UserNotFound {
                         await showErrorMessage(context, 'UserNotFOund');
@@ -114,8 +114,9 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  mudarTela() {
-    Navigator.of(context).pushNamedAndRemoveUntil(homeRoute, (route) => false);
+  mudarTela(dados) {
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(homeRoute, (route) => false, arguments: dados);
   }
 
   getData(id, from) async {

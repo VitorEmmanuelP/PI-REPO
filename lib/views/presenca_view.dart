@@ -305,13 +305,13 @@ class _PresencaViewState extends State<PresencaView> {
                         ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 20.0),
+                  padding: const EdgeInsets.only(left: 15.0),
                   child: Text('${data['nome']}\n${data['status']}'),
                 ),
                 const Spacer(),
                 if (data['id'] == dados!.id && data['data'] == formattedDate)
                   Padding(
-                    padding: const EdgeInsets.only(right: 20),
+                    padding: const EdgeInsets.only(right: 0),
                     child: IconButton(
                       onPressed: () async {
                         final aluno = sortedDocs[index].reference;

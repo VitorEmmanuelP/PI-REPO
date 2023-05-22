@@ -246,7 +246,8 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20.0),
-          child: Text('${data['nome']}\n${data['status']}'),
+          child:
+              Text('${data['nome']}\n${data['status']} ${data['cursoAluno']}'),
         ),
       ],
     );

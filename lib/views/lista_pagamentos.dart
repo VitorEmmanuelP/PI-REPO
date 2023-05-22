@@ -51,7 +51,7 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
           itemCount: dados.length,
           itemBuilder: (context, index) {
             final data = dados[index].data();
-            print(data.runtimeType);
+
             return Column(
               children: [
                 GestureDetector(
@@ -59,18 +59,23 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
                     Navigator.of(context)
                         .pushNamed(pagamentoRoute, arguments: data);
                   },
-                  child: Container(
-                    width: 5000,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 2, color: Colors.black),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(data['criador']),
-                        Text(data['data']),
-                        Text(data['valor'])
-                      ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Container(
+                      width: 5000,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 2, color: Colors.black),
+                      ),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            child: Image.asset('assets/images/pix.png'),
+                          ),
+                          Text(data['criador']),
+                          Text("\$${data['valor']} reais")
+                        ],
+                      ),
                     ),
                   ),
                 )

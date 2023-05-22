@@ -40,6 +40,12 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments;
+
+    if (args != null) {
+      dados = args;
+    }
+
     PageController pageController = PageController(initialPage: 1);
 
     return DefaultTabController(
@@ -163,16 +169,6 @@ class _HomeViewState extends State<HomeView> {
             ),
           ),
         ),
-        ElevatedButton(
-            onPressed: () async {
-              //sendFcmMessage();
-              // await NotificationServices.showNotification(
-              //   title: "ADAWD",
-              //   body: "CAPERA",
-              //   payload: {'navigate': 'true'},
-              // );
-            },
-            child: const Text('ada'))
       ],
     ));
   }
@@ -220,16 +216,6 @@ class _HomeViewState extends State<HomeView> {
                 style: TextStyle(color: Colors.black),
               )),
         ),
-        ElevatedButton(
-            onPressed: () async {
-              //sendFcmMessage();
-              // await NotificationServices.showNotification(
-              //   title: "ADAWD",
-              //   body: "CAPERA",
-              //   payload: {'navigate': 'true'},
-              // );
-            },
-            child: const Text('ada'))
       ],
     ));
   }
@@ -287,20 +273,20 @@ class _HomeViewState extends State<HomeView> {
 
       if (data.isNotEmpty) {
         final aluno = UserData(
-          nome: data['nome'],
-          cpf: data['cpf'],
-          profilePic: data['profilePic'],
-          data: data['data'],
-          curso: data['cursoAluno'],
-          faculdade: data['faculdade'],
-          telefone: data['telefone'],
-          senha: data['senha'],
-          status: data['status'],
-          id: data['id'],
-          idPrefeitura: data['idPrefeitura'],
-          idOnibus: data['idOnibus'],
-          token: data['token'],
-        );
+            nome: data['nome'],
+            cpf: data['cpf'],
+            profilePic: data['profilePic'],
+            data: data['data'],
+            curso: data['cursoAluno'],
+            faculdade: data['faculdade'],
+            telefone: data['telefone'],
+            senha: data['senha'],
+            status: data['status'],
+            id: data['id'],
+            idPrefeitura: data['idPrefeitura'],
+            idOnibus: data['idOnibus'],
+            token: data['token'],
+            qrCode: data['qrCode']);
 
         listaAlunos.add(aluno);
       }
@@ -334,7 +320,8 @@ class _HomeViewState extends State<HomeView> {
             id: data['id'],
             idPrefeitura: data['idPrefeitura'],
             idOnibus: data['idOnibus'],
-            token: data['token']);
+            token: data['token'],
+            qrCode: data['qrCode']);
 
         listaAlunos.add(aluno);
       }
@@ -345,20 +332,23 @@ class _HomeViewState extends State<HomeView> {
 
   AppBar appBar() {
     return AppBar(
-      leading: Builder(
-        builder: (context) {
-          return IconButton(
-            onPressed: () async {
-              Navigator.of(context).pushNamed(profileRoute, arguments: dados);
-            },
-            icon: const Icon(
-              Icons.account_circle_outlined,
-              color: Colors.black,
-            ),
-            iconSize: 36.0,
-          );
-        },
-      ),
+      leading: dados!.status != 'prefeitura'
+          ? Builder(
+              builder: (context) {
+                return IconButton(
+                  onPressed: () async {
+                    Navigator.of(context)
+                        .pushNamed(profileRoute, arguments: dados);
+                  },
+                  icon: const Icon(
+                    Icons.account_circle_outlined,
+                    color: Colors.black,
+                  ),
+                  iconSize: 36.0,
+                );
+              },
+            )
+          : null,
       backgroundColor: Colors.white,
       elevation: 0,
       actions: [

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/models/bus_data.dart';
@@ -120,19 +121,54 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                         decoration: BoxDecoration(border: Border.all(width: 2)),
                         child: Row(children: [
                           data['profilePic'] != ''
-                              ? CircleAvatar(
-                                  backgroundColor: Colors.red,
-                                  radius: 60,
-                                  backgroundImage:
-                                      NetworkImage(data['profilePic']),
+                              ? SizedBox(
+                                  width: 100,
+                                  height: 100,
+                                  child: CachedNetworkImage(
+                                    imageUrl: data['profilePic'],
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.blue,
+                                      radius: 70,
+                                      child: Center(
+                                        child: Text(
+                                          "'${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}'",
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 35),
+                                        ),
+                                      ),
+                                    ),
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      radius: 60,
+                                      backgroundImage: imageProvider,
+                                    ),
+                                  ),
                                 )
-                              : CircleAvatar(
-                                  backgroundColor: Colors.blue,
-                                  radius: 60,
-                                  child: Text(
-                                      "${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}"),
+                              : SizedBox(
+                                  height: 100,
+                                  width: 100,
+                                  child: CircleAvatar(
+                                    radius: 70,
+                                    child: Center(
+                                      child: Text(
+                                        "${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}",
+                                        style: const TextStyle(
+                                            color: Colors.white, fontSize: 35),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                          Text('${data['nome']}'),
+
+                          //   ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20.0),
+                            child: Text('${data['nome']}'),
+                          ),
                           const Spacer(),
                           IconButton(
                               onPressed: () {
@@ -161,17 +197,43 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                         decoration: BoxDecoration(border: Border.all(width: 2)),
                         child: Row(children: [
                           data['profilePic'] != ''
-                              ? CircleAvatar(
-                                  backgroundColor: Colors.red,
-                                  radius: 60,
-                                  backgroundImage:
-                                      NetworkImage(data['profilePic']),
+                              ? SizedBox(
+                                  width: 100,
+                                  height: 100,
+                                  child: CachedNetworkImage(
+                                    imageUrl: data['profilePic'],
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.blue,
+                                      radius: 70,
+                                      child: Center(
+                                        child: Text(
+                                          "'${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}'",
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 35),
+                                        ),
+                                      ),
+                                    ),
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      radius: 60,
+                                      backgroundImage: imageProvider,
+                                    ),
+                                  ),
                                 )
                               : CircleAvatar(
-                                  backgroundColor: Colors.blue,
-                                  radius: 60,
-                                  child: Text(
-                                      "${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}"),
+                                  radius: 70,
+                                  child: Center(
+                                    child: Text(
+                                      "${nomes[0][0].toUpperCase()}${nomes[1][0].toUpperCase()}",
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 35),
+                                    ),
+                                  ),
                                 ),
                           Text('${data['nome']}'),
                           const Spacer(),
@@ -203,6 +265,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       behavior: SnackBarBehavior.floating,
+      duration: Duration(seconds: 1),
       backgroundColor: Colors.green,
       content: Text("Usuario adicionado ao onibus"),
     ));

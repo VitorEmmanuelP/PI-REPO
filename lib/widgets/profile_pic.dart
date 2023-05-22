@@ -6,7 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:image_picker/image_picker.dart' show ImagePicker, ImageSource;
-import 'package:pi/classes/profile_picture.dart';
+import 'package:pi/widgets/profile_picture.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:shared_preferences/shared_preferences.dart';

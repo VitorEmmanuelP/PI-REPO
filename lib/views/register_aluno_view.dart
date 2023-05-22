@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:path_provider/path_provider.dart';
@@ -145,7 +146,6 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
             final status = checkBoxValue1! ? 'cordenador' : 'aluno';
 
             validarRegistros(nome, cpf, telefone, data);
-            //generateQrCode(nome);
 
             if (checarErros()) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -172,6 +172,7 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                 'id': '',
                 'idPrefeitura': prefeitura.id,
                 'token': '',
+                'qrCode': ''
               });
 
               final idCurrent = docRef.id.toString();
@@ -180,23 +181,24 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                   .collection("prefeituras/${prefeitura.id}/users/")
                   .doc(idCurrent);
 
-              usera.update({'id': idCurrent});
+              final qrCodeString = generateQrCode(idCurrent);
+              usera.update({'id': idCurrent, 'qrCode': qrCodeString});
 
               final registro = UserData(
-                nome: nome,
-                cpf: cpf,
-                faculdade: faculdade,
-                curso: cursoAluno,
-                telefone: telefone,
-                profilePic: '',
-                senha: data,
-                data: data,
-                status: 'aluno',
-                idOnibus: '',
-                id: idCurrent,
-                idPrefeitura: 'prefeitura.id',
-                token: '',
-              );
+                  nome: nome,
+                  cpf: cpf,
+                  faculdade: faculdade,
+                  curso: cursoAluno,
+                  telefone: telefone,
+                  profilePic: '',
+                  senha: data,
+                  data: data,
+                  status: 'aluno',
+                  idOnibus: '',
+                  id: idCurrent,
+                  idPrefeitura: 'prefeitura.id',
+                  token: '',
+                  qrCode: qrCodeString);
 
               await addListaAluno(registro);
 
@@ -222,6 +224,14 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
           }
         },
         child: const Text("Adicionar"));
+  }
+
+  generateQrCode(id) {
+    String qrData = base64Encode(utf8.encode(id));
+
+    qrData = qrData.substring(0, qrData.length - 1);
+
+    return qrData;
   }
 
   Future<String> getQrCodeImageFile() async {
@@ -365,11 +375,11 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
       if (telefone.length < 11) {
         telefoneError = true;
       }
-      if (!validarData(data)) {
-        setState(() {
-          dataError = true;
-        });
-      }
+      // if (!validarData(data)) {
+      //   setState(() {
+      //     dataError = true;
+      //   });
+      // }
     });
   }
 

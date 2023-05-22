@@ -18,7 +18,7 @@ class ProfileImage {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height / 5.2,
                 margin: const EdgeInsets.only(top: 8.0),
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

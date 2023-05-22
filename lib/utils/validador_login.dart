@@ -97,20 +97,20 @@ getUserData(id, loginId) async {
 
   if (user != null) {
     return UserData(
-      nome: user['nome'],
-      cpf: user['cpf'],
-      profilePic: user['profilePic'],
-      data: user['data'],
-      curso: user['cursoAluno'],
-      faculdade: user['faculdade'],
-      telefone: user['telefone'],
-      senha: user['senha'],
-      status: user['status'],
-      id: user['id'],
-      idPrefeitura: user['idPrefeitura'],
-      idOnibus: user['idOnibus'],
-      token: user['token'],
-    );
+        nome: user['nome'],
+        cpf: user['cpf'],
+        profilePic: user['profilePic'],
+        data: user['data'],
+        curso: user['cursoAluno'],
+        faculdade: user['faculdade'],
+        telefone: user['telefone'],
+        senha: user['senha'],
+        status: user['status'],
+        id: user['id'],
+        idPrefeitura: user['idPrefeitura'],
+        idOnibus: user['idOnibus'],
+        token: user['token'],
+        qrCode: user['qrCode']);
   }
   // return {
   //   'nome': users['nome'],
