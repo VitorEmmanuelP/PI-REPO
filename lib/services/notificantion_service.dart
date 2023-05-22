@@ -1,8 +1,5 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:pi/constants/routes.dart';
-import 'package:pi/views/login_view.dart';
-import 'package:pi/views/register_aluno_view.dart';
 
 import '../main.dart';
 

@@ -13,7 +13,7 @@ import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/validador_login.dart';
 
 import '../utils/show_error_message.dart';
-import '../utils/validador_registro.dart';
+import '../utils/validadores_genericos.dart';
 
 class RegistrarAlunoView extends StatefulWidget {
   const RegistrarAlunoView({super.key});
@@ -149,6 +149,7 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
 
             if (checarErros()) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                duration: Duration(seconds: 1),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: Colors.green,
                 content: Text("Adicionado"),
@@ -201,15 +202,16 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
 
               await FirebaseFirestore.instance.collection("users").add({
                 'cpf': cpf,
+                'dataNascimento': data,
                 'senha': data,
                 'idPrefeitura': prefeitura.id,
                 'id': idCurrent,
               });
-              print('a');
 
               //Navigator.of(context).pop();
             } else {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                duration: Duration(seconds: 1),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: Colors.red,
                 content: Text("Erro"),
@@ -363,7 +365,7 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
       if (telefone.length < 11) {
         telefoneError = true;
       }
-      if (data.length < 8) {
+      if (!validarData(data)) {
         setState(() {
           dataError = true;
         });

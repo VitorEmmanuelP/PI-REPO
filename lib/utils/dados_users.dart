@@ -40,7 +40,6 @@ Future<void> saveUserOrPrefeitura(String nome, user) async {
 Future<dynamic> getUser() async {
   final prefs = await SharedPreferences.getInstance();
   final userJson = prefs.getString('dados');
-
   if (userJson != null) {
     final userMap = json.decode(userJson);
 

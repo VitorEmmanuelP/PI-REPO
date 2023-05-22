@@ -7,11 +7,11 @@ import 'package:pi/models/bus_data.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/views/aluno_list_view.dart';
-import 'package:pi/views/pagamento_view.dart';
+import 'package:pi/views/criar_qr_code_view.dart';
 import 'package:pi/views/presenca_view.dart';
 import 'package:pi/views/qr_code_scanner_view.dart';
+import 'package:pi/views/registrar_bus.dart';
 
-import '../classes/a.dart';
 import '../services/notificantion_service.dart';
 
 class HomeView extends StatefulWidget {
@@ -30,7 +30,7 @@ class _HomeViewState extends State<HomeView> {
   final List pages = [
     profileRoute,
     homeRoute,
-    pagamentoRoute,
+    criarQrCodeRoute,
   ];
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _HomeViewState extends State<HomeView> {
         gap: 8,
         activeColor: Colors.white,
         iconSize: 24,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
         duration: const Duration(milliseconds: 500),
         tabBackgroundColor: Colors.blueGrey,
         tabs: const [
@@ -165,7 +165,7 @@ class _HomeViewState extends State<HomeView> {
         ),
         ElevatedButton(
             onPressed: () async {
-              sendFcmMessage();
+              //sendFcmMessage();
               // await NotificationServices.showNotification(
               //   title: "ADAWD",
               //   body: "CAPERA",
@@ -185,22 +185,6 @@ class _HomeViewState extends State<HomeView> {
         Image.asset(
           "assets/images/logo.png",
           height: 250,
-        ),
-        Container(
-          padding: const EdgeInsets.all(20),
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed(agendaRoute);
-            },
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(80),
-              side: const BorderSide(color: Colors.black, width: 2),
-            ),
-            child: const Text(
-              "AGENDAR",
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
         ),
         Container(
           padding: const EdgeInsets.all(20),
@@ -238,7 +222,7 @@ class _HomeViewState extends State<HomeView> {
         ),
         ElevatedButton(
             onPressed: () async {
-              sendFcmMessage();
+              //sendFcmMessage();
               // await NotificationServices.showNotification(
               //   title: "ADAWD",
               //   body: "CAPERA",
@@ -252,8 +236,7 @@ class _HomeViewState extends State<HomeView> {
 
   void loadData() async {
     final dadosString = await getUser();
-    print(
-        'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB');
+
     setState(() {
       dados = dadosString;
     });

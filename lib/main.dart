@@ -1,4 +1,3 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/services/firebase_messaging.dart';
@@ -6,11 +5,15 @@ import 'package:pi/services/notificantion_service.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/views/add_aluno_onibus_view.dart';
 import 'package:pi/views/agenda_view.dart';
+import 'package:pi/views/criar_qr_code_view.dart';
+import 'package:pi/views/esqueci_senha.dart';
 import 'package:pi/views/home_view.dart';
 import 'package:pi/views/info_bus_view.dart';
 import 'package:pi/views/aluno_list_view.dart';
+import 'package:pi/views/lista_pagamentos.dart';
 import 'package:pi/views/login_view.dart';
 import 'package:pi/views/onibus_list_view.dart';
+import 'package:pi/views/pagamento_preview_view.dart';
 import 'package:pi/views/pagamento_view.dart';
 import 'package:pi/views/presenca_view.dart';
 import 'package:pi/views/profile_view.dart';
@@ -54,9 +57,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        // splashColor: Colors.transparent,
-        // highlightColor: Colors.transparent,
-        // hoverColor: Colors.transparent,
+        splashColor: Colors.white,
+        brightness: Brightness.light,
         primaryColor: Colors.green,
       ),
       navigatorKey: navigatorKey,
@@ -73,8 +75,12 @@ class MyApp extends StatelessWidget {
         listaAlunoRoute: (context) => const ListaAlunoView(),
         userRoute: (context) => const UserView(),
         addAlunoOnibusRoute: (context) => const AddALunoONibusView(),
-        pagamentoRoute: (context) => const Pix(),
+        pagamentoPreviwRoute: (context) => const PagamentoPreviewView(),
+        pagamentoRoute: (context) => const PagamentoView(),
+        criarQrCodeRoute: (context) => const Pix(),
+        listaPagamentoPixRoute: (context) => const ListaPagamentosView(),
         qrScanner: (context) => QRCodeScannerScreen(),
+        esqueceSenha: (context) => const EsqueceSenhaView(),
       },
       //home: HomeView()
       home: dados.runtimeType == UserData || dados.runtimeType == PrefeituraData

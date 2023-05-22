@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 
 import 'package:pi/models/user_data.dart';
 
+import '../utils/enviar_mensagens.dart';
+
 class PresencaView extends StatefulWidget {
   const PresencaView({Key? key}) : super(key: key);
 
@@ -210,16 +212,26 @@ class _PresencaViewState extends State<PresencaView> {
                       return aa.compareTo(bb);
                     });
 
-                    sortedDocs1.insert(0, snapshot1.docs[inde!]);
+                    try {
+                      sortedDocs1.insert(0, snapshot1.docs[inde!]);
+                      final mapzada = {};
 
-                    final mapzada = {};
+                      for (var i in snapshot2.docs) {
+                        final dados = i.data() as Map;
+                        mapzada[dados['id']] = dados['profilePic'];
+                      }
 
-                    for (var i in snapshot2.docs) {
-                      final dados = i.data() as Map;
-                      mapzada[dados['id']] = dados['profilePic'];
+                      return listaPresensa(sortedDocs1, mapzada);
+                    } finally {
+                      final mapzada = {};
+
+                      for (var i in snapshot2.docs) {
+                        final dados = i.data() as Map;
+                        mapzada[dados['id']] = dados['profilePic'];
+                      }
+
+                      return listaPresensa(sortedDocs1, mapzada);
                     }
-
-                    return listaPresensa(sortedDocs1, mapzada);
                   } else {
                     return Container();
                   }
@@ -357,6 +369,12 @@ class _PresencaViewState extends State<PresencaView> {
         'data': formattedDate,
       });
     }
+
+    await enviarMensagem(alunoDados);
+  }
+
+  enviarMensagem(alunoDados) {
+    sendFcmMessage(alunoDados.docs);
   }
 
   reloadLista() async {
