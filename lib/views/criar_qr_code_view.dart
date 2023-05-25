@@ -234,8 +234,9 @@ class _PixState extends State<Pix> {
   validarValor(valor) {
     if (valor.length <= 0) {
       return false;
-    } else
+    } else {
       return true;
+    }
   }
 
   bool validarEmail(String email) {

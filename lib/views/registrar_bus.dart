@@ -103,6 +103,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                           'destino': destino,
                           'idPrefeitura': prefeitura.id,
                           'id': '',
+                          'numero_vagas': '',
                         });
 
                         final idCurrent = docRef.id.toString();

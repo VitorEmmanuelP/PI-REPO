@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,10 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
-import 'package:pi/views/pagamento_preview_view.dart';
 
 import '../utils/check_internet.dart';
-import '../widgets/profile_pic.dart';
 
 class UserView extends StatefulWidget {
   const UserView({super.key});

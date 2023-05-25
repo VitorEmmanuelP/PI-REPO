@@ -13,7 +13,6 @@ class EsqueceSenhaView extends StatefulWidget {
 }
 
 class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
-  @override
   late final TextEditingController _cpf;
   late final TextEditingController _dataNascimento;
   late final TextEditingController _novaSenha;
@@ -43,7 +42,7 @@ class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
       mask: '###-###-###-##', filter: {"#": RegExp(r'[0-9]')});
   final maskFormatterData = MaskTextInputFormatter(
       mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
-
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -205,9 +204,10 @@ class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
 
   bool validarSenha(String input) {
     if (input.length > 8) {
-      return false;
-    } else
       return true;
+    } else {
+      return false;
+    }
   }
 
   AppBar appBar() {

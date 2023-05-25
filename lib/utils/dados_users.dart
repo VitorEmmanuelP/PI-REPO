@@ -24,7 +24,7 @@ Future<List<UserData>> getListUsers() async {
 Future<List<BusData>> getListOnibus() async {
   final prefs = await SharedPreferences.getInstance();
   final userListJson = prefs.getStringList('listaOnibus') ?? [];
-
+  print(userListJson);
   return userListJson
       .map((jsonString) => BusData.fromJson(jsonDecode(jsonString)))
       .toList();
@@ -43,7 +43,7 @@ Future<dynamic> getUser() async {
   if (userJson != null) {
     final userMap = json.decode(userJson);
 
-    if (userMap['status'] == 'aluno' || userMap['status'] == 'cordenador') {
+    if (userMap['status'] == 'aluno' || userMap['status'] == 'coordenador') {
       final b = UserData.fromJson(userMap);
       return b;
     } else {

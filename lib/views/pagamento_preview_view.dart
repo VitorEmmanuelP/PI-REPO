@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../models/payload_pix.dart';
@@ -126,7 +125,7 @@ class _PagamentoPreviewViewState extends State<PagamentoPreviewView> {
 class MyQrCode extends StatelessWidget {
   final String qrData;
 
-  MyQrCode({required this.qrData});
+  const MyQrCode({super.key, required this.qrData});
 
   @override
   Widget build(BuildContext context) {

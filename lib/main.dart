@@ -10,11 +10,14 @@ import 'package:pi/views/esqueci_senha.dart';
 import 'package:pi/views/home_view.dart';
 import 'package:pi/views/aluno_list_view.dart';
 import 'package:pi/views/lista_pagamentos.dart';
+import 'package:pi/views/lista_presenca_view.dart';
 import 'package:pi/views/login_view.dart';
 import 'package:pi/views/onibus_list_view.dart';
+import 'package:pi/views/onibus_view.dart';
 import 'package:pi/views/pagamento_preview_view.dart';
 import 'package:pi/views/pagamento_view.dart';
 import 'package:pi/views/presenca_view.dart';
+import 'package:pi/views/presensa_unica_view.dart';
 import 'package:pi/views/profile_view.dart';
 import 'package:pi/views/qr_code_scanner_view.dart';
 import 'package:pi/views/register_aluno_view.dart';
@@ -66,7 +69,10 @@ class MyApp extends StatelessWidget {
           onibusRoute: (context) => const OnibusView(),
           agendaRoute: (context) => const AgendaView(),
           presencaRoute: (context) => const PresencaView(),
-          infoBusRoute: (context) => const OnibusView(),
+          presencaUnicaRoute: (context) => const PresencaUnicaView(),
+          presencaTodosRoute: (context) => const ListaPresensaView(),
+          listaBusRoute: (context) => const OnibusView(),
+          infoBusRoute: (context) => const InfoBusView(),
           listaAlunoRoute: (context) => const ListaAlunoView(),
           userRoute: (context) => const UserView(),
           addAlunoOnibusRoute: (context) => const AddALunoONibusView(),

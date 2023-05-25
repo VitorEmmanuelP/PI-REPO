@@ -13,6 +13,7 @@ class ListaPagamentosView extends StatefulWidget {
 
 class _ListaPagamentosViewState extends State<ListaPagamentosView> {
   UserData? userDados;
+  String name = '';
 
   @override
   Widget build(BuildContext context) {
@@ -31,59 +32,122 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
                     "Precisa estar cadastrado em um onibus para ver a lista")));
   }
 
-  StreamBuilder<QuerySnapshot<Map<String, dynamic>>> listaPix() {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance
-          .collection(
-              'prefeituras/${userDados!.idPrefeitura}/onibus/${userDados!.idOnibus}/pagamentos')
-          .where("criador", isNotEqualTo: '')
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+  Column listaPix() {
+    return Column(
+      children: [
+        searchBar(),
+        Expanded(
+          child: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection(
+                      'prefeituras/${userDados!.idPrefeitura}/onibus/${userDados!.idOnibus}/pagamentos')
+                  .where("criador", isNotEqualTo: '')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-        final dados = snapshot.data!.docs;
-        return ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: dados.length,
-          itemBuilder: (context, index) {
-            final data = dados[index].data();
+                final dados = snapshot.data!.docs;
+                return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: dados.length,
+                  itemBuilder: (context, index) {
+                    final data = dados[index];
 
-            return Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context)
-                        .pushNamed(pagamentoRoute, arguments: data);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Container(
-                      width: 5000,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 2, color: Colors.black),
-                      ),
-                      child: Row(
+                    if (name.isEmpty) {
+                      return Column(
                         children: [
-                          SizedBox(
-                            child: Image.asset('assets/images/pix.png'),
-                          ),
-                          Text(data['criador']),
-                          Text("\$${data['valor']} reais")
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context)
+                                  .pushNamed(pagamentoRoute, arguments: data);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Container(
+                                width: 5000,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(width: 2, color: Colors.black),
+                                ),
+                                child: card(data),
+                              ),
+                            ),
+                          )
                         ],
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            );
-          },
-        );
-      },
+                      );
+                    }
+
+                    return logicaDeBusca(data, context);
+                  },
+                );
+              }),
+        ),
+      ],
+    );
+  }
+
+  StatelessWidget logicaDeBusca(
+      QueryDocumentSnapshot<Map<String, dynamic>> dados, BuildContext context) {
+    Map<String, dynamic> dadosPix = dados.data();
+    String data = dadosPix['data'].substring(0, 10);
+
+    if (data.toString().toLowerCase().startsWith(name.toLowerCase())) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.of(context).pushNamed(pagamentoRoute, arguments: dados);
+        },
+        child: Column(
+          children: [
+            Container(
+                width: 5000,
+                height: 100,
+                margin: const EdgeInsets.all(20),
+                decoration: BoxDecoration(border: Border.all(width: 2)),
+                child: card(dados)),
+          ],
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Row card(QueryDocumentSnapshot<Map<String, dynamic>> data) {
+    return Row(
+      children: [
+        SizedBox(
+          child: Image.asset('assets/images/pix.png'),
+        ),
+        Text(data['criador']),
+        Text("\$${data['valor']} reais")
+      ],
+    );
+  }
+
+  SizedBox searchBar() {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width - 35,
+      child: TextField(
+        onChanged: (value) {
+          setState(() {
+            name = value;
+          });
+        },
+        decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.circular(10)),
+            focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.circular(10)),
+            prefixIcon: const Icon(Icons.search),
+            hintText: "Search.."),
+      ),
     );
   }
 

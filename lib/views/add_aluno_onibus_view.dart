@@ -15,11 +15,11 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
   String name = '';
   BusData? dadosOnibus;
   List nomes = [];
-  List listaAlunos = [];
+  //List listaAlunos = [];
 
   @override
   void initState() {
-    loadData();
+    //loadData();
     super.initState();
   }
 
@@ -264,19 +264,17 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
     usera.update({'idOnibus': dadosOnibus!.id.toString()});
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      behavior: SnackBarBehavior.floating,
-      duration: Duration(seconds: 1),
+      behavior: SnackBarBehavior.fixed,
+      duration: Duration(milliseconds: 500),
       backgroundColor: Colors.green,
-      content: Text("Usuario adicionado ao onibus"),
+      content: Padding(
+        padding: EdgeInsets.only(top: 8.0),
+        child: Center(
+            child: Text(
+          "Usuario adicionado ao onibus",
+        )),
+      ),
     ));
-  }
-
-  loadData() async {
-    final maplist = await getListUsers();
-
-    setState(() {
-      listaAlunos = maplist;
-    });
   }
 
   AppBar appBar() {

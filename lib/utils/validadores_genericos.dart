@@ -41,19 +41,36 @@ bool isCPFValid(String cpf) {
   return true;
 }
 
-bool validarData(String input) {
-  try {
-    List<String> partes = input.split('/');
-    int dia = int.parse(partes[0]);
-    int mes = int.parse(partes[1]);
-    int ano = int.parse(partes[2]);
-
-    if (ano < 1 || ano > 9999) return false;
-    if (mes < 1 || mes > 12) return false;
-    if (dia < 1 || dia > 31) return false;
-
-    return true;
-  } catch (e) {
+bool validarData(String dateOfBirth) {
+  // Verifique se a data de nascimento tem o comprimento esperado (8 caracteres)
+  if (dateOfBirth.length != 8) {
     return false;
   }
+  // Converte as partes em números inteiros
+  int? day = int.tryParse(dateOfBirth.substring(0, 2));
+  int? month = int.tryParse(dateOfBirth.substring(2, 4));
+  int? year = int.tryParse(dateOfBirth.substring(4));
+
+  // Verifique se o dia, mês e ano são válidos
+  if (day == null || month == null || year == null) {
+    return false;
+  }
+
+  // Verifique se o dia está entre 1 e 31
+  if (day < 1 || day > 31) {
+    return false;
+  }
+
+  // Verifique se o mês está entre 1 e 12
+  if (month < 1 || month > 12) {
+    return false;
+  }
+
+  // Verifique se o ano está no intervalo esperado
+  if (year < 1900) {
+    return false;
+  }
+
+  // A data de nascimento é válida
+  return true;
 }

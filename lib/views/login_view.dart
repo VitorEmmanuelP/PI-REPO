@@ -19,6 +19,7 @@ class _LoginViewState extends State<LoginView> {
   late final TextEditingController _user;
   late final TextEditingController _password;
   late final Map dados;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -42,73 +43,92 @@ class _LoginViewState extends State<LoginView> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: appBar(),
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 300,
-                  child: Image.asset(
-                    'assets/images/logo.png',
-                    height: 300,
-                  ),
+        body: Stack(
+          children: [
+            if (isLoading)
+              Container(
+                color: Colors.grey,
+                child: const Center(
+                  child: CircularProgressIndicator(),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: TextField(
-                    controller: _user,
-                    decoration: estiloTextField("Username"),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: TextField(
-                    controller: _password,
-                    decoration: estiloTextField("Password"),
-                  ),
-                ),
-                OutlinedButton(
-                    onPressed: () async {
-                      FocusScope.of(context).unfocus();
-                      final cpf = _user.text;
-                      final password = _password.text;
-
-                      try {
-                        final dadosUser =
-                            await validarLogin(cpf, password, getData);
-
-                        if (dadosUser != null) {
-                          saveUserOrPrefeitura('dados', dadosUser);
-
-                          FirebaseAuth auth = FirebaseAuth.instance;
-
-                          await auth.signInAnonymously();
-
-                          mudarTela(dadosUser);
-                        }
-                      } on UserNotFound {
-                        await showErrorMessage(context, 'UserNotFOund');
-                      } on WrongPassword {
-                        await showErrorMessage(context, 'Wrong Passowrd');
-                      } on EmptyFields {
-                        await showErrorMessage(context, 'Empty Fields');
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(200, 50),
-                      side: const BorderSide(color: Colors.black, width: 1),
+              ),
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 300,
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        height: 300,
+                      ),
                     ),
-                    child: const Text("Login")),
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(esqueceSenha);
-                    },
-                    child: const Text('Esquici minha senha'))
-              ],
-            ),
-          ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: TextField(
+                        controller: _user,
+                        decoration: estiloTextField("Username"),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: TextField(
+                        controller: _password,
+                        decoration: estiloTextField("Password"),
+                      ),
+                    ),
+                    OutlinedButton(
+                        onPressed: () async {
+                          FocusScope.of(context).unfocus();
+                          final cpf = _user.text;
+                          final password = _password.text;
+                          setState(() {
+                            isLoading = true;
+                          });
+                          try {
+                            final dadosUser =
+                                await validarLogin(cpf, password, getData);
+
+                            if (dadosUser != null) {
+                              saveUserOrPrefeitura('dados', dadosUser);
+
+                              FirebaseAuth auth = FirebaseAuth.instance;
+
+                              await auth.signInAnonymously();
+
+                              mudarTela(dadosUser);
+                            }
+                          } on UserNotFound {
+                            await showErrorMessage(context, 'UserNotFOund');
+                          } on WrongPassword {
+                            await showErrorMessage(context, 'Wrong Passowrd');
+                          } on EmptyFields {
+                            await showErrorMessage(context, 'Empty Fields');
+                          }
+                          setState(() {
+                            isLoading = false;
+                          });
+                        },
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(200, 50),
+                          side: const BorderSide(color: Colors.black, width: 1),
+                        ),
+                        child: const Text("Login")),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(esqueceSenha);
+                          },
+                          child: const Text('Esquici minha senha')),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -185,7 +205,7 @@ class _LoginViewState extends State<LoginView> {
         "Login",
         style: TextStyle(color: Colors.black),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: isLoading ? Colors.grey : Colors.white,
       elevation: 0,
     );
   }

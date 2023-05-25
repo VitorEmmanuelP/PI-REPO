@@ -147,57 +147,11 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
         child: Column(
           children: [
             Container(
-              width: 5000,
-              height: 100,
-              margin: const EdgeInsets.all(20),
-              decoration: BoxDecoration(border: Border.all(width: 2)),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: data['profilePic'] != ''
-                        ? CachedNetworkImage(
-                            imageUrl: data['profilePic'],
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) => CircleAvatar(
-                              backgroundColor: Colors.blue,
-                              radius: 70,
-                              child: Center(
-                                child: Text(
-                                  "'${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'",
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 35),
-                                ),
-                              ),
-                            ),
-                            imageBuilder: (context, imageProvider) =>
-                                CircleAvatar(
-                              backgroundColor: Colors.red,
-                              radius: 60,
-                              backgroundImage: imageProvider,
-                            ),
-                          )
-                        : CircleAvatar(
-                            radius: 70,
-                            child: Center(
-                              child: Text(
-                                "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                                style: const TextStyle(
-                                    color: Color.fromARGB(255, 53, 30, 30),
-                                    fontSize: 35),
-                              ),
-                            ),
-                          ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
-                    child: Text('${data['nome']}\n${data['status']}'),
-                  ),
-                ],
-              ),
-            ),
+                width: 5000,
+                height: 100,
+                margin: const EdgeInsets.all(20),
+                decoration: BoxDecoration(border: Border.all(width: 2)),
+                child: cardUser(data)),
           ],
         ),
       );

@@ -1,9 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
-
-import '../models/payload_pix.dart';
 
 class PagamentoView extends StatefulWidget {
   const PagamentoView({super.key});
@@ -13,15 +12,24 @@ class PagamentoView extends StatefulWidget {
 }
 
 class _PagamentoViewState extends State<PagamentoView> {
+  QueryDocumentSnapshot<Map<String, dynamic>>? ref;
   Map<String, dynamic>? payload;
+  String status = '';
   List<String> data = [];
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    final QueryDocumentSnapshot<Map<String, dynamic>>? args =
+        ModalRoute.of(context)?.settings.arguments
+            as QueryDocumentSnapshot<Map<String, dynamic>>?;
 
-    payload = args;
+    if (args != null) {
+      ref = args;
+      payload = args.data();
+
+      criarData(payload!['data']);
+    }
+
     criarData(payload!['data']);
     return Scaffold(
       appBar: appBar(),
@@ -59,13 +67,20 @@ class _PagamentoViewState extends State<PagamentoView> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "${payload!['status']}",
+                  status == '' ? payload!['status'] : status,
                   style: TextStyle(
-                      color: payload!['status'] == 'pendente'
+                      color: payload!['status'] == 'pendente' && status == ''
                           ? Colors.red
                           : Colors.green),
                 ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.check))
+                IconButton(
+                    onPressed: () {
+                      ref!.reference.update({'status': 'Confirmado'});
+                      setState(() {
+                        status = 'Confirmado';
+                      });
+                    },
+                    icon: const Icon(Icons.check))
               ],
             ),
             Row(
@@ -165,7 +180,7 @@ class _PagamentoViewState extends State<PagamentoView> {
 class MyQrCode extends StatelessWidget {
   final String qrData;
 
-  MyQrCode({required this.qrData});
+  const MyQrCode({super.key, required this.qrData});
 
   @override
   Widget build(BuildContext context) {

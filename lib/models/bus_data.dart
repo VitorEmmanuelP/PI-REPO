@@ -5,6 +5,7 @@ class BusData {
   String idPrefeitura;
   String modelo;
   String placa;
+  String numero_vagas;
 
   BusData({
     required this.motorista,
@@ -13,6 +14,7 @@ class BusData {
     required this.idPrefeitura,
     required this.modelo,
     required this.placa,
+    required this.numero_vagas,
   });
 
   factory BusData.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class BusData {
       idPrefeitura: json['idPrefeitura'],
       modelo: json['modelo'],
       placa: json['placa'],
+      numero_vagas: json['numero_vagas'],
     );
   }
 
@@ -33,5 +36,6 @@ class BusData {
         'idPrefeitura': idPrefeitura,
         'modelo': modelo,
         'placa': placa,
+        'numero_vagas': numero_vagas
       };
 }

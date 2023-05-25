@@ -30,14 +30,23 @@ class _InfoBusViewState extends State<InfoBusView> {
     return Scaffold(
       appBar: appBar(),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
         child: Center(
             child: Column(
           children: <Widget>[
-            Text(dados!.motorista),
+            Container(
+                width: double.infinity,
+                height: 700,
+                color: Colors.red,
+                child: Center(child: Text(dados!.motorista))),
             listaDeAlunosDoOnibus(context),
-            deletarButton(context),
-            addButton(context)
+            Container(
+              color: Colors.blue,
+              height: 100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [addButton(context), deletarButton(context)],
+              ),
+            ),
           ],
         )),
       ),
@@ -67,7 +76,7 @@ class _InfoBusViewState extends State<InfoBusView> {
 
   SizedBox listaDeAlunosDoOnibus(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height - 230,
+      height: MediaQuery.of(context).size.height - 250,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("prefeituras/${dados!.idPrefeitura}/users")
@@ -97,80 +106,87 @@ class _InfoBusViewState extends State<InfoBusView> {
               return aa.compareTo(bb);
             });
 
-            return ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: sortedDocs.length,
-                itemBuilder: (context, index) {
-                  var data = sortedDocs[index].data() as Map<String, dynamic>;
+            return sortedDocs.isNotEmpty
+                ? ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: sortedDocs.length,
+                    itemBuilder: (context, index) {
+                      var data =
+                          sortedDocs[index].data() as Map<String, dynamic>;
 
-                  if (data.isEmpty) {
-                    return Container(
-                      color: Colors.amber,
-                    );
-                  }
-                  var nome = sortedDocs[index]['nome'].split(' ');
+                      if (data.isEmpty) {
+                        return Container(
+                          color: Colors.amber,
+                        );
+                      }
+                      var nome = sortedDocs[index]['nome'].split(' ');
 
-                  return Column(children: [
-                    Container(
-                      width: 5000,
-                      height: 100,
-                      margin: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(border: Border.all(width: 2)),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            height: 100,
-                            width: 100,
-                            child: data['profilePic'] != ''
-                                ? CachedNetworkImage(
-                                    imageUrl: data['profilePic'],
-                                    placeholder: (context, url) =>
-                                        const CircularProgressIndicator(),
-                                    errorWidget: (context, url, error) =>
-                                        CircleAvatar(
-                                      backgroundColor: Colors.blue,
-                                      radius: 70,
-                                      child: Center(
-                                        child:
-                                            Text('${nome[0][0]}${nome[1][0]}'),
+                      return Column(children: [
+                        Container(
+                          width: 5000,
+                          height: 100,
+                          margin: const EdgeInsets.all(20),
+                          decoration:
+                              BoxDecoration(border: Border.all(width: 2)),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                height: 100,
+                                width: 100,
+                                child: data['profilePic'] != ''
+                                    ? CachedNetworkImage(
+                                        imageUrl: data['profilePic'],
+                                        placeholder: (context, url) =>
+                                            const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            CircleAvatar(
+                                          backgroundColor: Colors.blue,
+                                          radius: 70,
+                                          child: Center(
+                                            child: Text(
+                                                '${nome[0][0]}${nome[1][0]}'),
+                                          ),
+                                        ),
+                                        imageBuilder:
+                                            (context, imageProvider) =>
+                                                CircleAvatar(
+                                          backgroundColor: Colors.red,
+                                          radius: 60,
+                                          backgroundImage: imageProvider,
+                                        ),
+                                      )
+                                    : CircleAvatar(
+                                        backgroundColor: Colors.blue,
+                                        radius: 70,
+                                        child: Center(
+                                          child: Text(
+                                              '${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'),
+                                        ),
                                       ),
-                                    ),
-                                    imageBuilder: (context, imageProvider) =>
-                                        CircleAvatar(
-                                      backgroundColor: Colors.red,
-                                      radius: 60,
-                                      backgroundImage: imageProvider,
-                                    ),
-                                  )
-                                : CircleAvatar(
-                                    backgroundColor: Colors.blue,
-                                    radius: 70,
-                                    child: Center(
-                                      child: Text(
-                                          '${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'),
-                                    ),
-                                  ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: Text('${data['nome']}'),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                              onPressed: () {
-                                final id = data['id'];
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20),
+                                child: Text('${data['nome']}'),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                  onPressed: () {
+                                    final id = data['id'];
 
-                                removerAlunoBus(id);
-                              },
-                              icon: const Icon(
-                                Icons.highlight_remove,
-                                size: 30,
-                              ))
-                        ],
-                      ),
-                    )
-                  ]);
-                });
+                                    removerAlunoBus(id);
+                                  },
+                                  icon: const Icon(
+                                    Icons.highlight_remove,
+                                    size: 30,
+                                  ))
+                            ],
+                          ),
+                        )
+                      ]);
+                    })
+                : const Center(
+                    child:
+                        Text("Nao existe nenhum aluno cadrastado no onibus "));
           }
         },
       ),
@@ -184,10 +200,17 @@ class _InfoBusViewState extends State<InfoBusView> {
 
     usera.update({'idOnibus': ''});
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      behavior: SnackBarBehavior.floating,
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: Duration(milliseconds: 500),
+      behavior: SnackBarBehavior.fixed,
       backgroundColor: Colors.red,
-      content: Text("Usuario Removido"),
+      content: Padding(
+        padding: EdgeInsets.only(top: 8.0),
+        child: Center(
+            child: Text(
+          "Usuario Removido",
+        )),
+      ),
     ));
   }
 

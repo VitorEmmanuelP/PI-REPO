@@ -1,4 +1,3 @@
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -10,9 +9,6 @@ import 'package:pi/views/aluno_list_view.dart';
 import 'package:pi/views/criar_qr_code_view.dart';
 import 'package:pi/views/presenca_view.dart';
 import 'package:pi/views/qr_code_scanner_view.dart';
-import 'package:pi/views/registrar_bus.dart';
-
-import '../services/notificantion_service.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -26,6 +22,8 @@ class _HomeViewState extends State<HomeView> {
   int _selectedIndex = 1;
   List<UserData> listaAlunos = [];
   List<BusData> listaOnibus = [];
+
+  BusData? infoAlunoOninus;
 
   final List pages = [
     profileRoute,
@@ -51,12 +49,12 @@ class _HomeViewState extends State<HomeView> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-          bottomNavigationBar: dados != null && dados!.status == 'cordenador'
+          bottomNavigationBar: dados != null && dados!.status == 'coordenador'
               ? navBar(pageController)
               : null,
           backgroundColor: Colors.white,
           appBar: appBar(),
-          body: dados != null && dados!.status == 'cordenador'
+          body: dados != null && dados!.status == 'coordenador'
               ? pagaView(pageController, context)
               : pageOne(context)),
     );
@@ -137,8 +135,7 @@ class _HomeViewState extends State<HomeView> {
               // Navigator.of(context).push(MaterialPageRoute(
               //     builder: (context) => const ListaAlunoView(),
               //     settings: RouteSettings(arguments: dados)));
-              Navigator.of(context)
-                  .pushNamed(onibusRoute, arguments: listaOnibus);
+              Navigator.of(context).pushNamed(onibusRoute, arguments: dados);
             },
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(80),
@@ -186,10 +183,8 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const PresencaView(),
-                settings: RouteSettings(arguments: dados),
-              ));
+              Navigator.of(context).pushNamed(presencaRoute,
+                  arguments: [dados, infoAlunoOninus]);
             },
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(80),
@@ -205,7 +200,7 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(infoBusRoute);
+                Navigator.of(context).pushNamed(listaAlunoRoute);
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(80),
@@ -232,8 +227,13 @@ class _HomeViewState extends State<HomeView> {
       await getOnibus();
     }
 
-    if (dados!.status == 'aluno' || dados!.status == 'cordenador') {
-      await getAlunos();
+    if (dados!.status == 'aluno' || dados!.status == 'coordenador') {
+      if (dados!.idOnibus != '' || dados!.idOnibus != null) {
+        await getAlunos();
+        await getOnibusAluno();
+      } else {
+        await getAlunos();
+      }
     }
   }
 
@@ -252,7 +252,8 @@ class _HomeViewState extends State<HomeView> {
             destino: data['destino'],
             idPrefeitura: data['idPrefeitura'],
             modelo: data['modelo'],
-            placa: data['placa']);
+            placa: data['placa'],
+            numero_vagas: data['numero_vagas']);
 
         listaOnibus.add(onibus);
       }
@@ -261,13 +262,38 @@ class _HomeViewState extends State<HomeView> {
     saveListModels('listaOnibus', listaOnibus);
   }
 
+  Future<void> getOnibusAluno() async {
+    final snapshotBus = await FirebaseFirestore.instance
+        .collection("prefeituras/${dados.idPrefeitura}/onibus/")
+        .where('id', isEqualTo: dados.idOnibus)
+        .limit(1)
+        .get();
+
+    final data = snapshotBus.docs[0].data();
+
+    if (data.isNotEmpty) {
+      final onibus = BusData(
+          motorista: data['motorista'],
+          id: data['id'],
+          destino: data['destino'],
+          idPrefeitura: data['idPrefeitura'],
+          modelo: data['modelo'],
+          placa: data['placa'],
+          numero_vagas: data['numero_vagas']);
+
+      setState(() {
+        infoAlunoOninus = onibus;
+      });
+    }
+  }
+
   Future<void> getTodosAlunos() async {
     final idPrefeitura = dados!.id;
 
     final snapshot = await FirebaseFirestore.instance
         .collection("prefeituras/$idPrefeitura/users/")
         .get();
-    print(snapshot.docs.length);
+
     for (var doc in snapshot.docs) {
       final data = doc.data();
 
@@ -305,7 +331,7 @@ class _HomeViewState extends State<HomeView> {
 
     for (var doc in snapshot.docs) {
       final data = doc.data();
-      print(data);
+
       if (data.isNotEmpty) {
         final aluno = UserData(
             nome: data['nome'],

@@ -4,8 +4,7 @@ import 'package:http/http.dart' as http;
 Future<void> sendFcmMessage(alunosToken) async {
   for (var data in alunosToken) {
     final token = data.data();
-    print(token['nome']);
-    print(token['token']);
+
     if (token['token'] != '') {
       const String serverKey =
           'AAAAZ5VGxg0:APA91bGzRRLoInoYP170N8P9pklr-MDReQ8kxFcjO0jvac4nwBjjya7Utpwrj8-yniZA9qLQIPy8pqCucSfvQ1m4jj4D8t5kXXpG6HXqoTMAbzidPXcbltC6dwrAZ0ByAyMJMyzw36qk'; // substitua pelo seu server key

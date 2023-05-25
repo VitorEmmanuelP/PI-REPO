@@ -116,7 +116,7 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
               ),
               Row(
                 children: const [
-                  Text('O aluno é um cordernador'),
+                  Text('O aluno é um coordenador'),
                 ],
               ),
             ],
@@ -143,7 +143,7 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
             final cursoAluno = _cursoAluno.text;
             final telefone = maskFormatTelef.unmaskText(_telefone.text);
             final data = maskFormatterData.unmaskText(_data.text);
-            final status = checkBoxValue1! ? 'cordenador' : 'aluno';
+            final status = checkBoxValue1! ? 'coordenador' : 'aluno';
 
             validarRegistros(nome, cpf, telefone, data);
 
@@ -375,11 +375,12 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
       if (telefone.length < 11) {
         telefoneError = true;
       }
-      // if (!validarData(data)) {
-      //   setState(() {
-      //     dataError = true;
-      //   });
-      // }
+      if (!validarData(data)) {
+        print('aa $data');
+        setState(() {
+          dataError = true;
+        });
+      }
     });
   }
 

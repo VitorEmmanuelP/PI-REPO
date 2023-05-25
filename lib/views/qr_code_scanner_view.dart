@@ -7,6 +7,8 @@ import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 
 class QRCodeScannerScreen extends StatefulWidget {
+  const QRCodeScannerScreen({super.key});
+
   @override
   _QRCodeScannerScreenState createState() => _QRCodeScannerScreenState();
 }

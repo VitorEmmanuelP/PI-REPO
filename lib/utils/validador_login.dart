@@ -93,40 +93,36 @@ getUserData(id, loginId) async {
 
   user.reference.update({'token': token});
 
-  final userdata = user.data();
-
-  if (user != null) {
-    return UserData(
-        nome: user['nome'],
-        cpf: user['cpf'],
-        profilePic: user['profilePic'],
-        data: user['data'],
-        curso: user['cursoAluno'],
-        faculdade: user['faculdade'],
-        telefone: user['telefone'],
-        senha: user['senha'],
-        status: user['status'],
-        id: user['id'],
-        idPrefeitura: user['idPrefeitura'],
-        idOnibus: user['idOnibus'],
-        token: user['token'],
-        qrCode: user['qrCode']);
-  }
-  // return {
-  //   'nome': users['nome'],
-  //   'cpf': users['cpf'],
-  //   'profilePic': users['profilePic'],
-  //   'curso': users['cursoAluno'],
-  //   'faculdade': users['faculdade'],
-  //   'telefone': users['telefone'],
-  //   'senha': users['senha'],
-  //   'status': users['status'],
-  //   'id': users['id'],
-  //   'idPrefeitura': users['idPrefeitura'],
-  //   'idOnibus': users['idOnibus'],
-  // };
-  //}
+  return UserData(
+      nome: user['nome'],
+      cpf: user['cpf'],
+      profilePic: user['profilePic'],
+      data: user['data'],
+      curso: user['cursoAluno'],
+      faculdade: user['faculdade'],
+      telefone: user['telefone'],
+      senha: user['senha'],
+      status: user['status'],
+      id: user['id'],
+      idPrefeitura: user['idPrefeitura'],
+      idOnibus: user['idOnibus'],
+      token: user['token'],
+      qrCode: user['qrCode']);
 }
+// return {
+//   'nome': users['nome'],
+//   'cpf': users['cpf'],
+//   'profilePic': users['profilePic'],
+//   'curso': users['cursoAluno'],
+//   'faculdade': users['faculdade'],
+//   'telefone': users['telefone'],
+//   'senha': users['senha'],
+//   'status': users['status'],
+//   'id': users['id'],
+//   'idPrefeitura': users['idPrefeitura'],
+//   'idOnibus': users['idOnibus'],
+// };
+//}
 
 Future<bool> checkInternetConnection() async {
   try {
