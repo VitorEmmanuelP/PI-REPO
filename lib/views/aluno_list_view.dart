@@ -93,7 +93,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
       itemCount: sortedDocs.length,
       itemBuilder: (context, index) {
         var data = sortedDocs[index].data() as Map<String, dynamic>;
-        nome = sortedDocs[index]['nome'].split(' ');
+        nome = data['nome'].split(' ');
 
         if (data.isEmpty) {
           return Container(

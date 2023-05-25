@@ -253,7 +253,8 @@ class _HomeViewState extends State<HomeView> {
             idPrefeitura: data['idPrefeitura'],
             modelo: data['modelo'],
             placa: data['placa'],
-            numero_vagas: data['numero_vagas']);
+            numeroVagas: data['numeroVagas'],
+            profilePic: data['profilePic']);
 
         listaOnibus.add(onibus);
       }
@@ -273,13 +274,15 @@ class _HomeViewState extends State<HomeView> {
 
     if (data.isNotEmpty) {
       final onibus = BusData(
-          motorista: data['motorista'],
-          id: data['id'],
-          destino: data['destino'],
-          idPrefeitura: data['idPrefeitura'],
-          modelo: data['modelo'],
-          placa: data['placa'],
-          numero_vagas: data['numero_vagas']);
+        motorista: data['motorista'],
+        id: data['id'],
+        destino: data['destino'],
+        idPrefeitura: data['idPrefeitura'],
+        modelo: data['modelo'],
+        placa: data['placa'],
+        numeroVagas: data['numeroVagas'],
+        profilePic: data['profilePic'],
+      );
 
       setState(() {
         infoAlunoOninus = onibus;

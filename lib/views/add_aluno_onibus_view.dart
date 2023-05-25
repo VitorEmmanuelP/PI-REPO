@@ -13,7 +13,7 @@ class AddALunoONibusView extends StatefulWidget {
 
 class _AddALunoONibusViewState extends State<AddALunoONibusView> {
   String name = '';
-  BusData? dadosOnibus;
+  Map<String, dynamic>? dadosOnibus;
   List nomes = [];
   //List listaAlunos = [];
 
@@ -25,8 +25,8 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
 
   @override
   Widget build(BuildContext context) {
-    final BusData? args =
-        ModalRoute.of(context)?.settings.arguments as BusData?;
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null) {
       dadosOnibus = args;
@@ -73,7 +73,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
       height: MediaQuery.of(context).size.height - 230,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('prefeituras/${dadosOnibus!.idPrefeitura}/users')
+            .collection('prefeituras/${dadosOnibus!['idPrefeitura']}/users')
             .where('idOnibus', isEqualTo: '')
             .snapshots(),
         builder: (context, snapshot) {
@@ -258,10 +258,10 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
 
   addAlunoBus(id) {
     final usera = FirebaseFirestore.instance
-        .collection("prefeituras/${dadosOnibus!.idPrefeitura}/users/")
+        .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/users/")
         .doc(id);
 
-    usera.update({'idOnibus': dadosOnibus!.id.toString()});
+    usera.update({'idOnibus': dadosOnibus!['id'].toString()});
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       behavior: SnackBarBehavior.fixed,

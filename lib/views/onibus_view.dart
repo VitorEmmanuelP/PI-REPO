@@ -2,13 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
-import 'package:pi/models/bus_data.dart';
 
 import 'package:pi/views/add_aluno_onibus_view.dart';
 
 import '../utils/check_internet.dart';
 import '../utils/dados_users.dart';
 import '../utils/show_error_message.dart';
+import '../widgets/profile_pic.dart';
 
 class InfoBusView extends StatefulWidget {
   const InfoBusView({super.key});
@@ -18,12 +18,12 @@ class InfoBusView extends StatefulWidget {
 }
 
 class _InfoBusViewState extends State<InfoBusView> {
-  BusData? dados;
+  Map<String, dynamic>? dados;
 
   @override
   Widget build(BuildContext context) {
-    final BusData? args =
-        ModalRoute.of(context)?.settings.arguments as BusData?;
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
       dados = args;
     }
@@ -33,11 +33,18 @@ class _InfoBusViewState extends State<InfoBusView> {
         child: Center(
             child: Column(
           children: <Widget>[
+            SizedBox(
+              height: 190,
+              width: 190,
+              child: ProfilePictureWidget(
+                info: dados,
+              ),
+            ),
             Container(
                 width: double.infinity,
                 height: 700,
                 color: Colors.red,
-                child: Center(child: Text(dados!.motorista))),
+                child: Center(child: Text(dados!['motorista']))),
             listaDeAlunosDoOnibus(context),
             Container(
               color: Colors.blue,
@@ -79,8 +86,8 @@ class _InfoBusViewState extends State<InfoBusView> {
       height: MediaQuery.of(context).size.height - 250,
       child: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection("prefeituras/${dados!.idPrefeitura}/users")
-            .where('idOnibus', isEqualTo: dados!.id)
+            .collection("prefeituras/${dados!['idPrefeitura']}/users")
+            .where('idOnibus', isEqualTo: dados!['id'])
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -195,7 +202,7 @@ class _InfoBusViewState extends State<InfoBusView> {
 
   removerAlunoBus(id) {
     final usera = FirebaseFirestore.instance
-        .collection("prefeituras/${dados!.idPrefeitura}/users/")
+        .collection("prefeituras/${dados!['idPrefeitura']}/users/")
         .doc(id);
 
     usera.update({'idOnibus': ''});
@@ -222,8 +229,8 @@ class _InfoBusViewState extends State<InfoBusView> {
           if (shouldDelete) {
             if (isConnected) {
               final user = FirebaseFirestore.instance
-                  .collection('prefeituras/${dados!.idPrefeitura}/onibus/')
-                  .doc(dados!.id);
+                  .collection('prefeituras/${dados!['idPrefeitura']}/onibus/')
+                  .doc(dados!['id']);
 
               user.delete();
 
@@ -240,8 +247,8 @@ class _InfoBusViewState extends State<InfoBusView> {
 
   removerDadosAlunos() async {
     final user = await FirebaseFirestore.instance
-        .collection('prefeituras/${dados!.idPrefeitura}/users/')
-        .where('idOnibus', isEqualTo: dados!.id)
+        .collection('prefeituras/${dados!['idPrefeitura']}/users/')
+        .where('idOnibus', isEqualTo: dados!['id'])
         .get();
 
     for (var aluno in user.docs) {
@@ -252,7 +259,7 @@ class _InfoBusViewState extends State<InfoBusView> {
   atualizarStored() async {
     final List listaOnibus = await getListOnibus();
 
-    listaOnibus.removeWhere((mapa) => mapa.id == dados!.id);
+    listaOnibus.removeWhere((mapa) => mapa.id == dados!['id']);
 
     saveListModels('listaOnibus', listaOnibus);
   }

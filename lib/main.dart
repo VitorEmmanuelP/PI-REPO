@@ -80,7 +80,7 @@ class MyApp extends StatelessWidget {
           pagamentoRoute: (context) => const PagamentoView(),
           criarQrCodeRoute: (context) => const Pix(),
           listaPagamentoPixRoute: (context) => const ListaPagamentosView(),
-          qrScanner: (context) => QRCodeScannerScreen(),
+          qrScanner: (context) => const QRCodeScannerScreen(),
           esqueceSenha: (context) => const EsqueceSenhaView(),
         },
         home: const LoginView()

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
@@ -19,6 +20,7 @@ class _OnibusViewState extends State<OnibusView> {
   List<BusData> listaBus = [];
   bool isConnected = false;
   PrefeituraData? dados;
+  List<String> nome = [];
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class _OnibusViewState extends State<OnibusView> {
       body: Column(
         children: [
           listaOnibus(context),
-          //addButton(context),
+          addButton(context),
         ],
       ),
     );
@@ -70,38 +72,26 @@ class _OnibusViewState extends State<OnibusView> {
             } else {
               final snapshotBus = snapshot.data!.docs;
 
-              for (var info in snapshotBus) {
-                var infoBus = info.data() as Map;
-
-                final onibus = BusData(
-                    motorista: infoBus['motorista'],
-                    id: infoBus['id'],
-                    destino: infoBus['destino'],
-                    idPrefeitura: infoBus['idPrefeitura'],
-                    modelo: infoBus['modelo'],
-                    placa: infoBus['placa'],
-                    numero_vagas: infoBus['numero_vagas']);
-
-                listaBus.add(onibus);
-              }
-
-              return listView(context, listaBus);
+              return listView(context, snapshotBus);
             }
           },
         ));
   }
 
-  SizedBox listView(BuildContext context, List<BusData> listaBus) {
+  SizedBox listView(
+      BuildContext context, List<QueryDocumentSnapshot> listaBus) {
     return SizedBox(
       height: MediaQuery.of(context).size.height - 230,
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
         itemCount: listaBus.length,
         itemBuilder: (context, index) {
+          final data = listaBus[index].data() as Map;
+          nome = data['motorista'].trim().split(' ');
+
           return GestureDetector(
             onTap: () async {
-              Navigator.of(context)
-                  .pushNamed(infoBusRoute, arguments: listaBus[index]);
+              Navigator.of(context).pushNamed(infoBusRoute, arguments: data);
             },
             child: Container(
               width: 5000,
@@ -111,13 +101,46 @@ class _OnibusViewState extends State<OnibusView> {
                   border: Border.all(width: 2, color: Colors.black)),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    radius: 60,
-                    backgroundImage: AssetImage('assets/images/avatar.jpg'),
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: data['profilePic'] != ''
+                        ? CachedNetworkImage(
+                            imageUrl: data['profilePic'],
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                              backgroundColor: Colors.blue,
+                              radius: 70,
+                              child: Center(
+                                child: Text(
+                                  "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 35),
+                                ),
+                              ),
+                            ),
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 60,
+                              backgroundImage: imageProvider,
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 70,
+                            child: Center(
+                                child: Text(
+                              nome.length == 1
+                                  ? nome[0][0].toUpperCase()
+                                  : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 35),
+                            )),
+                          ),
                   ),
                   Text(
-                      "${listaBus[index].motorista}\n${listaBus[index].destino} ${listaBus[index].motorista} ${listaBus[index].numero_vagas}"),
+                      "${data['motorista']}\n${data['destino']}  ${data['numeroVagas']}"),
                 ],
               ),
             ),

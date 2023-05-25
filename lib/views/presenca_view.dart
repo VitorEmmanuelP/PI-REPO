@@ -170,6 +170,7 @@ class _PresencaViewState extends State<PresencaView> {
   }
 
   Column tabsView(BuildContext context, List<dynamic> listaData) {
+    print(onibusInfo!.numeroVagas);
     return Column(
       children: [
         SizedBox(
@@ -183,7 +184,7 @@ class _PresencaViewState extends State<PresencaView> {
                     height: 30,
                     child: Center(
                       child: Text(
-                          'Vagas disponíveis: ${int.parse(onibusInfo!.numero_vagas) - int.parse(listaData[i]['numerosAlunos'].toString())}',
+                          'Vagas disponíveis: ${int.parse(onibusInfo!.numeroVagas) - int.parse(listaData[i]['numerosAlunos'].toString())}',
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),

@@ -17,6 +17,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
   late final TextEditingController _modeloOnibus;
   late final TextEditingController _placa;
   late final TextEditingController _destino;
+  late final TextEditingController _numeroVagas;
 
   var nomesError = false;
   var placaErro = false;
@@ -28,6 +29,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
     _modeloOnibus = TextEditingController();
     _placa = TextEditingController();
     _destino = TextEditingController();
+    _numeroVagas = TextEditingController();
 
     super.initState();
   }
@@ -38,7 +40,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
     _modeloOnibus.dispose();
     _placa.dispose();
     _destino.dispose();
-
+    _numeroVagas.dispose();
     super.dispose();
   }
 
@@ -82,6 +84,13 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                     decoration: estiloTextField("Destino"),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: TextField(
+                    controller: _numeroVagas,
+                    decoration: estiloTextField("Numero de vagas"),
+                  ),
+                ),
                 OutlinedButton(
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
@@ -91,6 +100,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                         final modelo = _modeloOnibus.text;
                         final placa = _placa.text;
                         final destino = _destino.text;
+                        final numeroVagas = _numeroVagas.text;
 
                         final prefeitura = await getUser();
 
@@ -103,7 +113,8 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                           'destino': destino,
                           'idPrefeitura': prefeitura.id,
                           'id': '',
-                          'numero_vagas': '',
+                          'numeroVagas': numeroVagas,
+                          'profilePic': '',
                         });
 
                         final idCurrent = docRef.id.toString();

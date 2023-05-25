@@ -31,7 +31,7 @@ class _ProfileViewState extends State<ProfileView> {
         child: Center(
             child: Column(
           children: <Widget>[
-            const SizedBox(
+            SizedBox(
               height: 190,
               width: 190,
               child: ProfilePictureWidget(),
