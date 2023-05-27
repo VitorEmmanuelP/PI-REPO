@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pi/utils/styles.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../models/payload_pix.dart';
+import '../widgets/app_bar.dart';
 
 class PagamentoPreviewView extends StatefulWidget {
   const PagamentoPreviewView({super.key});
@@ -23,7 +25,8 @@ class _PagamentoPreviewViewState extends State<PagamentoPreviewView> {
     payload = args;
 
     return Scaffold(
-      appBar: appBar(),
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Qr Code Pix"),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Center(
@@ -106,18 +109,6 @@ class _PagamentoPreviewViewState extends State<PagamentoPreviewView> {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         )),
       ),
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Esquece minha senha",
-        style: TextStyle(color: Colors.black),
-      ),
-      iconTheme: const IconThemeData(color: Colors.black),
-      backgroundColor: Colors.white,
-      elevation: 0,
     );
   }
 }

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../utils/check_internet.dart';
+import '../utils/styles.dart';
 import '../utils/validadores_genericos.dart';
+import '../widgets/app_bar.dart';
 
 class EsqueceSenhaView extends StatefulWidget {
   const EsqueceSenhaView({super.key});
@@ -47,7 +49,8 @@ class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: appBar(),
+        backgroundColor: scaffoldColor,
+        appBar: appBar("Esquece minha senha"),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Center(
@@ -167,27 +170,6 @@ class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
     }
   }
 
-  InputDecoration estiloTextField(String label,
-      {bool erro = false, String msg = ''}) {
-    return InputDecoration(
-      labelText: label,
-      errorText: erro ? msg : null,
-      labelStyle:
-          const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      enabledBorder: fazerBorda(),
-      focusedBorder: fazerBorda(),
-      errorBorder: fazerBorda(erro: erro),
-      focusedErrorBorder: fazerBorda(erro: erro),
-    );
-  }
-
-  OutlineInputBorder fazerBorda({bool erro = false}) {
-    return OutlineInputBorder(
-      borderSide: BorderSide(color: erro ? Colors.red : Colors.black),
-      borderRadius: BorderRadius.circular(10),
-    );
-  }
-
   void validarRegistros(String cpf, String data, String novaSenha) {
     setState(() {
       if (!isCPFValid(cpf)) {
@@ -208,17 +190,5 @@ class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
     } else {
       return false;
     }
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Esquece minha senha",
-        style: TextStyle(color: Colors.black),
-      ),
-      iconTheme: const IconThemeData(color: Colors.black),
-      backgroundColor: Colors.white,
-      elevation: 0,
-    );
   }
 }

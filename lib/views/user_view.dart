@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
+import 'package:pi/utils/styles.dart';
 
 import '../utils/check_internet.dart';
+import '../widgets/app_bar.dart';
 
 class UserView extends StatefulWidget {
   const UserView({super.key});
@@ -37,7 +39,8 @@ class _UserViewState extends State<UserView> {
     }
 
     return Scaffold(
-      appBar: appBar(),
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Profile"),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Center(
@@ -149,17 +152,5 @@ class _UserViewState extends State<UserView> {
     listaAlunos.removeWhere((mapa) => mapa.id == dados!['id']);
 
     saveListModels('listaAlunos', listaAlunos);
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Profile",
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
-    );
   }
 }

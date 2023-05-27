@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
+import 'package:pi/utils/styles.dart';
 
 import '../models/user_data.dart';
+import '../widgets/app_bar.dart';
 
 class ListaPagamentosView extends StatefulWidget {
   const ListaPagamentosView({super.key});
@@ -24,7 +26,8 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
       userDados = args;
     }
     return Scaffold(
-        appBar: appBar(),
+        backgroundColor: scaffoldColor,
+        appBar: appBar("Lista de Pagamentos"),
         body: userDados!.idOnibus != ''
             ? listaPix()
             : const Center(
@@ -148,18 +151,6 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
             prefixIcon: const Icon(Icons.search),
             hintText: "Search.."),
       ),
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Lista de Pagamentos",
-        style: TextStyle(color: Colors.black),
-      ),
-      iconTheme: const IconThemeData(color: Colors.black),
-      backgroundColor: Colors.white,
-      elevation: 0,
     );
   }
 }

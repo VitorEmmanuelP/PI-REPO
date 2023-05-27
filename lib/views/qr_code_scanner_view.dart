@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/styles.dart';
 
 class QRCodeScannerScreen extends StatefulWidget {
   const QRCodeScannerScreen({super.key});
@@ -29,6 +30,7 @@ class _QRCodeScannerScreenState extends State<QRCodeScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: scaffoldColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

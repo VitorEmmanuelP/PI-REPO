@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:intl/intl.dart';
+import 'package:pi/utils/styles.dart';
 
 class ListaPresensaView extends StatefulWidget {
   const ListaPresensaView({super.key});
@@ -18,6 +19,7 @@ class _ListaPresensaViewState extends State<ListaPresensaView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: scaffoldColor,
       resizeToAvoidBottomInset: false,
       appBar: appBar(),
       body: GestureDetector(

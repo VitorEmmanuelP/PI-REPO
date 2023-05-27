@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
+import 'package:pi/utils/styles.dart';
 import 'package:pi/utils/validador_login.dart';
 
 import '../models/bus_data.dart';
 import '../models/prefeitura_data.dart';
+import '../widgets/app_bar.dart';
 
 class OnibusView extends StatefulWidget {
   const OnibusView({super.key});
@@ -25,7 +27,8 @@ class _OnibusViewState extends State<OnibusView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar(),
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Lista dos Ônibus"),
       body: Column(
         children: [
           listaOnibus(context),
@@ -160,16 +163,4 @@ class _OnibusViewState extends State<OnibusView> {
       isConnected = connected;
     });
   }
-}
-
-AppBar appBar() {
-  return AppBar(
-    title: const Text(
-      "Lista de Onibus",
-      style: TextStyle(color: Colors.black),
-    ),
-    backgroundColor: Colors.white,
-    elevation: 0,
-    iconTheme: const IconThemeData(color: Colors.black),
-  );
 }

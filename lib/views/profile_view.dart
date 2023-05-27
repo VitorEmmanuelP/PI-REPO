@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pi/models/user_data.dart';
+import 'package:pi/utils/styles.dart';
 import 'package:pi/widgets/profile_pic.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -25,7 +26,8 @@ class _ProfileViewState extends State<ProfileView> {
     }
 
     return Scaffold(
-      appBar: appBar(),
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Perfil"),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Center(
@@ -72,18 +74,6 @@ class _ProfileViewState extends State<ProfileView> {
       ),
     );
   }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Profile",
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
-    );
-  }
 }
 
 class MyQrCode extends StatelessWidget {
@@ -100,18 +90,3 @@ class MyQrCode extends StatelessWidget {
     );
   }
 }
-
-
-  //   return Scaffold(
-  //     appBar: appBar(),
-  //     body: SingleChildScrollView(
-  //       physics: const BouncingScrollPhysics(),
-  //       child: Center(
-  //           child: Column(
-  //         children: <Widget>[
-  //           Container(child: const ProfilePictureWidget()),
-  //         ],
-  //       )),
-  //     ),
-  //   );
-  // }

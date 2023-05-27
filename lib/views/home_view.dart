@@ -5,6 +5,7 @@ import 'package:pi/constants/routes.dart';
 import 'package:pi/models/bus_data.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/styles.dart';
 import 'package:pi/views/aluno_list_view.dart';
 import 'package:pi/views/criar_qr_code_view.dart';
 import 'package:pi/views/presenca_view.dart';
@@ -25,11 +26,6 @@ class _HomeViewState extends State<HomeView> {
 
   BusData? infoAlunoOninus;
 
-  final List pages = [
-    profileRoute,
-    homeRoute,
-    criarQrCodeRoute,
-  ];
   @override
   void initState() {
     loadData();
@@ -52,7 +48,7 @@ class _HomeViewState extends State<HomeView> {
           bottomNavigationBar: dados != null && dados!.status == 'coordenador'
               ? navBar(pageController)
               : null,
-          backgroundColor: Colors.white,
+          backgroundColor: scaffoldColor,
           appBar: appBar(),
           body: dados != null && dados!.status == 'coordenador'
               ? pagaView(pageController, context)
@@ -200,7 +196,7 @@ class _HomeViewState extends State<HomeView> {
           padding: const EdgeInsets.all(20),
           child: OutlinedButton(
               onPressed: () {
-                Navigator.of(context).pushNamed(listaAlunoRoute);
+                Navigator.of(context).pushNamed(infoBusAluno, arguments: dados);
               },
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size.fromHeight(80),

@@ -10,6 +10,8 @@ import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
 import 'package:pi/utils/validadores_genericos.dart';
 
+import '../utils/styles.dart';
+
 class Pix extends StatefulWidget {
   const Pix({super.key});
 
@@ -62,6 +64,7 @@ class _PixState extends State<Pix> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        backgroundColor: scaffoldColor,
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Center(
@@ -242,28 +245,6 @@ class _PixState extends State<Pix> {
   bool validarEmail(String email) {
     final RegExp regex = RegExp(r'^[\w-]+(\.[\w-]+)*@gmail\.com$');
     return regex.hasMatch(email);
-  }
-
-  InputDecoration estiloTextField(String label,
-      {bool erro = false, String msg = '', String? placeholder = ''}) {
-    return InputDecoration(
-      labelText: label,
-      hintText: placeholder,
-      errorText: erro ? msg : null,
-      labelStyle:
-          const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      enabledBorder: fazerBorda(),
-      focusedBorder: fazerBorda(),
-      errorBorder: fazerBorda(erro: erro),
-      focusedErrorBorder: fazerBorda(erro: erro),
-    );
-  }
-
-  OutlineInputBorder fazerBorda({bool erro = false}) {
-    return OutlineInputBorder(
-      borderSide: BorderSide(color: erro ? Colors.red : Colors.black),
-      borderRadius: BorderRadius.circular(10),
-    );
   }
 
   loadData() async {

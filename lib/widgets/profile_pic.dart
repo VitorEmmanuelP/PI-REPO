@@ -20,7 +20,7 @@ class ProfilePictureWidget extends StatefulWidget {
 }
 
 class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
-  Map? infor;
+  Map? infor = {};
   String? imagepath;
   ProfileImage? user;
   dynamic dados;
@@ -77,7 +77,6 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
   Future<dynamic> loadDados() async {
     if (infor!.isEmpty) {
       final userdata = await getUser();
-
       setState(() {
         dados = userdata;
 
@@ -220,65 +219,68 @@ class ImagemUsuario extends StatelessWidget {
                 }
               }
             })
-        : StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('prefeituras/${dados['idPrefeitura']}/onibus')
-                .where('id', isEqualTo: dados['id'])
-                .limit(1)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container();
-              } else {
-                final data = snapshot.data?.docs.first.data() as Map?;
-                if (data!['profilePic'] == '') {}
-                if (data['profilePic'] == '') {
-                  return GestureDetector(
-                    onTap: () => user?.showImagePicker(context),
-                    child: ClipOval(
-                      child: CircleAvatar(
-                        backgroundColor: Colors.blue,
-                        radius: 70,
-                        child: Center(
-                          child: Text(
-                            nome.length == 1
-                                ? nome[0][0].toUpperCase()
-                                : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 35),
+        : dados != null
+            ? StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('prefeituras/${dados['idPrefeitura']}/onibus')
+                    .where('id', isEqualTo: dados['id'])
+                    .limit(1)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container();
+                  } else {
+                    final data = snapshot.data?.docs.first.data() as Map?;
+                    if (data!['profilePic'] == '') {}
+                    if (data['profilePic'] == '') {
+                      return GestureDetector(
+                        onTap: () => user?.showImagePicker(context),
+                        child: ClipOval(
+                          child: CircleAvatar(
+                            backgroundColor: Colors.blue,
+                            radius: 70,
+                            child: Center(
+                              child: Text(
+                                nome.length == 1
+                                    ? nome[0][0].toUpperCase()
+                                    : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 35),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                } else {
-                  return GestureDetector(
-                    onTap: () => user?.showImagePicker(context),
-                    child: ClipOval(
-                        child: CachedNetworkImage(
-                      imageUrl: data['profilePic'],
-                      placeholder: (context, url) =>
-                          const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => CircleAvatar(
-                        backgroundColor: Colors.blue,
-                        radius: 70,
-                        child: Center(
-                          child: Text(
-                            "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 35),
+                      );
+                    } else {
+                      return GestureDetector(
+                        onTap: () => user?.showImagePicker(context),
+                        child: ClipOval(
+                            child: CachedNetworkImage(
+                          imageUrl: data['profilePic'],
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => CircleAvatar(
+                            backgroundColor: Colors.blue,
+                            radius: 70,
+                            child: Center(
+                              child: Text(
+                                "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 35),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      imageBuilder: (context, imageProvider) => CircleAvatar(
-                        backgroundColor: Colors.red,
-                        radius: 60,
-                        backgroundImage: imageProvider,
-                      ),
-                    )),
-                  );
-                }
-              }
-            });
+                          imageBuilder: (context, imageProvider) =>
+                              CircleAvatar(
+                            backgroundColor: Colors.red,
+                            radius: 60,
+                            backgroundImage: imageProvider,
+                          ),
+                        )),
+                      );
+                    }
+                  }
+                })
+            : Container();
   }
 }

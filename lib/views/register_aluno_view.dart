@@ -14,7 +14,9 @@ import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/validador_login.dart';
 
 import '../utils/show_error_message.dart';
+import '../utils/styles.dart';
 import '../utils/validadores_genericos.dart';
+import '../widgets/app_bar.dart';
 
 class RegistrarAlunoView extends StatefulWidget {
   const RegistrarAlunoView({super.key});
@@ -77,8 +79,8 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: appBar(),
+        backgroundColor: scaffoldColor,
+        appBar: appBar("Registrar Aluno"),
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
@@ -372,7 +374,7 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
       if (!isCPFValid(cpf)) {
         cpfError = true;
       }
-      if (telefone.length < 11) {
+      if (!validarNumeroCelular(telefone)) {
         telefoneError = true;
       }
       if (!validarData(data)) {
@@ -384,43 +386,8 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
     });
   }
 
-  InputDecoration estiloTextField(String label,
-      {bool erro = false, String msg = ''}) {
-    return InputDecoration(
-      labelText: label,
-      errorText: erro ? msg : null,
-      labelStyle:
-          const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      enabledBorder: fazerBorda(),
-      focusedBorder: fazerBorda(),
-      errorBorder: fazerBorda(erro: erro),
-      focusedErrorBorder: fazerBorda(erro: erro),
-    );
-  }
-
-  OutlineInputBorder fazerBorda({bool erro = false}) {
-    return OutlineInputBorder(
-      borderSide: BorderSide(color: erro ? Colors.red : Colors.black),
-      borderRadius: BorderRadius.circular(10),
-    );
-  }
-
-  String getRandomColor() {
-    Random random = Random();
-    final cor =
-        "${random.nextInt(256)},${random.nextInt(256)},${random.nextInt(256)}";
-    return cor;
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Register",
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
-    );
+  bool validarNumeroCelular(String numero) {
+    final RegExp regex = RegExp(r'^[1-9]{2}[0-9]{9}$');
+    return regex.hasMatch(numero);
   }
 }

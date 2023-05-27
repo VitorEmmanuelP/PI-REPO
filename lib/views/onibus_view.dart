@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
+import 'package:pi/utils/styles.dart';
 
 import 'package:pi/views/add_aluno_onibus_view.dart';
 
@@ -28,7 +29,8 @@ class _InfoBusViewState extends State<InfoBusView> {
       dados = args;
     }
     return Scaffold(
-      appBar: appBar(),
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Informação Ônibus"),
       body: SingleChildScrollView(
         child: Center(
             child: Column(
@@ -262,17 +264,5 @@ class _InfoBusViewState extends State<InfoBusView> {
     listaOnibus.removeWhere((mapa) => mapa.id == dados!['id']);
 
     saveListModels('listaOnibus', listaOnibus);
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Infomação do onibus",
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
-    );
   }
 }

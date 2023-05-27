@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/models/bus_data.dart';
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/styles.dart';
+
+import '../widgets/app_bar.dart';
 
 class AddALunoONibusView extends StatefulWidget {
   const AddALunoONibusView({super.key});
@@ -33,8 +36,9 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
     }
 
     return Scaffold(
+      backgroundColor: scaffoldColor,
       resizeToAvoidBottomInset: false,
-      appBar: appBar(),
+      appBar: appBar("Adicionar Alunos"),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
@@ -275,17 +279,5 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
         )),
       ),
     ));
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Adicionar Alunos",
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
-    );
   }
 }

@@ -8,6 +8,9 @@ import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/show_error_message.dart';
 import 'package:pi/utils/validador_login.dart';
 
+import '../utils/styles.dart';
+import '../widgets/app_bar.dart';
+
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
 
@@ -41,8 +44,8 @@ class _LoginViewState extends State<LoginView> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: appBar(),
+        backgroundColor: scaffoldColor,
+        appBar: appBar("Login"),
         body: Stack(
           children: [
             if (isLoading)
@@ -179,34 +182,5 @@ class _LoginViewState extends State<LoginView> {
         'status': prefeitura['status'],
       };
     }
-  }
-
-  InputDecoration estiloTextField(String label) {
-    return InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
-        enabledBorder: fazerBorda(),
-        focusedBorder: fazerBorda());
-  }
-
-  OutlineInputBorder fazerBorda() {
-    return OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.black),
-      borderRadius: BorderRadius.circular(10),
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Login",
-        style: TextStyle(color: Colors.black),
-      ),
-      backgroundColor: isLoading ? Colors.grey : Colors.white,
-      elevation: 0,
-    );
   }
 }

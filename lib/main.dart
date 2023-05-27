@@ -23,6 +23,7 @@ import 'package:pi/views/qr_code_scanner_view.dart';
 import 'package:pi/views/register_aluno_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:pi/views/registrar_bus.dart';
+import 'package:pi/views/registrar_carona_view.dart';
 
 import 'package:pi/views/user_view.dart';
 
@@ -66,8 +67,9 @@ class MyApp extends StatelessWidget {
           loginRoute: (context) => const LoginView(),
           registerAlunoRoute: (context) => const RegistrarAlunoView(),
           registerBusRoute: (context) => const RegistrarOnibusView(),
+          registerCaronaRoute: (context) => const RegistrarCaronaView(),
           onibusRoute: (context) => const OnibusView(),
-          agendaRoute: (context) => const AgendaView(),
+          infoBusAluno: (context) => const InfoOnibusAlunoView(),
           presencaRoute: (context) => const PresencaView(),
           presencaUnicaRoute: (context) => const PresencaUnicaView(),
           presencaTodosRoute: (context) => const ListaPresensaView(),

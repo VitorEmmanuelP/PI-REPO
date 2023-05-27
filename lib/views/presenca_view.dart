@@ -10,6 +10,7 @@ import 'package:pi/models/bus_data.dart';
 
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/styles.dart';
 
 import '../utils/enviar_mensagens.dart';
 
@@ -88,6 +89,7 @@ class _PresencaViewState extends State<PresencaView> {
         return DefaultTabController(
           length: _numberOfTabs,
           child: Scaffold(
+              backgroundColor: scaffoldColor,
               appBar: appBar(listaData),
               body: _numberOfTabs != 0
                   ? tabsView(context, listaData)
@@ -162,6 +164,7 @@ class _PresencaViewState extends State<PresencaView> {
         tabs: [
           for (int i = 0; i < _numberOfTabs; i++)
             Tab(
+              height: 50,
               text: '${listaData[i]['nome']}',
             ),
         ],
@@ -241,8 +244,7 @@ class _PresencaViewState extends State<PresencaView> {
 
                                 return aa.compareTo(bb);
                               });
-
-                              try {
+                              if (inde != null) {
                                 sortedDocs1.insert(0, snapshot1.docs[inde!]);
                                 final mapzada = {};
 
@@ -252,18 +254,18 @@ class _PresencaViewState extends State<PresencaView> {
                                 }
 
                                 return listaPresensa(sortedDocs1, mapzada);
-                              } finally {
+                              } else {
                                 final mapzada = {};
 
                                 for (var i in snapshot2.docs) {
                                   final dados = i.data();
                                   mapzada[dados['id']] = dados['profilePic'];
                                 }
+                                return listaPresensa(sortedDocs1, mapzada);
                               }
-                            } else {
-                              return Container();
                             }
                           }
+                          return Container();
                         },
                       ),
                     ),
@@ -276,7 +278,11 @@ class _PresencaViewState extends State<PresencaView> {
           child: SizedBox(
             child: Center(
               child: ElevatedButton(
-                  onPressed: () {}, child: const Text("Adicionar Carona")),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed(registerCaronaRoute, arguments: dados);
+                  },
+                  child: const Text("Adicionar Carona")),
             ),
           ),
         )
@@ -294,7 +300,7 @@ class _PresencaViewState extends State<PresencaView> {
       itemBuilder: (context, index) {
         var data = sortedDocs[index].data() as Map<String, dynamic>;
 
-        final nome = data['nome'].toUpperCase().split(' ');
+        final nome = data['nome'].toUpperCase().trim().split(' ');
 
         return Column(
           children: [
@@ -336,16 +342,25 @@ class _PresencaViewState extends State<PresencaView> {
                             backgroundImage: imageProvider,
                           ),
                         )
-                      : CircleAvatar(
-                          radius: 60,
-                          child: Center(
-                            child: Text(
-                              "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 35),
+                      : data["status"] == "ausente" ||
+                              data["status"] == "confirmado"
+                          ? CircleAvatar(
+                              radius: 60,
+                              child: Center(
+                                child: Text(
+                                  nome.length == 1
+                                      ? nome[0][0].toUpperCase()
+                                      : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 35),
+                                ),
+                              ),
+                            )
+                          : const CircleAvatar(
+                              backgroundColor: Colors.red,
+                              backgroundImage:
+                                  AssetImage("assets/images/avatar.jpg"),
                             ),
-                          ),
-                        ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),

@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pi/utils/styles.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
+
+import '../widgets/app_bar.dart';
 
 class PagamentoView extends StatefulWidget {
   const PagamentoView({super.key});
@@ -32,7 +35,8 @@ class _PagamentoViewState extends State<PagamentoView> {
 
     criarData(payload!['data']);
     return Scaffold(
-      appBar: appBar(),
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Detalhes do Pagamento"),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Center(
@@ -161,18 +165,6 @@ class _PagamentoViewState extends State<PagamentoView> {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         )),
       ),
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: const Text(
-        "Pagamento detalhes",
-        style: TextStyle(color: Colors.black),
-      ),
-      iconTheme: const IconThemeData(color: Colors.black),
-      backgroundColor: Colors.white,
-      elevation: 0,
     );
   }
 }

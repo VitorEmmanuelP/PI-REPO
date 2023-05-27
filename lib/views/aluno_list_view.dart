@@ -6,11 +6,13 @@ import 'package:pi/models/prefeitura_data.dart';
 import 'package:pi/models/user_data.dart';
 
 import 'package:pi/utils/dados_users.dart';
+import 'package:pi/utils/styles.dart';
 import 'package:pi/utils/validador_login.dart';
 
 import 'package:pi/views/user_view.dart';
 
 import '../utils/show_error_message.dart';
+import '../widgets/app_bar.dart';
 
 class ListaAlunoView extends StatefulWidget {
   const ListaAlunoView({super.key});
@@ -35,8 +37,9 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: scaffoldColor,
       resizeToAvoidBottomInset: false,
-      appBar: appBar(),
+      appBar: appBar("Lista de Alunos"),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Column(
@@ -254,16 +257,4 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
       isConnected = connected;
     });
   }
-}
-
-AppBar appBar() {
-  return AppBar(
-    title: const Text(
-      "Lista de Alunos",
-      style: TextStyle(color: Colors.black),
-    ),
-    backgroundColor: Colors.white,
-    elevation: 0,
-    iconTheme: const IconThemeData(color: Colors.black),
-  );
 }

@@ -2,6 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pi/models/user_data.dart';
+import 'package:pi/utils/styles.dart';
+
+import '../widgets/app_bar.dart';
 
 class PresencaUnicaView extends StatefulWidget {
   const PresencaUnicaView({super.key});
@@ -22,7 +25,8 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
       data = args[1];
     }
     return Scaffold(
-      appBar: appBar(),
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Presenca do dia ${data!['nome']}"),
       body: listazada(context),
     );
   }
@@ -178,18 +182,6 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
           ],
         );
       },
-    );
-  }
-
-  AppBar appBar() {
-    return AppBar(
-      title: Text(
-        "Presenca do dia ${data!['nome']}",
-        style: const TextStyle(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
     );
   }
 }
