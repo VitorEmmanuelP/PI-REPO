@@ -128,104 +128,114 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
     );
   }
 
-  OutlinedButton addButton(
+  SizedBox addButton(
       BuildContext context,
       MaskTextInputFormatter maskFormatterCpf,
       MaskTextInputFormatter maskFormatTelef,
       MaskTextInputFormatter maskFormatterData) {
-    return OutlinedButton(
-        onPressed: () async {
-          bool isConnected = await checkInternetConnection();
+    return SizedBox(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: OutlinedButton(
+          style: styleButton(),
+          onPressed: () async {
+            bool isConnected = await checkInternetConnection();
 
-          if (isConnected) {
-            FocusScope.of(context).unfocus();
-            final nome = _nomeCompleto.text;
-            final cpf = maskFormatterCpf.unmaskText(_cpf.text);
-            final faculdade = _faculdade.text;
-            final cursoAluno = _cursoAluno.text;
-            final telefone = maskFormatTelef.unmaskText(_telefone.text);
-            final data = maskFormatterData.unmaskText(_data.text);
-            final status = checkBoxValue1! ? 'coordenador' : 'aluno';
+            if (isConnected) {
+              FocusScope.of(context).unfocus();
+              final nome = _nomeCompleto.text;
+              final cpf = maskFormatterCpf.unmaskText(_cpf.text);
+              final faculdade = _faculdade.text;
+              final cursoAluno = _cursoAluno.text;
+              final telefone = maskFormatTelef.unmaskText(_telefone.text);
+              final data = maskFormatterData.unmaskText(_data.text);
+              final status = checkBoxValue1! ? 'coordenador' : 'aluno';
 
-            validarRegistros(nome, cpf, telefone, data);
+              validarRegistros(nome, cpf, telefone, data);
 
-            if (checarErros()) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                duration: Duration(seconds: 1),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: Colors.green,
-                content: Text("Adicionado"),
-              ));
+              if (checarErros()) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  duration: Duration(seconds: 1),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.green,
+                  content: Text("Adicionado"),
+                ));
 
-              final prefeitura = await getUser();
-              final docRef = await FirebaseFirestore.instance
-                  .collection("prefeituras/${prefeitura.id}/users/")
-                  .add({
-                'nome': nome,
-                'cpf': cpf,
-                'faculdade': faculdade,
-                'cursoAluno': cursoAluno,
-                'telefone': telefone,
-                'profilePic': '',
-                'senha': data,
-                'data': data,
-                'status': status,
-                'idOnibus': '',
-                'id': '',
-                'idPrefeitura': prefeitura.id,
-                'token': '',
-                'qrCode': ''
-              });
+                final prefeitura = await getUser();
+                final docRef = await FirebaseFirestore.instance
+                    .collection("prefeituras/${prefeitura.id}/users/")
+                    .add({
+                  'nome': nome,
+                  'cpf': cpf,
+                  'faculdade': faculdade,
+                  'cursoAluno': cursoAluno,
+                  'telefone': telefone,
+                  'profilePic': '',
+                  'senha': data,
+                  'data': data,
+                  'status': status,
+                  'idOnibus': '',
+                  'id': '',
+                  'idPrefeitura': prefeitura.id,
+                  'token': '',
+                  'qrCode': ''
+                });
 
-              final idCurrent = docRef.id.toString();
+                final idCurrent = docRef.id.toString();
 
-              final usera = FirebaseFirestore.instance
-                  .collection("prefeituras/${prefeitura.id}/users/")
-                  .doc(idCurrent);
+                final usera = FirebaseFirestore.instance
+                    .collection("prefeituras/${prefeitura.id}/users/")
+                    .doc(idCurrent);
 
-              final qrCodeString = generateQrCode(idCurrent);
-              usera.update({'id': idCurrent, 'qrCode': qrCodeString});
+                final qrCodeString = generateQrCode(idCurrent);
+                usera.update({'id': idCurrent, 'qrCode': qrCodeString});
 
-              final registro = UserData(
-                  nome: nome,
-                  cpf: cpf,
-                  faculdade: faculdade,
-                  curso: cursoAluno,
-                  telefone: telefone,
-                  profilePic: '',
-                  senha: data,
-                  data: data,
-                  status: 'aluno',
-                  idOnibus: '',
-                  id: idCurrent,
-                  idPrefeitura: 'prefeitura.id',
-                  token: '',
-                  qrCode: qrCodeString);
+                final registro = UserData(
+                    nome: nome,
+                    cpf: cpf,
+                    faculdade: faculdade,
+                    curso: cursoAluno,
+                    telefone: telefone,
+                    profilePic: '',
+                    senha: data,
+                    data: data,
+                    status: 'aluno',
+                    idOnibus: '',
+                    id: idCurrent,
+                    idPrefeitura: 'prefeitura.id',
+                    token: '',
+                    qrCode: qrCodeString);
 
-              await addListaAluno(registro);
+                await addListaAluno(registro);
 
-              await FirebaseFirestore.instance.collection("users").add({
-                'cpf': cpf,
-                'dataNascimento': data,
-                'senha': data,
-                'idPrefeitura': prefeitura.id,
-                'id': idCurrent,
-              });
+                await FirebaseFirestore.instance.collection("users").add({
+                  'cpf': cpf,
+                  'dataNascimento': data,
+                  'senha': data,
+                  'idPrefeitura': prefeitura.id,
+                  'id': idCurrent,
+                });
 
-              //Navigator.of(context).pop();
+                //Navigator.of(context).pop();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  duration: Duration(seconds: 1),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.red,
+                  content: Text("Erro"),
+                ));
+              }
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                duration: Duration(seconds: 1),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: Colors.red,
-                content: Text("Erro"),
-              ));
+              await showErrorMessage(context, "Not internet");
             }
-          } else {
-            await showErrorMessage(context, "Not internet");
-          }
-        },
-        child: const Text("Adicionar"));
+          },
+          child: const Text(
+            "Adicionar",
+            style: TextStyle(color: textColor),
+          ),
+        ),
+      ),
+    );
   }
 
   generateQrCode(id) {

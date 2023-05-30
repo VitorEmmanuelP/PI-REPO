@@ -4,6 +4,8 @@ import 'package:pi/utils/styles.dart';
 import 'package:pi/widgets/profile_pic.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../widgets/app_bar.dart';
+
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
 
@@ -38,29 +40,49 @@ class _ProfileViewState extends State<ProfileView> {
               width: 190,
               child: ProfilePictureWidget(),
             ),
-            Row(
-              children: [
-                SizedBox(
-                  height: 250,
-                  width: MediaQuery.of(context).size.width / 2,
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text("Nome: ${dados!.nome}"),
-                        Text("Telefone: ${dados!.telefone}"),
-                      ]),
-                ),
-                SizedBox(
-                  height: 250,
-                  width: MediaQuery.of(context).size.width / 2,
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text("Faculdade: ${dados!.faculdade}"),
-                        Text("Cursando: ${dados!.curso}"),
-                      ]),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                children: [
+                  const Text("Nome", style: TextStyle(color: Colors.blue)),
+                  Text(dados!.nome,
+                      style: const TextStyle(
+                          color: Color.fromARGB(100, 69, 69, 69))),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  const Text("Telefone", style: TextStyle(color: Colors.blue)),
+                  Text(dados!.telefone,
+                      style: const TextStyle(
+                          color: Color.fromARGB(100, 69, 69, 69))),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  const Text("Faculdade", style: TextStyle(color: Colors.blue)),
+                  Text(dados!.faculdade,
+                      style: const TextStyle(
+                          color: Color.fromARGB(100, 69, 69, 69))),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  const Text("Curso", style: TextStyle(color: Colors.blue)),
+                  Text(dados!.curso,
+                      style: const TextStyle(
+                          color: Color.fromARGB(100, 69, 69, 69))),
+                ],
+              ),
             ),
             SizedBox(
               height: 330,

@@ -68,6 +68,13 @@ class _LoginViewState extends State<LoginView> {
                         height: 300,
                       ),
                     ),
+                    // Padding(
+                    //   padding: const EdgeInsets.all(20.0),
+                    //   child: Text(
+                    //     "EduMobi",
+                    //     style: TextStyle(fontSize: 50, fontFamily: "Goldman"),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: TextField(
@@ -115,17 +122,29 @@ class _LoginViewState extends State<LoginView> {
                           });
                         },
                         style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.blue,
                           minimumSize: const Size(200, 50),
-                          side: const BorderSide(color: Colors.black, width: 1),
+                          side: const BorderSide(color: Colors.blue, width: 1),
                         ),
-                        child: const Text("Login")),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed(esqueceSenha);
-                          },
-                          child: const Text('Esquici minha senha')),
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(color: Colors.white),
+                        )),
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pushNamed(esqueceSenha);
+                              },
+                              child: const Text(
+                                'Esquici minha senha',
+                                style: TextStyle(
+                                    color: Color.fromARGB(100, 105, 105, 105)),
+                              )),
+                        ),
+                      ],
                     )
                   ],
                 ),

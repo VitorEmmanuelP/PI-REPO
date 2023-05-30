@@ -9,6 +9,7 @@ import 'package:pi/views/add_aluno_onibus_view.dart';
 import '../utils/check_internet.dart';
 import '../utils/dados_users.dart';
 import '../utils/show_error_message.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/profile_pic.dart';
 
 class InfoBusView extends StatefulWidget {
@@ -42,11 +43,71 @@ class _InfoBusViewState extends State<InfoBusView> {
                 info: dados,
               ),
             ),
-            Container(
-                width: double.infinity,
-                height: 700,
-                color: Colors.red,
-                child: Center(child: Text(dados!['motorista']))),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(30.0),
+                        child: Column(
+                          children: [
+                            const Text("Nome",
+                                style: TextStyle(color: Colors.blue)),
+                            Text(dados!['motorista'],
+                                style: const TextStyle(
+                                    color: Color.fromARGB(100, 69, 69, 69))),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            const Text("Destino",
+                                style: TextStyle(color: Colors.blue)),
+                            Text(dados!['destino'],
+                                style: const TextStyle(
+                                    color: Color.fromARGB(100, 69, 69, 69))),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            const Text("Placa",
+                                style: TextStyle(color: Colors.blue)),
+                            Text(dados!['placa'],
+                                style: const TextStyle(
+                                    color: Color.fromARGB(100, 69, 69, 69))),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            const Text("Numero de Vagas",
+                                style: TextStyle(color: Colors.blue)),
+                            Text(dados!['numeroVagas'],
+                                style: const TextStyle(
+                                    color: Color.fromARGB(100, 69, 69, 69))),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
             listaDeAlunosDoOnibus(context),
             Container(
               color: Colors.blue,
@@ -135,43 +196,47 @@ class _InfoBusViewState extends State<InfoBusView> {
                           width: 5000,
                           height: 100,
                           margin: const EdgeInsets.all(20),
-                          decoration:
-                              BoxDecoration(border: Border.all(width: 2)),
+                          decoration: BoxDecoration(
+                              border: Border.all(width: 2),
+                              borderRadius: BorderRadius.circular(10)),
                           child: Row(
                             children: [
-                              SizedBox(
-                                height: 100,
-                                width: 100,
-                                child: data['profilePic'] != ''
-                                    ? CachedNetworkImage(
-                                        imageUrl: data['profilePic'],
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            CircleAvatar(
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SizedBox(
+                                  height: 100,
+                                  width: 100,
+                                  child: data['profilePic'] != ''
+                                      ? CachedNetworkImage(
+                                          imageUrl: data['profilePic'],
+                                          placeholder: (context, url) =>
+                                              const CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              CircleAvatar(
+                                            backgroundColor: Colors.blue,
+                                            radius: 70,
+                                            child: Center(
+                                              child: Text(
+                                                  '${nome[0][0]}${nome[1][0]}'),
+                                            ),
+                                          ),
+                                          imageBuilder:
+                                              (context, imageProvider) =>
+                                                  CircleAvatar(
+                                            backgroundColor: Colors.red,
+                                            radius: 60,
+                                            backgroundImage: imageProvider,
+                                          ),
+                                        )
+                                      : CircleAvatar(
                                           backgroundColor: Colors.blue,
                                           radius: 70,
                                           child: Center(
                                             child: Text(
-                                                '${nome[0][0]}${nome[1][0]}'),
+                                                '${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'),
                                           ),
                                         ),
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                CircleAvatar(
-                                          backgroundColor: Colors.red,
-                                          radius: 60,
-                                          backgroundImage: imageProvider,
-                                        ),
-                                      )
-                                    : CircleAvatar(
-                                        backgroundColor: Colors.blue,
-                                        radius: 70,
-                                        child: Center(
-                                          child: Text(
-                                              '${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'),
-                                        ),
-                                      ),
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 20),

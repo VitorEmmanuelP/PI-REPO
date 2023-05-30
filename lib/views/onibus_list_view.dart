@@ -38,18 +38,25 @@ class _OnibusViewState extends State<OnibusView> {
     );
   }
 
-  ElevatedButton addButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
-        bool isConnected = await checkInternetConnection();
+  Padding addButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 10.0, right: 10),
+      child: ElevatedButton(
+        style: styleButton(),
+        onPressed: () async {
+          bool isConnected = await checkInternetConnection();
 
-        if (isConnected) {
-          Navigator.of(context).pushNamed(registerBusRoute);
-        } else {
-          await showErrorMessage(context, 'Internet Missing');
-        }
-      },
-      child: const Text('Adicionar Onibus'),
+          if (isConnected) {
+            Navigator.of(context).pushNamed(registerBusRoute);
+          } else {
+            await showErrorMessage(context, 'Internet Missing');
+          }
+        },
+        child: const Text(
+          'Adicionar Onibus',
+          style: TextStyle(color: textColor),
+        ),
+      ),
     );
   }
 
@@ -101,46 +108,51 @@ class _OnibusViewState extends State<OnibusView> {
               height: 100,
               margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(width: 2, color: Colors.black)),
               child: Row(
                 children: [
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: data['profilePic'] != ''
-                        ? CachedNetworkImage(
-                            imageUrl: data['profilePic'],
-                            placeholder: (context, url) =>
-                                const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) => CircleAvatar(
-                              backgroundColor: Colors.blue,
-                              radius: 70,
-                              child: Center(
-                                child: Text(
-                                  "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 35),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: data['profilePic'] != ''
+                          ? CachedNetworkImage(
+                              imageUrl: data['profilePic'],
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  CircleAvatar(
+                                backgroundColor: Colors.blue,
+                                radius: 70,
+                                child: Center(
+                                  child: Text(
+                                    "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 35),
+                                  ),
                                 ),
                               ),
+                              imageBuilder: (context, imageProvider) =>
+                                  CircleAvatar(
+                                backgroundColor: Colors.red,
+                                radius: 60,
+                                backgroundImage: imageProvider,
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 70,
+                              child: Center(
+                                  child: Text(
+                                nome.length == 1
+                                    ? nome[0][0].toUpperCase()
+                                    : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 35),
+                              )),
                             ),
-                            imageBuilder: (context, imageProvider) =>
-                                CircleAvatar(
-                              backgroundColor: Colors.red,
-                              radius: 60,
-                              backgroundImage: imageProvider,
-                            ),
-                          )
-                        : CircleAvatar(
-                            radius: 70,
-                            child: Center(
-                                child: Text(
-                              nome.length == 1
-                                  ? nome[0][0].toUpperCase()
-                                  : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 35),
-                            )),
-                          ),
+                    ),
                   ),
                   Text(
                       "${data['motorista']}\n${data['destino']}  ${data['numeroVagas']}"),

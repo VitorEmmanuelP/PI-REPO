@@ -133,13 +133,10 @@ class _HomeViewState extends State<HomeView> {
               //     settings: RouteSettings(arguments: dados)));
               Navigator.of(context).pushNamed(onibusRoute, arguments: dados);
             },
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(80),
-              side: const BorderSide(color: Colors.black, width: 2),
-            ),
+            style: styleButton(),
             child: const Text(
               "Onibus",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: textColor),
             ),
           ),
         ),
@@ -152,13 +149,10 @@ class _HomeViewState extends State<HomeView> {
                 settings: RouteSettings(arguments: dados),
               ));
             },
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(80),
-              side: const BorderSide(color: Colors.black, width: 2),
-            ),
+            style: styleButton(),
             child: const Text(
               "Lista de Alunos",
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: textColor),
             ),
           ),
         ),
@@ -182,13 +176,24 @@ class _HomeViewState extends State<HomeView> {
               Navigator.of(context).pushNamed(presencaRoute,
                   arguments: [dados, infoAlunoOninus]);
             },
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(80),
-              side: const BorderSide(color: Colors.black, width: 2),
-            ),
-            child: const Text(
-              "PRESENÇA",
-              style: TextStyle(color: Colors.black),
+            style: styleButton(),
+            child: Row(
+              children: const [
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      "PRESENÇA",
+                      style: TextStyle(color: textColor),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -198,13 +203,24 @@ class _HomeViewState extends State<HomeView> {
               onPressed: () {
                 Navigator.of(context).pushNamed(infoBusAluno, arguments: dados);
               },
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(80),
-                side: const BorderSide(color: Colors.black, width: 2),
-              ),
-              child: const Text(
-                "INFO. Ônibus",
-                style: TextStyle(color: Colors.black),
+              style: styleButton(),
+              child: Row(
+                children: const [
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        "INFORMAÇÕES DO ÔNIBUS",
+                        style: TextStyle(color: textColor),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               )),
         ),
       ],
@@ -367,7 +383,7 @@ class _HomeViewState extends State<HomeView> {
                   },
                   icon: const Icon(
                     Icons.account_circle_outlined,
-                    color: Colors.black,
+                    color: Colors.blue,
                   ),
                   iconSize: 36.0,
                 );

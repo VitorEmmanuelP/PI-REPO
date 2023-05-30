@@ -42,8 +42,11 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
       appBar: appBar("Lista de Alunos"),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
-        child: Column(
-          children: [searchBar(), listaAluno(context), addAluno(context)],
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [searchBar(), listaAluno(context), addAluno(context)],
+          ),
         ),
       ),
     );
@@ -57,7 +60,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
       dados = args;
     }
     return SizedBox(
-        height: MediaQuery.of(context).size.height - 230,
+        height: MediaQuery.of(context).size.height - 300,
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('prefeituras/${dados!.id}/users')
@@ -119,7 +122,9 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
                   width: 5000,
                   height: 100,
                   margin: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(border: Border.all(width: 2)),
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 2),
+                      borderRadius: BorderRadius.circular(10)),
                   child: cardUser(data),
                 ),
               ],
@@ -166,16 +171,34 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
   Row cardUser(Map<String, dynamic> data) {
     return Row(
       children: [
-        SizedBox(
-          width: 100,
-          height: 100,
-          child: data['profilePic'] != ''
-              ? CachedNetworkImage(
-                  imageUrl: data['profilePic'],
-                  placeholder: (context, url) =>
-                      const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => CircleAvatar(
-                    backgroundColor: Colors.blue,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            width: 100,
+            height: 100,
+            child: data['profilePic'] != ''
+                ? CachedNetworkImage(
+                    imageUrl: data['profilePic'],
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      radius: 70,
+                      child: Center(
+                        child: Text(
+                          "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 35),
+                        ),
+                      ),
+                    ),
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                      backgroundColor: Colors.red,
+                      radius: 60,
+                      backgroundImage: imageProvider,
+                    ),
+                  )
+                : CircleAvatar(
                     radius: 70,
                     child: Center(
                       child: Text(
@@ -185,21 +208,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
                       ),
                     ),
                   ),
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                    backgroundColor: Colors.red,
-                    radius: 60,
-                    backgroundImage: imageProvider,
-                  ),
-                )
-              : CircleAvatar(
-                  radius: 70,
-                  child: Center(
-                    child: Text(
-                      "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                      style: const TextStyle(color: Colors.white, fontSize: 35),
-                    ),
-                  ),
-                ),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20.0),
@@ -212,6 +221,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
 
   SizedBox searchBar() {
     return SizedBox(
+      height: 75,
       width: MediaQuery.of(context).size.width - 35,
       child: TextField(
         onChanged: (value) {
@@ -232,20 +242,32 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
     );
   }
 
-  OutlinedButton addAluno(BuildContext context) {
-    return OutlinedButton(
-        onPressed: () async {
-          bool isConnected = await checkInternetConnection();
+  SizedBox addAluno(BuildContext context) {
+    return SizedBox(
+      child: Padding(
+        padding:
+            const EdgeInsets.only(top: 20, bottom: 20.0, right: 20, left: 20),
+        child: OutlinedButton(
+            style: styleButton(),
+            onPressed: () async {
+              bool isConnected = await checkInternetConnection();
 
-          if (isConnected) {
-            Navigator.of(context).pushNamed(registerAlunoRoute).then((value) {
-              loadLista();
-            });
-          } else {
-            await showErrorMessage(context, "Not internet");
-          }
-        },
-        child: const Text('Adicionar Alunos'));
+              if (isConnected) {
+                Navigator.of(context)
+                    .pushNamed(registerAlunoRoute)
+                    .then((value) {
+                  loadLista();
+                });
+              } else {
+                await showErrorMessage(context, "Not internet");
+              }
+            },
+            child: const Text(
+              'Adicionar Alunos',
+              style: TextStyle(color: textColor),
+            )),
+      ),
+    );
   }
 
   loadLista() async {

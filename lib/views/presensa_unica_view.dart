@@ -119,7 +119,7 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
       itemBuilder: (context, index) {
         var data = sortedDocs[index].data() as Map<String, dynamic>;
 
-        final nome = data['nome'].toUpperCase().split(' ');
+        final nome = data['nome'].toUpperCase().trim().split(' ');
 
         return Column(
           children: [
@@ -165,7 +165,9 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
                           radius: 60,
                           child: Center(
                             child: Text(
-                              "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
+                              nome.length == 1
+                                  ? nome[0][0].toUpperCase()
+                                  : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
                               style: const TextStyle(
                                   color: Colors.white, fontSize: 35),
                             ),

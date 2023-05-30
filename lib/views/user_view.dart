@@ -42,78 +42,128 @@ class _UserViewState extends State<UserView> {
       backgroundColor: scaffoldColor,
       appBar: appBar("Profile"),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Center(
+          physics: const BouncingScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
             child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 190,
-              width: 190,
-              child: ClipOval(
-                  child: CachedNetworkImage(
-                imageUrl: dados!['profilePic'],
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  radius: 70,
-                  child: Center(
-                    child: Text(
-                      "${nome![0][0].toUpperCase()}${nome![1][0].toUpperCase()}",
-                      style: const TextStyle(color: Colors.white, fontSize: 35),
+              children: <Widget>[
+                SizedBox(
+                  height: 190,
+                  width: 190,
+                  child: ClipOval(
+                      child: CachedNetworkImage(
+                    imageUrl: dados!['profilePic'],
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      radius: 70,
+                      child: Center(
+                        child: Text(
+                          "${nome![0][0].toUpperCase()}${nome![1][0].toUpperCase()}",
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 35),
+                        ),
+                      ),
                     ),
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                      backgroundColor: Colors.red,
+                      radius: 60,
+                      backgroundImage: imageProvider,
+                    ),
+                  )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(30.0),
+                        child: Column(
+                          children: [
+                            const Text("Nome",
+                                style: TextStyle(color: Colors.blue)),
+                            Text(dados!["nome"],
+                                style: const TextStyle(
+                                    color: Color.fromARGB(100, 69, 69, 69))),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          children: [
+                            const Text("Telefone",
+                                style: TextStyle(color: Colors.blue)),
+                            Text(dados!["telefone"],
+                                style: const TextStyle(
+                                    color: Color.fromARGB(100, 69, 69, 69))),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                imageBuilder: (context, imageProvider) => CircleAvatar(
-                  backgroundColor: Colors.red,
-                  radius: 60,
-                  backgroundImage: imageProvider,
-                ),
-              )),
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  height: 250,
-                  width: MediaQuery.of(context).size.width / 2,
+                Container(
+                  height: 200,
                   child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text("Nome: ${dados!['nome']}"),
-                        Text("Telefone: ${dados!['telefone']}"),
-                      ]),
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                const Text("Faculdade",
+                                    style: TextStyle(color: Colors.blue)),
+                                Text(dados!["faculdade"],
+                                    style: const TextStyle(
+                                        color:
+                                            Color.fromARGB(100, 69, 69, 69))),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                const Text("Curso",
+                                    style: TextStyle(color: Colors.blue)),
+                                Text(dados!["cursoAluno"],
+                                    style: const TextStyle(
+                                        color:
+                                            Color.fromARGB(100, 69, 69, 69))),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(
-                  height: 250,
-                  width: MediaQuery.of(context).size.width / 2,
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text("Faculdade: ${dados!['faculdade']}"),
-                        Text("Cursando: ${dados!['cursoAluno']}"),
-                      ]),
+                ElevatedButton(
+                  onPressed: () async {
+                    final bool shouldDelete = await showDeleteDialog(context);
+                    bool isConnected = await checkInternetConnection();
+
+                    if (shouldDelete) {
+                      if (isConnected) {
+                        await deletarUser();
+
+                        Navigator.of(context).pop();
+                      } else {
+                        await showErrorMessage(context, 'Internet Missing');
+                      }
+                    }
+                  },
+                  child: const Text('Delete'),
                 ),
               ],
             ),
-            ElevatedButton(
-                onPressed: () async {
-                  final bool shouldDelete = await showDeleteDialog(context);
-                  bool isConnected = await checkInternetConnection();
-
-                  if (shouldDelete) {
-                    if (isConnected) {
-                      await deletarUser();
-
-                      Navigator.of(context).pop();
-                    } else {
-                      await showErrorMessage(context, 'Internet Missing');
-                    }
-                  }
-                },
-                child: const Text('Delete'))
-          ],
-        )),
-      ),
+          )),
     );
   }
 
