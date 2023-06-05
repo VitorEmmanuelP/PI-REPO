@@ -136,6 +136,7 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
             .collection("prefeituras/${dados['idPrefeitura']}/onibus/")
             .doc(dados['id']);
 
+        print(usera);
         usera.update({'profilePic': downloadURL});
 
         dados!.profilePic = downloadURL;

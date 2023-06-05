@@ -40,7 +40,7 @@ class _OnibusViewState extends State<OnibusView> {
 
   Padding addButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 10.0, right: 10),
+      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
       child: ElevatedButton(
         style: styleButton(),
         onPressed: () async {
@@ -52,9 +52,23 @@ class _OnibusViewState extends State<OnibusView> {
             await showErrorMessage(context, 'Internet Missing');
           }
         },
-        child: const Text(
-          'Adicionar Onibus',
-          style: TextStyle(color: textColor),
+        child: Row(
+          children: const [
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Adicionar Onibus',
+                  style: TextStyle(color: textColor),
+                ),
+              ),
+            ),
+            Center(
+              child: Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -105,7 +119,7 @@ class _OnibusViewState extends State<OnibusView> {
             },
             child: Container(
               width: 5000,
-              height: 100,
+              height: 120,
               margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/services/auth_expection.dart';
 import 'package:pi/utils/dados_users.dart';
@@ -9,7 +10,6 @@ import 'package:pi/utils/show_error_message.dart';
 import 'package:pi/utils/validador_login.dart';
 
 import '../utils/styles.dart';
-import '../widgets/app_bar.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -19,14 +19,14 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  late final TextEditingController _user;
+  late final TextEditingController _cpf;
   late final TextEditingController _password;
   late final Map dados;
   bool isLoading = false;
 
   @override
   void initState() {
-    _user = TextEditingController();
+    _cpf = TextEditingController();
     _password = TextEditingController();
 
     super.initState();
@@ -34,13 +34,16 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void dispose() {
-    _user.dispose();
+    _cpf.dispose();
     _password.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final maskFormatterCpf = MaskTextInputFormatter(
+        mask: '###-###-###-##', filter: {"#": RegExp(r'[0-9]')});
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -68,17 +71,11 @@ class _LoginViewState extends State<LoginView> {
                         height: 300,
                       ),
                     ),
-                    // Padding(
-                    //   padding: const EdgeInsets.all(20.0),
-                    //   child: Text(
-                    //     "EduMobi",
-                    //     style: TextStyle(fontSize: 50, fontFamily: "Goldman"),
-                    //   ),
-                    // ),
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: TextField(
-                        controller: _user,
+                        controller: _cpf,
+                        //inputFormatters: [maskFormatterCpf],
                         decoration: estiloTextField("Username"),
                       ),
                     ),
@@ -92,7 +89,8 @@ class _LoginViewState extends State<LoginView> {
                     OutlinedButton(
                         onPressed: () async {
                           FocusScope.of(context).unfocus();
-                          final cpf = _user.text;
+                          //final cpf = maskFormatterCpf.unmaskText(_cpf.text);
+                          final cpf = _cpf.text;
                           final password = _password.text;
                           setState(() {
                             isLoading = true;
@@ -122,9 +120,12 @@ class _LoginViewState extends State<LoginView> {
                           });
                         },
                         style: OutlinedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor:
+                              isLoading ? Colors.grey : Colors.blue,
                           minimumSize: const Size(200, 50),
-                          side: const BorderSide(color: Colors.blue, width: 1),
+                          side: BorderSide(
+                              color: isLoading ? Colors.grey : Colors.blue,
+                              width: 1),
                         ),
                         child: const Text(
                           "Login",
@@ -201,5 +202,17 @@ class _LoginViewState extends State<LoginView> {
         'status': prefeitura['status'],
       };
     }
+  }
+
+  AppBar appBar(String text) {
+    return AppBar(
+      title: Text(
+        text,
+        style: const TextStyle(color: Colors.black),
+      ),
+      backgroundColor: isLoading ? Colors.grey : scaffoldColor,
+      elevation: 0,
+      iconTheme: const IconThemeData(color: Colors.black),
+    );
   }
 }

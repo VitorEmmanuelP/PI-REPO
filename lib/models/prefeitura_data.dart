@@ -4,11 +4,12 @@ class PrefeituraData {
   String id;
   String status;
 
-  PrefeituraData(
-      {required this.nome,
-      required this.senha,
-      required this.id,
-      required this.status});
+  PrefeituraData({
+    required this.nome,
+    required this.senha,
+    required this.id,
+    required this.status,
+  });
 
   factory PrefeituraData.fromJson(Map<String, dynamic> json) {
     return PrefeituraData(

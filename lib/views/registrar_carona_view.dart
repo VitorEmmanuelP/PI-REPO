@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pi/models/user_data.dart';
 
+import '../models/bus_data.dart';
 import '../utils/check_internet.dart';
 import '../utils/styles.dart';
 import '../widgets/app_bar.dart';
@@ -21,6 +22,7 @@ class _RegistrarCaronaViewState extends State<RegistrarCaronaView> {
   late final TextEditingController _telefone;
 
   UserData? dados;
+  BusData? onibusInfo;
   String formattedDate = '';
 
   @override
@@ -47,11 +49,12 @@ class _RegistrarCaronaViewState extends State<RegistrarCaronaView> {
 
   @override
   Widget build(BuildContext context) {
-    final UserData? args =
-        ModalRoute.of(context)?.settings.arguments as UserData?;
+    final List? args = ModalRoute.of(context)?.settings.arguments as List?;
     DateTime now = DateTime.now();
     if (args != null) {
-      dados = args;
+      dados = args[0];
+      onibusInfo = args[1];
+
       formattedDate = DateFormat('dd-MM-yyyy').format(now);
     }
     final maskFormatTelef = MaskTextInputFormatter(
@@ -141,19 +144,52 @@ class _RegistrarCaronaViewState extends State<RegistrarCaronaView> {
                         validarRegistros(nome, telefone);
 
                         if (checarErros()) {
-                          await FirebaseFirestore.instance
+                          final usera = FirebaseFirestore.instance
                               .collection(
-                                  "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/alunos")
-                              .doc(nome)
-                              .set({
-                            "nome": nome,
-                            "data": formattedDate,
-                            "telefone": telefone,
-                            "status": status,
-                          });
+                                  "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/")
+                              .doc(formattedDate);
 
-                          //print(fire);
+                          var data = await usera
+                              .get()
+                              .then((value) => value.data()) as Map;
+
+                          if (int.parse(data['numerosAlunos']) <
+                              int.parse(onibusInfo!.numeroVagas)) {
+                            await FirebaseFirestore.instance
+                                .collection(
+                                    "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/alunos")
+                                .doc(nome)
+                                .set({
+                              "nome": nome,
+                              "data": formattedDate,
+                              "telefone": telefone,
+                              "status": status,
+                            });
+
+                            usera.set({
+                              'nome': formattedDate,
+                              'numerosAlunos':
+                                  "${int.parse(data['numerosAlunos'].toString()) + 1}"
+                            });
+
+                            Navigator.of(context).pop();
+                          } else {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              behavior: SnackBarBehavior.fixed,
+                              duration: Duration(milliseconds: 500),
+                              backgroundColor: Colors.red,
+                              content: Padding(
+                                padding: EdgeInsets.only(top: 8.0),
+                                child: Center(
+                                    child: Text(
+                                  "O onibus esta cheio",
+                                )),
+                              ),
+                            ));
+                          }
                         }
+
                         //print(validarNumeroCelular(telefone));
                       }
                     },

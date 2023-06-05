@@ -61,7 +61,10 @@ class _ListaPresensaViewState extends State<ListaPresensaView> {
                   width: 5000,
                   height: 100,
                   margin: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(border: Border.all(width: 2)),
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: cardUser(data),
                 ),
               ],
@@ -153,6 +156,7 @@ class _ListaPresensaViewState extends State<ListaPresensaView> {
 
   SizedBox searchBar() {
     return SizedBox(
+      height: 75,
       width: MediaQuery.of(context).size.width - 35,
       child: TextField(
         onChanged: (value) {
@@ -176,7 +180,7 @@ class _ListaPresensaViewState extends State<ListaPresensaView> {
   AppBar appBar() {
     return AppBar(
       title: const Text(
-        "Profile",
+        "Todas as lista de presenças",
         style: TextStyle(color: Colors.black),
       ),
       backgroundColor: Colors.white,

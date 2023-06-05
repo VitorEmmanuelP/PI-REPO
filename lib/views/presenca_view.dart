@@ -28,7 +28,7 @@ class _PresencaViewState extends State<PresencaView> {
   List listaPresensaTodos = [];
   String formattedDate = '';
   String? infoQr;
-
+  bool isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -173,7 +173,6 @@ class _PresencaViewState extends State<PresencaView> {
   }
 
   Column tabsView(BuildContext context, List<dynamic> listaData) {
-    print(onibusInfo!.numeroVagas);
     return Column(
       children: [
         SizedBox(
@@ -187,7 +186,12 @@ class _PresencaViewState extends State<PresencaView> {
                     height: 30,
                     child: Center(
                       child: Text(
-                          'Vagas disponíveis: ${int.parse(onibusInfo!.numeroVagas) - int.parse(listaData[i]['numerosAlunos'].toString())}',
+                          int.parse(onibusInfo!.numeroVagas) -
+                                      int.parse(listaData[i]['numerosAlunos']
+                                          .toString()) >
+                                  0
+                              ? 'Vagas disponíveis: ${int.parse(onibusInfo!.numeroVagas) - int.parse(listaData[i]['numerosAlunos'].toString())}'
+                              : "O onibus esta cheio.",
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
@@ -280,8 +284,8 @@ class _PresencaViewState extends State<PresencaView> {
                   child: Center(
                     child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context)
-                              .pushNamed(registerCaronaRoute, arguments: dados);
+                          Navigator.of(context).pushNamed(registerCaronaRoute,
+                              arguments: [dados, onibusInfo]);
                         },
                         child: const Text("Adicionar Carona")),
                   ),
@@ -308,7 +312,7 @@ class _PresencaViewState extends State<PresencaView> {
           children: [
             Container(
               width: 5000,
-              height: 100,
+              height: 120,
               margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -342,7 +346,7 @@ class _PresencaViewState extends State<PresencaView> {
                             ),
                             imageBuilder: (context, imageProvider) =>
                                 CircleAvatar(
-                              backgroundColor: Colors.red,
+                              backgroundColor: Colors.transparent,
                               radius: 60,
                               backgroundImage: imageProvider,
                             ),

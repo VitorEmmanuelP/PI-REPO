@@ -118,11 +118,13 @@ class _HomeViewState extends State<HomeView> {
   Center prefeituraHomeView(BuildContext context) {
     return Center(
         child: Column(
-      //mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(
-          "assets/images/logo.png",
-          height: 250,
+        SizedBox(
+          child: Image.asset(
+            "assets/images/logo.png",
+            height: 250,
+          ),
         ),
         Container(
           padding: const EdgeInsets.all(20),
@@ -134,9 +136,23 @@ class _HomeViewState extends State<HomeView> {
               Navigator.of(context).pushNamed(onibusRoute, arguments: dados);
             },
             style: styleButton(),
-            child: const Text(
-              "Onibus",
-              style: TextStyle(color: textColor),
+            child: Row(
+              children: const [
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      "Onibus",
+                      style: TextStyle(color: textColor),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -150,9 +166,23 @@ class _HomeViewState extends State<HomeView> {
               ));
             },
             style: styleButton(),
-            child: const Text(
-              "Lista de Alunos",
-              style: TextStyle(color: textColor),
+            child: Row(
+              children: const [
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      "Lista de Alunos",
+                      style: TextStyle(color: textColor),
+                    ),
+                  ),
+                ),
+                Center(
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -266,6 +296,7 @@ class _HomeViewState extends State<HomeView> {
             modelo: data['modelo'],
             placa: data['placa'],
             numeroVagas: data['numeroVagas'],
+            vagasRestantes: data['vagasRestantes'],
             profilePic: data['profilePic']);
 
         listaOnibus.add(onibus);
@@ -293,6 +324,7 @@ class _HomeViewState extends State<HomeView> {
         modelo: data['modelo'],
         placa: data['placa'],
         numeroVagas: data['numeroVagas'],
+        vagasRestantes: data['vagasRestantes'],
         profilePic: data['profilePic'],
       );
 
@@ -383,7 +415,7 @@ class _HomeViewState extends State<HomeView> {
                   },
                   icon: const Icon(
                     Icons.account_circle_outlined,
-                    color: Colors.blue,
+                    color: Colors.black,
                   ),
                   iconSize: 36.0,
                 );

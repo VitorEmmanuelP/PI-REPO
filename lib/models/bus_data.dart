@@ -6,6 +6,7 @@ class BusData {
   String modelo;
   String placa;
   String numeroVagas;
+  String vagasRestantes;
   String profilePic;
 
   BusData({
@@ -17,6 +18,7 @@ class BusData {
     required this.placa,
     required this.numeroVagas,
     required this.profilePic,
+    required this.vagasRestantes,
   });
 
   factory BusData.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class BusData {
       modelo: json['modelo'],
       placa: json['placa'],
       numeroVagas: json['numeroVagas'],
+      vagasRestantes: json['vagasRestantes'],
       profilePic: json['profilePic'],
     );
   }
@@ -40,6 +43,7 @@ class BusData {
         'modelo': modelo,
         'placa': placa,
         'numeroVagas': numeroVagas,
+        'vagasRestantes': vagasRestantes,
         'profilePic': profilePic,
       };
 }

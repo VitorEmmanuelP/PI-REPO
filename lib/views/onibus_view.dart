@@ -50,28 +50,32 @@ class _InfoBusViewState extends State<InfoBusView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: Column(
-                          children: [
-                            const Text("Nome",
-                                style: TextStyle(color: Colors.blue)),
-                            Text(dados!['motorista'],
-                                style: const TextStyle(
-                                    color: Color.fromARGB(100, 69, 69, 69))),
-                          ],
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(30.0),
+                          child: Column(
+                            children: [
+                              const Text("Nome",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!['motorista'],
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          children: [
-                            const Text("Destino",
-                                style: TextStyle(color: Colors.blue)),
-                            Text(dados!['destino'],
-                                style: const TextStyle(
-                                    color: Color.fromARGB(100, 69, 69, 69))),
-                          ],
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              const Text("Destino",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!['destino'],
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -79,32 +83,36 @@ class _InfoBusViewState extends State<InfoBusView> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          children: [
-                            const Text("Placa",
-                                style: TextStyle(color: Colors.blue)),
-                            Text(dados!['placa'],
-                                style: const TextStyle(
-                                    color: Color.fromARGB(100, 69, 69, 69))),
-                          ],
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(30.0),
+                          child: Column(
+                            children: [
+                              const Text("Placa",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!['placa'],
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Column(
-                          children: [
-                            const Text("Numero de Vagas",
-                                style: TextStyle(color: Colors.blue)),
-                            Text(dados!['numeroVagas'],
-                                style: const TextStyle(
-                                    color: Color.fromARGB(100, 69, 69, 69))),
-                          ],
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              const Text("N. de Vagas",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!['numeroVagas'],
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
                         ),
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -194,7 +202,7 @@ class _InfoBusViewState extends State<InfoBusView> {
                       return Column(children: [
                         Container(
                           width: 5000,
-                          height: 100,
+                          height: 120,
                           margin: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                               border: Border.all(width: 2),
@@ -267,14 +275,16 @@ class _InfoBusViewState extends State<InfoBusView> {
     );
   }
 
-  removerAlunoBus(id) {
+  removerAlunoBus(id) async {
     final usera = FirebaseFirestore.instance
         .collection("prefeituras/${dados!['idPrefeitura']}/users/")
         .doc(id);
 
     usera.update({'idOnibus': ''});
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    await atualizarVagas();
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       duration: Duration(milliseconds: 500),
       behavior: SnackBarBehavior.fixed,
       backgroundColor: Colors.red,
@@ -286,6 +296,18 @@ class _InfoBusViewState extends State<InfoBusView> {
         )),
       ),
     ));
+  }
+
+  Future<void> atualizarVagas() async {
+    final vagas = FirebaseFirestore.instance
+        .collection("prefeituras/${dados!['idPrefeitura']}/onibus/")
+        .doc(dados!["id"]);
+
+    final infos = await vagas.get().then((value) => value.data() as Map);
+
+    final numeroDeVagas = int.parse(infos['vagasRestantes']);
+
+    await vagas.update({"vagasRestantes": (numeroDeVagas + 1).toString()});
   }
 
   ElevatedButton deletarButton(BuildContext context) {

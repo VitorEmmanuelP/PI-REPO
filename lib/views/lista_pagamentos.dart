@@ -72,10 +72,11 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
                               padding: const EdgeInsets.all(20.0),
                               child: Container(
                                 width: 5000,
-                                height: 100,
+                                height: 120,
                                 decoration: BoxDecoration(
                                   border:
                                       Border.all(width: 2, color: Colors.black),
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: card(data),
                               ),
@@ -110,7 +111,9 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
                 width: 5000,
                 height: 100,
                 margin: const EdgeInsets.all(20),
-                decoration: BoxDecoration(border: Border.all(width: 2)),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 2),
+                ),
                 child: card(dados)),
           ],
         ),
@@ -124,6 +127,8 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
     return Row(
       children: [
         SizedBox(
+          height: 100,
+          width: 100,
           child: Image.asset('assets/images/pix.png'),
         ),
         Text(data['criador']),
@@ -134,6 +139,7 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
 
   SizedBox searchBar() {
     return SizedBox(
+      height: 75,
       width: MediaQuery.of(context).size.width - 35,
       child: TextField(
         onChanged: (value) {

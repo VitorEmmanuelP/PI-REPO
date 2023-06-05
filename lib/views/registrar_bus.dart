@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pi/utils/show_error_message.dart';
 
 import '../utils/check_internet.dart';
@@ -22,8 +23,10 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
   late final TextEditingController _numeroVagas;
 
   var nomesError = false;
+  var modeloError = false;
   var placaErro = false;
-  var dataError = false;
+  var destinoError = false;
+  var vagasError = false;
 
   @override
   void initState() {
@@ -48,6 +51,8 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
 
   @override
   Widget build(BuildContext context) {
+    final maskFormatterPlaca = MaskTextInputFormatter(
+        mask: '###-####', filter: {"#": RegExp(r'[0-9A-Za-z]')});
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -57,77 +62,132 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: <Widget>[
-                motoristaTextField(),
-                modeloTextField(),
-                placaTextField(),
-                destinoTextField(),
-                vagasTextField(),
-                addButton(context)
+                SizedBox(
+                  child: Column(children: [
+                    motoristaTextField(),
+                    modeloTextField(),
+                    placaTextField(maskFormatterPlaca),
+                    destinoTextField(),
+                    vagasTextField(),
+                  ]),
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(top: 30),
+                    child: addButton(context, maskFormatterPlaca)),
               ],
             ),
           )),
     );
   }
 
-  OutlinedButton addButton(BuildContext context) {
-    return OutlinedButton(
-        onPressed: () async {
-          FocusScope.of(context).unfocus();
-          bool isConnected = await checkInternetConnection();
-          if (isConnected) {
-            final nome = _nomeMotorista.text;
-            final modelo = _modeloOnibus.text;
-            final placa = _placa.text;
-            final destino = _destino.text;
-            final numeroVagas = _numeroVagas.text;
+  Padding addButton(BuildContext context, maskFormatterPlaca) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20),
+      child: ElevatedButton(
+          style: styleButton(),
+          onPressed: () async {
+            FocusScope.of(context).unfocus();
+            bool isConnected = await checkInternetConnection();
+            if (isConnected) {
+              final nome = _nomeMotorista.text;
+              final modelo = _modeloOnibus.text;
+              final placa = maskFormatterPlaca.unmaskText(_placa.text);
+              final destino = _destino.text;
+              final numeroVagas = _numeroVagas.text;
 
-            final prefeitura = await getUser();
+              validarRegistros(nome, modelo, placa, destino, numeroVagas);
 
-            final docRef = await FirebaseFirestore.instance
-                .collection("prefeituras/${prefeitura.id}/onibus/")
-                .add({
-              'motorista': nome,
-              'modelo': modelo,
-              'placa': placa,
-              'destino': destino,
-              'idPrefeitura': prefeitura.id,
-              'id': '',
-              'numeroVagas': numeroVagas,
-              'profilePic': '',
-            });
+              if (checarErros()) {
+                final prefeitura = await getUser();
 
-            final idCurrent = docRef.id.toString();
+                final docRef = await FirebaseFirestore.instance
+                    .collection("prefeituras/${prefeitura.id}/onibus/")
+                    .add({
+                  'motorista': nome,
+                  'modelo': modelo,
+                  'placa': placa,
+                  'destino': destino,
+                  'idPrefeitura': prefeitura.id,
+                  'id': '',
+                  'numeroVagas': numeroVagas,
+                  'vagasRestantes': numeroVagas,
+                  'profilePic': '',
+                });
 
-            final usera = FirebaseFirestore.instance
-                .collection("prefeituras/${prefeitura.id}/onibus/")
-                .doc(idCurrent);
+                final idCurrent = docRef.id.toString();
 
-            usera.update({'id': idCurrent});
+                final usera = FirebaseFirestore.instance
+                    .collection("prefeituras/${prefeitura.id}/onibus/")
+                    .doc(idCurrent);
 
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.green,
-              content: Text("Adicionado"),
-            ));
+                usera.update({'id': idCurrent});
 
-            final snapshotBus = await FirebaseFirestore.instance
-                .collection("prefeituras/${prefeitura.id}/onibus/")
-                .get();
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.green,
+                  content: Text("Adicionado"),
+                ));
 
-            List listaBus = [];
+                final snapshotBus = await FirebaseFirestore.instance
+                    .collection("prefeituras/${prefeitura.id}/onibus/")
+                    .get();
 
-            for (var doc in snapshotBus.docs) {
-              listaBus.add(doc.data());
+                List listaBus = [];
+
+                for (var doc in snapshotBus.docs) {
+                  listaBus.add(doc.data());
+                }
+
+                saveListModels('listaOnibus', listaBus);
+
+                Navigator.pop(context);
+              }
+            } else {
+              showErrorMessage(context, "Missing Internet");
             }
+          },
+          child: const Text("Adicionar")),
+    );
+  }
 
-            saveListModels('listaOnibus', listaBus);
+  bool checarErros() {
+    if (!nomesError &&
+        !modeloError &&
+        !placaErro &&
+        !destinoError &&
+        !vagasError) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
-            Navigator.pop(context);
-          } else {
-            showErrorMessage(context, "Missing Internet");
-          }
-        },
-        child: const Text("Adicionar"));
+  void validarRegistros(
+      String nome, String modelo, String placa, String destino, String vagas) {
+    nome = nome.trim();
+    modelo = modelo.trim();
+    List<String> listaNome = nome.split(' ');
+    List<String> listaModelo = modelo.split(' ');
+    print(placa.length);
+    setState(() {
+      if (listaNome.isEmpty || listaNome[0] == '') {
+        nomesError = true;
+      }
+      if (listaModelo.isEmpty || listaModelo[0] == '') {
+        modeloError = true;
+      }
+      if (placa.length < 7) {
+        placaErro = true;
+      }
+
+      if (destino.isEmpty) {
+        destinoError = true;
+      }
+      if (vagas.isEmpty) {
+        vagasError = true;
+      }
+      //
+    });
   }
 
   Padding vagasTextField() {
@@ -135,7 +195,16 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
       padding: const EdgeInsets.all(20),
       child: TextField(
         controller: _numeroVagas,
-        decoration: estiloTextField("Numero de vagas"),
+        keyboardType: TextInputType.number,
+        decoration: estiloTextField("Numero de vagas",
+            erro: vagasError, msg: "Digite o numero de vagas"),
+        onChanged: (value) {
+          if (vagasError) {
+            setState(() {
+              vagasError = false;
+            });
+          }
+        },
       ),
     );
   }
@@ -145,17 +214,34 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
       padding: const EdgeInsets.all(20),
       child: TextField(
         controller: _destino,
-        decoration: estiloTextField("Destino"),
+        decoration: estiloTextField("Destino",
+            erro: destinoError, msg: "Digite o destino"),
+        onChanged: (value) {
+          if (destinoError) {
+            setState(() {
+              destinoError = false;
+            });
+          }
+        },
       ),
     );
   }
 
-  Padding placaTextField() {
+  Padding placaTextField(maskFormatterPlaca) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: TextField(
+        inputFormatters: [maskFormatterPlaca],
         controller: _placa,
-        decoration: estiloTextField("Placa do Onibus"),
+        decoration: estiloTextField("Placa do Onibus",
+            erro: placaErro, msg: "Digite uma placa valida"),
+        onChanged: (value) {
+          if (placaErro) {
+            setState(() {
+              placaErro = false;
+            });
+          }
+        },
       ),
     );
   }
@@ -164,9 +250,18 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: TextField(
-          controller: _modeloOnibus,
-          keyboardType: TextInputType.number,
-          decoration: estiloTextField("Modelo do Onibus")),
+        controller: _modeloOnibus,
+        keyboardType: TextInputType.number,
+        decoration: estiloTextField("Modelo do Onibus",
+            erro: modeloError, msg: "Digite o modelo do ônibus"),
+        onChanged: (value) {
+          if (modeloError) {
+            setState(() {
+              modeloError = false;
+            });
+          }
+        },
+      ),
     );
   }
 
@@ -177,6 +272,13 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
         controller: _nomeMotorista,
         decoration: estiloTextField("Nome do Motorista",
             erro: nomesError, msg: "Digite pelo menos o Nome e Sobrenome"),
+        onChanged: (value) {
+          if (nomesError) {
+            setState(() {
+              nomesError = false;
+            });
+          }
+        },
       ),
     );
   }

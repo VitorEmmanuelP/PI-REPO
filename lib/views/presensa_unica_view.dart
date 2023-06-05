@@ -125,9 +125,10 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
           children: [
             Container(
               width: 5000,
-              height: 100,
+              height: 120,
               margin: const EdgeInsets.all(20),
               decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                     width: 2,
                     color: data['status'] == 'ausente'
@@ -135,44 +136,47 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
                         : Colors.green),
               ),
               child: Row(children: [
-                SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: mapzada.containsKey(data['id']) &&
-                          mapzada['${data['id']}'] != ''
-                      ? CachedNetworkImage(
-                          imageUrl: mapzada[data['id']],
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => CircleAvatar(
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: mapzada.containsKey(data['id']) &&
+                            mapzada['${data['id']}'] != ''
+                        ? CachedNetworkImage(
+                            imageUrl: mapzada[data['id']],
+                            placeholder: (context, url) =>
+                                const CircularProgressIndicator(),
+                            errorWidget: (context, url, error) => CircleAvatar(
+                              radius: 60,
+                              child: Center(
+                                child: Text(
+                                  "${nome[0][0]}${nome[1][0]}",
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 35),
+                                ),
+                              ),
+                            ),
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                              backgroundColor: Colors.red,
+                              radius: 60,
+                              backgroundImage: imageProvider,
+                            ),
+                          )
+                        : CircleAvatar(
                             radius: 60,
                             child: Center(
                               child: Text(
-                                "${nome[0][0]}${nome[1][0]}",
+                                nome.length == 1
+                                    ? nome[0][0].toUpperCase()
+                                    : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
                                 style: const TextStyle(
                                     color: Colors.white, fontSize: 35),
                               ),
                             ),
                           ),
-                          imageBuilder: (context, imageProvider) =>
-                              CircleAvatar(
-                            backgroundColor: Colors.red,
-                            radius: 60,
-                            backgroundImage: imageProvider,
-                          ),
-                        )
-                      : CircleAvatar(
-                          radius: 60,
-                          child: Center(
-                            child: Text(
-                              nome.length == 1
-                                  ? nome[0][0].toUpperCase()
-                                  : "${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}",
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 35),
-                            ),
-                          ),
-                        ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),

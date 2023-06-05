@@ -120,7 +120,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
               children: [
                 Container(
                   width: 5000,
-                  height: 100,
+                  height: 120,
                   margin: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                       border: Border.all(width: 2),
@@ -242,31 +242,41 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
     );
   }
 
-  SizedBox addAluno(BuildContext context) {
-    return SizedBox(
-      child: Padding(
-        padding:
-            const EdgeInsets.only(top: 20, bottom: 20.0, right: 20, left: 20),
-        child: OutlinedButton(
-            style: styleButton(),
-            onPressed: () async {
-              bool isConnected = await checkInternetConnection();
+  Padding addAluno(BuildContext context) {
+    return Padding(
+      padding:
+          const EdgeInsets.only(top: 20, bottom: 20.0, right: 20, left: 20),
+      child: OutlinedButton(
+          style: styleButton(),
+          onPressed: () async {
+            bool isConnected = await checkInternetConnection();
 
-              if (isConnected) {
-                Navigator.of(context)
-                    .pushNamed(registerAlunoRoute)
-                    .then((value) {
-                  loadLista();
-                });
-              } else {
-                await showErrorMessage(context, "Not internet");
-              }
-            },
-            child: const Text(
-              'Adicionar Alunos',
-              style: TextStyle(color: textColor),
-            )),
-      ),
+            if (isConnected) {
+              Navigator.of(context).pushNamed(registerAlunoRoute).then((value) {
+                loadLista();
+              });
+            } else {
+              await showErrorMessage(context, "Not internet");
+            }
+          },
+          child: Row(
+            children: const [
+              Expanded(
+                child: Center(
+                  child: Text(
+                    'Adicionar Alunos',
+                    style: TextStyle(color: textColor),
+                  ),
+                ),
+              ),
+              Center(
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          )),
     );
   }
 

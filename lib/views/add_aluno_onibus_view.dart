@@ -5,6 +5,7 @@ import 'package:pi/models/bus_data.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/styles.dart';
 
+import '../utils/check_internet.dart';
 import '../widgets/app_bar.dart';
 
 class AddALunoONibusView extends StatefulWidget {
@@ -51,6 +52,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
   Center searchBar() {
     return Center(
       child: SizedBox(
+        height: 75,
         width: MediaQuery.of(context).size.width - 35,
         child: TextField(
           onChanged: (value) {
@@ -121,7 +123,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                       children: [
                         Container(
                           width: 5000,
-                          height: 100,
+                          height: 120,
                           margin: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                               border: Border.all(width: 2),
@@ -183,7 +185,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
                             IconButton(
                                 onPressed: () {
                                   final id = data['id'];
-
+                                  //checkCapacidade();
                                   addAlunoBus(id);
                                 },
                                 icon: const Icon(
@@ -267,24 +269,68 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
     );
   }
 
-  addAlunoBus(id) {
-    final usera = FirebaseFirestore.instance
-        .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/users/")
-        .doc(id);
+  addAlunoBus(id) async {
+    bool isConnected = await checkInternetConnection();
+    bool temVagas = await checkCapacidade();
 
-    usera.update({'idOnibus': dadosOnibus!['id'].toString()});
+    if (isConnected && temVagas) {
+      final user = FirebaseFirestore.instance
+          .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/users/")
+          .doc(id);
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      behavior: SnackBarBehavior.fixed,
-      duration: Duration(milliseconds: 500),
-      backgroundColor: Colors.green,
-      content: Padding(
-        padding: EdgeInsets.only(top: 8.0),
-        child: Center(
-            child: Text(
-          "Usuario adicionado ao onibus",
-        )),
-      ),
-    ));
+      user.update({'idOnibus': dadosOnibus!['id'].toString()});
+
+      final vagas = FirebaseFirestore.instance
+          .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/onibus/")
+          .doc(dadosOnibus!["id"]);
+
+      final infos = await vagas.get().then((value) => value.data() as Map);
+
+      final numeroDeVagas = int.parse(infos['vagasRestantes']);
+
+      vagas.update({"vagasRestantes": (numeroDeVagas - 1).toString()});
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        behavior: SnackBarBehavior.fixed,
+        duration: Duration(milliseconds: 500),
+        backgroundColor: Colors.green,
+        content: Padding(
+          padding: EdgeInsets.only(top: 8.0),
+          child: Center(
+              child: Text(
+            "Usuario adicionado ao onibus",
+          )),
+        ),
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        behavior: SnackBarBehavior.fixed,
+        duration: Duration(milliseconds: 500),
+        backgroundColor: Colors.red,
+        content: Padding(
+          padding: EdgeInsets.only(top: 8.0),
+          child: Center(
+              child: Text(
+            "Onibus heio",
+          )),
+        ),
+      ));
+    }
+  }
+
+  checkCapacidade() async {
+    final usera = await FirebaseFirestore.instance
+        .collection("prefeituras/${dadosOnibus!['idPrefeitura']}/onibus/")
+        .where("id", isEqualTo: "${dadosOnibus!["id"]}")
+        .get()
+        .then((value) => value.docs.first.data());
+
+    final restantes = usera["vagasRestantes"];
+
+    if (restantes == "0") {
+      return false;
+    } else {
+      return true;
+    }
   }
 }
