@@ -41,46 +41,75 @@ class _ProfileViewState extends State<ProfileView> {
               child: ProfilePictureWidget(),
             ),
             Padding(
-              padding: const EdgeInsets.all(30.0),
+              padding: const EdgeInsets.only(top: 50.0),
               child: Column(
                 children: [
-                  const Text("Nome", style: TextStyle(color: Colors.blue)),
-                  Text(dados!.nome,
-                      style: const TextStyle(
-                          color: Color.fromARGB(100, 69, 69, 69))),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  const Text("Telefone", style: TextStyle(color: Colors.blue)),
-                  Text(dados!.telefone,
-                      style: const TextStyle(
-                          color: Color.fromARGB(100, 69, 69, 69))),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  const Text("Faculdade", style: TextStyle(color: Colors.blue)),
-                  Text(dados!.faculdade,
-                      style: const TextStyle(
-                          color: Color.fromARGB(100, 69, 69, 69))),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  const Text("Curso", style: TextStyle(color: Colors.blue)),
-                  Text(dados!.curso,
-                      style: const TextStyle(
-                          color: Color.fromARGB(100, 69, 69, 69))),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(30.0),
+                          child: Column(
+                            children: [
+                              const Text("Nome",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!.nome,
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              const Text("Telefone",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!.telefone,
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(30.0),
+                          child: Column(
+                            children: [
+                              const Text("Faculdade",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!.faculdade,
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            children: [
+                              const Text("Curso",
+                                  style: TextStyle(color: Colors.blue)),
+                              Text(dados!.curso,
+                                  style: const TextStyle(
+                                      color: Color.fromARGB(100, 69, 69, 69))),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

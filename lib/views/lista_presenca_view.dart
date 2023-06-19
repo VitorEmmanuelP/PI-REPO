@@ -100,18 +100,10 @@ class _ListaPresensaViewState extends State<ListaPresensaView> {
     }
   }
 
-  Row cardUser(Map<String, dynamic> data) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 100,
-          height: 100,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 20.0),
-            child: Text('${data['nome']}'),
-          ),
-        )
-      ],
+  Center cardUser(Map<String, dynamic> data) {
+    return Center(
+      child: Text('${data['nome']}',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
     );
   }
 

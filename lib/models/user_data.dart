@@ -13,6 +13,7 @@ class UserData {
   String idOnibus;
   String token;
   String qrCode;
+  String nomePrefeitura;
 
   UserData({
     required this.nome,
@@ -29,24 +30,27 @@ class UserData {
     required this.idOnibus,
     required this.token,
     required this.qrCode,
+    required this.nomePrefeitura,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
-        nome: json['nome'],
-        cpf: json['cpf'],
-        profilePic: json['profilePic'],
-        data: json['data'],
-        curso: json['curso'],
-        faculdade: json['faculdade'],
-        telefone: json['telefone'],
-        senha: json['senha'],
-        status: json['status'],
-        id: json['id'],
-        idPrefeitura: json['idPrefeitura'],
-        idOnibus: json['idOnibus'],
-        token: json['token'],
-        qrCode: json['qrCode']);
+      nome: json['nome'],
+      cpf: json['cpf'],
+      profilePic: json['profilePic'],
+      data: json['data'],
+      curso: json['curso'],
+      faculdade: json['faculdade'],
+      telefone: json['telefone'],
+      senha: json['senha'],
+      status: json['status'],
+      id: json['id'],
+      idPrefeitura: json['idPrefeitura'],
+      idOnibus: json['idOnibus'],
+      token: json['token'],
+      qrCode: json['qrCode'],
+      nomePrefeitura: json['nomePrefeitura'],
+    );
   }
 
   Map<String, dynamic> toJson() => {
@@ -63,6 +67,7 @@ class UserData {
         'idPrefeitura': idPrefeitura,
         'idOnibus': idOnibus,
         'token': token,
-        'qrCode': qrCode
+        'qrCode': qrCode,
+        "nomePrefeitura": nomePrefeitura,
       };
 }

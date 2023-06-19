@@ -1,54 +1,37 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/user_data.dart';
 
 class ChatRoomPage extends StatefulWidget {
+  const ChatRoomPage({super.key});
+
   @override
   _ChatRoomPageState createState() => _ChatRoomPageState();
 }
 
 class _ChatRoomPageState extends State<ChatRoomPage> {
-  UserData? dados;
+  dynamic dados;
+  String? idPrefeitura;
 
   TextEditingController messageController = TextEditingController();
 
-  void sendMessage() async {
-    String msg = messageController.text.trim();
-    messageController.clear();
-
-    if (msg != "") {
-      DateTime now = DateTime.now();
-      String formattedTime = DateFormat('HH:mm').format(now);
-
-      FirebaseFirestore.instance
-          .collection("prefeituras/${dados!.idPrefeitura}/chatroom")
-          .doc()
-          .set({
-        "createdOn": DateTime.now(),
-        "dataHora": formattedTime,
-        "senderName": dados!.nome,
-        "senderId": dados!.id,
-        "text": msg,
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final UserData? args =
-        ModalRoute.of(context)?.settings.arguments as UserData?;
+    final dynamic args = ModalRoute.of(context)?.settings.arguments as dynamic;
     if (args != null) {
       dados = args;
+      if (dados.runtimeType == UserData) {
+        idPrefeitura = dados.idPrefeitura;
+      } else {
+        idPrefeitura = dados.id;
+      }
     }
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.black),
+          iconTheme: const IconThemeData(color: Colors.black),
           backgroundColor: Colors.white,
           elevation: 0,
           title: Row(
@@ -67,19 +50,19 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Text(
-                "${dados!.nomePrefeitura}",
-                style: TextStyle(color: Colors.black),
+                dados.runtimeType == UserData
+                    ? dados!.nomePrefeitura
+                    : dados.prefeituraNome,
+                style: const TextStyle(color: Colors.black),
               ),
             ],
           ),
         ),
-        body: dados!.idPrefeitura != ''
-            ? chatRoomMesages(context)
-            : naoCadrastado());
+        body: idPrefeitura != '' ? chatRoomMesages(context) : naoCadrastado());
   }
 
   Center naoCadrastado() {
@@ -108,16 +91,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
 
   SafeArea chatRoomMesages(BuildContext context) {
     return SafeArea(
-      child: Container(
+      child: SizedBox(
         child: Column(
           children: [
-            // This is where the chats will go
             Expanded(
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance
-                      .collection("prefeituras/${dados!.idPrefeitura}/chatroom")
+                      .collection(
+                          "prefeituras/${dados.runtimeType == UserData ? dados!.idPrefeitura : dados.id}/chatroom")
                       .orderBy("createdOn", descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -127,6 +110,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                             snapshot.data as QuerySnapshot;
 
                         return ListView.builder(
+                          physics: const BouncingScrollPhysics(),
                           reverse: true,
                           itemCount: dataSnapshot.docs.length,
                           itemBuilder: (context, index) {
@@ -165,25 +149,36 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              currentMessage["senderName"]
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
+                                            currentMessage["senderName"] !=
+                                                    dados!.nome
+                                                ? Text(
+                                                    currentMessage["senderName"]
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  )
+                                                : Container(),
+                                            const SizedBox(height: 5),
                                             Text(
                                               currentMessage["text"].toString(),
                                               style: const TextStyle(
                                                 color: Colors.white,
                                               ),
                                             ),
-                                            Text(
-                                              currentMessage["dataHora"]
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                              ),
+                                            const SizedBox(height: 5),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  currentMessage["dataHora"]
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         )),
@@ -212,35 +207,75 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 ),
               ),
             ),
-
-            Container(
-              color: Colors.grey[200],
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: TextField(
-                      controller: messageController,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                          border: InputBorder.none, hintText: "Mensage"),
+            Padding(
+              padding: const EdgeInsets.only(
+                  bottom: 20.0, left: 10, right: 10, top: 20),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Color.fromARGB(255, 233, 230, 230)),
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: TextField(
+                        controller: messageController,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                            border: InputBorder.none, hintText: "Mensage"),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      sendMessage();
-                    },
-                    icon: Icon(
-                      Icons.send,
-                      color: Theme.of(context).colorScheme.secondary,
+                    IconButton(
+                      onPressed: () {
+                        sendMessage();
+                      },
+                      icon: Icon(
+                        Icons.send,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void sendMessage() async {
+    String msg = messageController.text.trim();
+    messageController.clear();
+
+    if (msg != "") {
+      DateTime now = DateTime.now();
+      String formattedTime = DateFormat('dd/MM/yyyy - HH:mm').format(now);
+
+      if (dados.runtimeType == UserData) {
+        FirebaseFirestore.instance
+            .collection("prefeituras/${dados!.idPrefeitura}/chatroom")
+            .doc()
+            .set({
+          "createdOn": DateTime.now(),
+          "dataHora": formattedTime,
+          "senderName": dados!.nome,
+          "senderId": dados!.id,
+          "text": msg,
+        });
+      } else {
+        FirebaseFirestore.instance
+            .collection("prefeituras/${dados!.id}/chatroom")
+            .doc()
+            .set({
+          "createdOn": DateTime.now(),
+          "dataHora": formattedTime,
+          "senderName": dados!.nome,
+          "senderId": dados!.id,
+          "text": msg,
+        });
+      }
+    }
   }
 }

@@ -21,13 +21,14 @@ class InfoBusView extends StatefulWidget {
 
 class _InfoBusViewState extends State<InfoBusView> {
   Map<String, dynamic>? dados;
-
+  int n = 0;
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
       dados = args;
+      print(dados);
     }
     return Scaffold(
       backgroundColor: scaffoldColor,
@@ -146,7 +147,7 @@ class _InfoBusViewState extends State<InfoBusView> {
                 ))
                 .then((value) {});
           } else {
-            await showErrorMessage(context, "Not internet");
+            await showErrorMessage(context, "Não há conexão com a internet");
           }
         },
         child: const Text("Adicionar aluno ao onibusr"));
@@ -185,87 +186,100 @@ class _InfoBusViewState extends State<InfoBusView> {
             });
 
             return sortedDocs.isNotEmpty
-                ? ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: sortedDocs.length,
-                    itemBuilder: (context, index) {
-                      var data =
-                          sortedDocs[index].data() as Map<String, dynamic>;
+                ? Column(
+                    children: [
+                      Text(
+                        "Vagas restantes: ${(int.parse(dados!['numeroVagas']) - sortedDocs.length).toString()}",
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: sortedDocs.length,
+                            itemBuilder: (context, index) {
+                              var data = sortedDocs[index].data()
+                                  as Map<String, dynamic>;
 
-                      if (data.isEmpty) {
-                        return Container(
-                          color: Colors.amber,
-                        );
-                      }
-                      var nome = sortedDocs[index]['nome'].split(' ');
+                              if (data.isEmpty) {
+                                return Container(
+                                  color: Colors.amber,
+                                );
+                              }
+                              var nome = sortedDocs[index]['nome'].split(' ');
 
-                      return Column(children: [
-                        Container(
-                          width: 5000,
-                          height: 120,
-                          margin: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                              border: Border.all(width: 2),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: SizedBox(
-                                  height: 100,
-                                  width: 100,
-                                  child: data['profilePic'] != ''
-                                      ? CachedNetworkImage(
-                                          imageUrl: data['profilePic'],
-                                          placeholder: (context, url) =>
-                                              const CircularProgressIndicator(),
-                                          errorWidget: (context, url, error) =>
-                                              CircleAvatar(
-                                            backgroundColor: Colors.blue,
-                                            radius: 70,
-                                            child: Center(
-                                              child: Text(
-                                                  '${nome[0][0]}${nome[1][0]}'),
-                                            ),
-                                          ),
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  CircleAvatar(
-                                            backgroundColor: Colors.red,
-                                            radius: 60,
-                                            backgroundImage: imageProvider,
-                                          ),
-                                        )
-                                      : CircleAvatar(
-                                          backgroundColor: Colors.blue,
-                                          radius: 70,
-                                          child: Center(
-                                            child: Text(
-                                                '${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'),
-                                          ),
+                              return Column(children: [
+                                Container(
+                                  width: 5000,
+                                  height: 120,
+                                  margin: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(width: 2),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Row(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SizedBox(
+                                          height: 100,
+                                          width: 100,
+                                          child: data['profilePic'] != ''
+                                              ? CachedNetworkImage(
+                                                  imageUrl: data['profilePic'],
+                                                  placeholder: (context, url) =>
+                                                      const CircularProgressIndicator(),
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          CircleAvatar(
+                                                    backgroundColor:
+                                                        Colors.blue,
+                                                    radius: 70,
+                                                    child: Center(
+                                                      child: Text(
+                                                          '${nome[0][0]}${nome[1][0]}'),
+                                                    ),
+                                                  ),
+                                                  imageBuilder: (context,
+                                                          imageProvider) =>
+                                                      CircleAvatar(
+                                                    backgroundColor: Colors.red,
+                                                    radius: 60,
+                                                    backgroundImage:
+                                                        imageProvider,
+                                                  ),
+                                                )
+                                              : CircleAvatar(
+                                                  backgroundColor: Colors.blue,
+                                                  radius: 70,
+                                                  child: Center(
+                                                    child: Text(
+                                                        '${nome[0][0].toUpperCase()}${nome[1][0].toUpperCase()}'),
+                                                  ),
+                                                ),
                                         ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20),
-                                child: Text('${data['nome']}'),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                  onPressed: () {
-                                    final id = data['id'];
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 20),
+                                        child: Text('${data['nome']}'),
+                                      ),
+                                      const Spacer(),
+                                      IconButton(
+                                          onPressed: () {
+                                            final id = data['id'];
 
-                                    removerAlunoBus(id);
-                                  },
-                                  icon: const Icon(
-                                    Icons.highlight_remove,
-                                    size: 30,
-                                  ))
-                            ],
-                          ),
-                        )
-                      ]);
-                    })
+                                            removerAlunoBus(id);
+                                          },
+                                          icon: const Icon(
+                                            Icons.highlight_remove,
+                                            size: 30,
+                                          ))
+                                    ],
+                                  ),
+                                )
+                              ]);
+                            }),
+                      ),
+                    ],
+                  )
                 : const Center(
                     child:
                         Text("Nao existe nenhum aluno cadrastado no onibus "));
@@ -313,7 +327,8 @@ class _InfoBusViewState extends State<InfoBusView> {
   ElevatedButton deletarButton(BuildContext context) {
     return ElevatedButton(
         onPressed: () async {
-          final bool shouldDelete = await showDeleteDialog(context);
+          final bool shouldDelete = await showDeleteDialog(
+              context, "Deletar Ônibus", "Deseja deletar o ônibus?");
           bool isConnected = await checkInternetConnection();
           if (shouldDelete) {
             if (isConnected) {
@@ -327,7 +342,7 @@ class _InfoBusViewState extends State<InfoBusView> {
               removerDadosAlunos();
               Navigator.of(context).pop();
             } else {
-              await showErrorMessage(context, 'Internet Missing');
+              await showErrorMessage(context, 'Não há conexão com a internet');
             }
           }
         },

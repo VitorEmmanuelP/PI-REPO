@@ -49,7 +49,7 @@ class _OnibusViewState extends State<OnibusView> {
           if (isConnected) {
             Navigator.of(context).pushNamed(registerBusRoute);
           } else {
-            await showErrorMessage(context, 'Internet Missing');
+            await showErrorMessage(context, 'Não há conexão com a internet');
           }
         },
         child: Row(
@@ -168,8 +168,20 @@ class _OnibusViewState extends State<OnibusView> {
                             ),
                     ),
                   ),
-                  Text(
-                      "${data['motorista']}\n${data['destino']}  ${data['numeroVagas']}"),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: RichText(
+                      text: TextSpan(
+                        text: '${data["motorista"]}\n',
+                        style: TextStyle(color: Colors.black),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '${data["destino"]}',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

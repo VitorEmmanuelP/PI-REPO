@@ -5,8 +5,19 @@ Future<void> showErrorMessage(BuildContext context, String text) {
     context: context,
     builder: (context) {
       return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        icon: Icon(Icons.error, color: Colors.red[600], size: 100),
+        backgroundColor: Colors.red[200],
         title: const Text('Occoreu um erro'),
-        content: Text(text),
+        content: SizedBox(
+            height: 50,
+            child: Center(
+                child: Text(
+              text,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ))),
         actions: [
           TextButton(
               onPressed: () {
@@ -19,26 +30,36 @@ Future<void> showErrorMessage(BuildContext context, String text) {
   );
 }
 
-Future<bool> showDeleteDialog(BuildContext context) {
+Future<bool> showDeleteDialog(BuildContext context, String title, String text) {
   return showDialog<bool>(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text("Sign out"),
-        content: const Text("Are you sure you want to sign out?"),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        icon: Icon(Icons.delete_outline_outlined,
+            color: Colors.red[600], size: 100),
+        backgroundColor: Colors.white,
+        title: Text(title),
+        content: SizedBox(
+            height: 50,
+            child: Center(
+                child: Text(
+              text,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ))),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text("Sign out"),
-          ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text("Sim")),
           TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text("Cancel"),
-          )
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text("Cancelar"))
         ],
       );
     },

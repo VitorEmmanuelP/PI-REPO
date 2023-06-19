@@ -180,7 +180,21 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),
-                  child: Text('${data['nome']}\n${data['status']}'),
+                  child: RichText(
+                    text: TextSpan(
+                      text: '${data["nome"]}\n',
+                      style: TextStyle(color: Colors.black),
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: '${data["status"]}',
+                          style: TextStyle(
+                              color: data['status'] == 'ausente'
+                                  ? Colors.red
+                                  : Colors.green),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 const Spacer(),
               ]),

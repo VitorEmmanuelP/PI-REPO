@@ -143,7 +143,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                 Navigator.pop(context);
               }
             } else {
-              showErrorMessage(context, "Missing Internet");
+              showErrorMessage(context, "Não há conexão com a internet");
             }
           },
           child: const Text("Adicionar")),

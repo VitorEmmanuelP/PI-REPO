@@ -131,11 +131,13 @@ class _PixState extends State<Pix> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 50.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
+                      style:
+                          ElevatedButton.styleFrom(minimumSize: Size(100, 50)),
                       onPressed: () async {
                         if (user!.idOnibus == '') {
                           showErrorMessage(context,
@@ -185,6 +187,8 @@ class _PixState extends State<Pix> {
                       child: const Text("Criar"),
                     ),
                     ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            minimumSize: Size(100, 50)),
                         onPressed: () {
                           Navigator.of(context).pushNamed(
                               listaPagamentoPixRoute,

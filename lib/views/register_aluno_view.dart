@@ -178,7 +178,8 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                   'id': '',
                   'idPrefeitura': prefeitura.id,
                   'token': '',
-                  'qrCode': ''
+                  'qrCode': '',
+                  "nomePrefeitura": prefeitura.nome,
                 });
 
                 final idCurrent = docRef.id.toString();
@@ -191,20 +192,22 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                 usera.update({'id': idCurrent, 'qrCode': qrCodeString});
 
                 final registro = UserData(
-                    nome: nome,
-                    cpf: cpf,
-                    faculdade: faculdade,
-                    curso: cursoAluno,
-                    telefone: telefone,
-                    profilePic: '',
-                    senha: data,
-                    data: data,
-                    status: 'aluno',
-                    idOnibus: '',
-                    id: idCurrent,
-                    idPrefeitura: 'prefeitura.id',
-                    token: '',
-                    qrCode: qrCodeString);
+                  nome: nome,
+                  cpf: cpf,
+                  faculdade: faculdade,
+                  curso: cursoAluno,
+                  telefone: telefone,
+                  profilePic: '',
+                  senha: data,
+                  data: data,
+                  status: 'aluno',
+                  idOnibus: '',
+                  id: idCurrent,
+                  idPrefeitura: prefeitura.id,
+                  token: '',
+                  qrCode: qrCodeString,
+                  nomePrefeitura: prefeitura.nome,
+                );
 
                 await addListaAluno(registro);
 
@@ -226,7 +229,7 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
                 ));
               }
             } else {
-              await showErrorMessage(context, "Not internet");
+              await showErrorMessage(context, "Não há conexão com a internet");
             }
           },
           child: const Text(

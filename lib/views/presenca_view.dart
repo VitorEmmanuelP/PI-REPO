@@ -48,8 +48,16 @@ class _PresencaViewState extends State<PresencaView> {
 
     return dados!.idOnibus != ''
         ? presensa()
-        : const Scaffold(
-            body: Center(child: Text('Nao esta cadastrado em nenhum onibus')),
+        : Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Colors.black),
+              title: const Text("Lista de presença",
+                  style: TextStyle(color: Colors.black)),
+            ),
+            body: naoCadrastado(),
           );
   }
 
@@ -94,7 +102,7 @@ class _PresencaViewState extends State<PresencaView> {
               body: _numberOfTabs != 0
                   ? tabsView(context, listaData)
                   : const Center(
-                      child: Text("Nao existe lista de presensa"),
+                      child: Text("Nao existe lista de presença"),
                     )),
         );
       },
@@ -176,7 +184,7 @@ class _PresencaViewState extends State<PresencaView> {
     return Column(
       children: [
         SizedBox(
-          height: MediaQuery.of(context).size.height - 230,
+          height: MediaQuery.of(context).size.height - 250,
           child: TabBarView(
             physics: const BouncingScrollPhysics(),
             children: [
@@ -282,12 +290,17 @@ class _PresencaViewState extends State<PresencaView> {
             ? Expanded(
                 child: SizedBox(
                   child: Center(
-                    child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(registerCaronaRoute,
-                              arguments: [dados, onibusInfo]);
-                        },
-                        child: const Text("Adicionar Carona")),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 10, bottom: 20.0, right: 20, left: 20),
+                      child: ElevatedButton(
+                          style: styleButton(),
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(registerCaronaRoute,
+                                arguments: [dados, onibusInfo]);
+                          },
+                          child: const Text("Adicionar Carona")),
+                    ),
                   ),
                 ),
               )
@@ -374,7 +387,21 @@ class _PresencaViewState extends State<PresencaView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 15.0),
-                  child: Text('${data['nome']}\n${data['status']}'),
+                  child: RichText(
+                    text: TextSpan(
+                      text: '${data["nome"]}\n',
+                      style: TextStyle(color: Colors.black),
+                      children: <TextSpan>[
+                        TextSpan(
+                          text: '${data["status"]}',
+                          style: TextStyle(
+                              color: data['status'] == 'ausente'
+                                  ? Colors.red
+                                  : Colors.green),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 const Spacer(),
                 if (data['id'] == dados!.id && data['data'] == formattedDate)
@@ -513,5 +540,29 @@ class _PresencaViewState extends State<PresencaView> {
 
   enviarMensagem(alunoDados) {
     sendFcmMessage(alunoDados.docs);
+  }
+
+  Center naoCadrastado() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Padding(
+            padding: EdgeInsets.only(bottom: 20.0),
+            child: Text(
+              "Você ainda não esta cadastrado em nehum ônibus",
+              style: TextStyle(fontSize: 15),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 0.0),
+            child: Text(
+              "Peça a sua prefeitura que te cadastre",
+              style: TextStyle(fontSize: 15),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

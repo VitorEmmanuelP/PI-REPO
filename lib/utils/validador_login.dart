@@ -38,7 +38,7 @@ checkarBancoUser(cpf, senha, getData) async {
 
   if (snapshot.size > 0) {
     final dadosLogin = await getData(snapshot.docs[0].id, 'users');
-
+    print(dadosLogin['senha']);
     if (dadosLogin['senha'] == senha) {
       final loginId = dadosLogin["idPrefeitura"];
 
@@ -74,7 +74,8 @@ checkarBancoPrefeitura(nome, senha, getData) async {
           nome: data['nome'],
           senha: data['senha'],
           id: data['id'],
-          status: data['status']);
+          status: data['status'],
+          prefeituraNome: data["prefeituraNome"]);
     } else {
       return 'wrong-password';
     }
@@ -94,20 +95,22 @@ getUserData(id, loginId) async {
   user.reference.update({'token': token});
 
   return UserData(
-      nome: user['nome'],
-      cpf: user['cpf'],
-      profilePic: user['profilePic'],
-      data: user['data'],
-      curso: user['cursoAluno'],
-      faculdade: user['faculdade'],
-      telefone: user['telefone'],
-      senha: user['senha'],
-      status: user['status'],
-      id: user['id'],
-      idPrefeitura: user['idPrefeitura'],
-      idOnibus: user['idOnibus'],
-      token: user['token'],
-      qrCode: user['qrCode']);
+    nome: user['nome'],
+    cpf: user['cpf'],
+    profilePic: user['profilePic'],
+    data: user['data'],
+    curso: user['cursoAluno'],
+    faculdade: user['faculdade'],
+    telefone: user['telefone'],
+    senha: user['senha'],
+    status: user['status'],
+    id: user['id'],
+    idPrefeitura: user['idPrefeitura'],
+    idOnibus: user['idOnibus'],
+    token: user['token'],
+    qrCode: user['qrCode'],
+    nomePrefeitura: user["nomePrefeitura"],
+  );
 }
 // return {
 //   'nome': users['nome'],

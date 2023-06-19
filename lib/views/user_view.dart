@@ -144,22 +144,29 @@ class _UserViewState extends State<UserView> {
                     ],
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final bool shouldDelete = await showDeleteDialog(context);
-                    bool isConnected = await checkInternetConnection();
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: 20, bottom: 20.0, right: 40, left: 40),
+                  child: ElevatedButton(
+                    style: styleButton(),
+                    onPressed: () async {
+                      final bool shouldDelete = await showDeleteDialog(context,
+                          "Deletar o usuário", "Deseja deletar o usuário?");
+                      bool isConnected = await checkInternetConnection();
 
-                    if (shouldDelete) {
-                      if (isConnected) {
-                        await deletarUser();
+                      if (shouldDelete) {
+                        if (isConnected) {
+                          await deletarUser();
 
-                        Navigator.of(context).pop();
-                      } else {
-                        await showErrorMessage(context, 'Internet Missing');
+                          Navigator.of(context).pop();
+                        } else {
+                          await showErrorMessage(
+                              context, 'Não há conexão com a internet');
+                        }
                       }
-                    }
-                  },
-                  child: const Text('Delete'),
+                    },
+                    child: const Text('Delete'),
+                  ),
                 ),
               ],
             ),

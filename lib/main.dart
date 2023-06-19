@@ -5,6 +5,7 @@ import 'package:pi/services/notificantion_service.dart';
 import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/styles.dart';
 import 'package:pi/views/add_aluno_onibus_view.dart';
+import 'package:pi/views/chat_room_view.dart';
 import 'package:pi/views/info_bus_aluno.dart';
 import 'package:pi/views/criar_qr_code_view.dart';
 import 'package:pi/views/esqueci_senha.dart';
@@ -88,6 +89,7 @@ class MyApp extends StatelessWidget {
         listaPagamentoPixRoute: (context) => const ListaPagamentosView(),
         qrScanner: (context) => const QRCodeScannerScreen(),
         esqueceSenha: (context) => const EsqueceSenhaView(),
+        chatRoomRoute: (context) => ChatRoomPage(),
       },
       //home: const LoginView()
       home: dados.runtimeType == UserData || dados.runtimeType == PrefeituraData

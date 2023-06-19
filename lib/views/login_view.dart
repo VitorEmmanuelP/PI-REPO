@@ -109,11 +109,13 @@ class _LoginViewState extends State<LoginView> {
                               mudarTela(dadosUser);
                             }
                           } on UserNotFound {
-                            await showErrorMessage(context, 'UserNotFOund');
+                            await showErrorMessage(
+                                context, 'O usuário não foi encontrado');
                           } on WrongPassword {
-                            await showErrorMessage(context, 'Wrong Passowrd');
+                            await showErrorMessage(context, 'Senha incorreta');
                           } on EmptyFields {
-                            await showErrorMessage(context, 'Empty Fields');
+                            await showErrorMessage(
+                                context, 'Não deixe um campo vazio');
                           }
                           setState(() {
                             isLoading = false;
@@ -127,9 +129,10 @@ class _LoginViewState extends State<LoginView> {
                               color: isLoading ? Colors.grey : Colors.blue,
                               width: 1),
                         ),
-                        child: const Text(
+                        child: Text(
                           "Login",
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                              color: isLoading ? Colors.grey : Colors.white),
                         )),
                     Column(
                       children: [
@@ -200,6 +203,7 @@ class _LoginViewState extends State<LoginView> {
         'senha': prefeitura['senha'],
         'id': prefeitura['id'],
         'status': prefeitura['status'],
+        'prefeituraNome': prefeitura["prefeituraNome"],
       };
     }
   }

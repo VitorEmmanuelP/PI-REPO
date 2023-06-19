@@ -122,8 +122,10 @@ class _RegistrarCaronaViewState extends State<RegistrarCaronaView> {
                 checkButtons(tipo: "ida"),
               ]),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(
+                    top: 30, bottom: 20.0, right: 20, left: 20),
                 child: ElevatedButton(
+                    style: styleButton(),
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
                       bool isConnected = await checkInternetConnection();

@@ -56,7 +56,7 @@ class _PagamentoViewState extends State<PagamentoView> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Text(payload!['criador']),
-                        Text("\$${payload!['valor']}"),
+                        Text("\$${payload!['valor']} reais"),
                       ]),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -120,11 +120,16 @@ class _PagamentoViewState extends State<PagamentoView> {
                 ),
               ),
             ),
-            OutlinedButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: payload!['qrcode']));
-                },
-                child: const Text("COPIAR CHAVE PIX"))
+            Padding(
+              padding: const EdgeInsets.only(
+                  top: 20, bottom: 20.0, right: 20, left: 20),
+              child: ElevatedButton(
+                  style: styleButton(),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: payload!['qrcode']));
+                  },
+                  child: const Text("COPIAR CHAVE PIX")),
+            )
           ],
         )),
       ),

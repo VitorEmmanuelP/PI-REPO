@@ -212,8 +212,17 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 20.0),
-          child:
-              Text('${data['nome']}\n${data['status']} ${data['cursoAluno']}'),
+          child: RichText(
+            text: TextSpan(
+              text: '${data["nome"]}\n',
+              style: TextStyle(color: Colors.black),
+              children: <TextSpan>[
+                TextSpan(
+                  text: '${data["status"]}',
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -256,7 +265,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
                 loadLista();
               });
             } else {
-              await showErrorMessage(context, "Not internet");
+              await showErrorMessage(context, "Não há conexão com a internet");
             }
           },
           child: Row(

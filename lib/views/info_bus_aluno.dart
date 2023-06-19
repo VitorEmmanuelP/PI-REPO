@@ -24,132 +24,194 @@ class _InfoOnibusAlunoViewState extends State<InfoOnibusAlunoView> {
 
     if (args != null) {
       dados = args;
+      print(dados!.idOnibus);
     }
     return Scaffold(
-        backgroundColor: scaffoldColor,
-        appBar: appBar("Informações do Ônibus"),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection("prefeituras/${dados!.idPrefeitura}/onibus/")
-                    .where('id', isEqualTo: dados!.idOnibus)
-                    .limit(1)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else {
-                    if (snapshot.data != null) {
-                      final data = snapshot.data!.docs.first.data();
-                      nome = data['motorista'].trim().split(" ");
+      backgroundColor: scaffoldColor,
+      appBar: appBar("Informações do Ônibus"),
+      body: dados!.idOnibus != ''
+          ? infoOnibus()
+          : naoCadrastado(),
+    );
+  }
 
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                              height: 190,
-                              width: 190,
-                              child: ClipOval(
-                                child: data['profilePic'] != ''
-                                    ? CachedNetworkImage(
-                                        imageUrl: data['profilePic'],
-                                        placeholder: (context, url) =>
-                                            const CircularProgressIndicator(),
-                                        errorWidget: (context, url, error) =>
-                                            CircleAvatar(
-                                          backgroundColor: Colors.transparent,
-                                          radius: 70,
-                                          child: Center(
-                                            child: Text(
-                                              "${nome![0][0].toUpperCase()}${nome![1][0].toUpperCase()}",
-                                              style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 35),
-                                            ),
-                                          ),
+  Center naoCadrastado() {
+    return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: Text(
+                    "Você ainda não esta cadastrado em nehum ônibus",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 0.0),
+                  child: Text(
+                    "Peça a sua prefeitura que te cadastre",
+                    style: TextStyle(fontSize: 15),
+                  ),
+                )
+              ],
+            ),
+          );
+  }
+
+  SingleChildScrollView infoOnibus() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection("prefeituras/${dados!.idPrefeitura}/onibus/")
+                .where('id', isEqualTo: dados!.idOnibus)
+                .limit(1)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else {
+                if (snapshot.data != null) {
+                  final data = snapshot.data!.docs.first.data();
+                  nome = data['motorista'].trim().split(" ");
+
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(
+                          height: 190,
+                          width: 190,
+                          child: ClipOval(
+                            child: data['profilePic'] != ''
+                                ? CachedNetworkImage(
+                                    imageUrl: data['profilePic'],
+                                    placeholder: (context, url) =>
+                                        const CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.transparent,
+                                      radius: 70,
+                                      child: Center(
+                                        child: Text(
+                                          "${nome![0][0].toUpperCase()}${nome![1][0].toUpperCase()}",
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 35),
                                         ),
-                                        imageBuilder:
-                                            (context, imageProvider) =>
-                                                CircleAvatar(
-                                          backgroundColor: Colors.red,
-                                          radius: 60,
-                                          backgroundImage: imageProvider,
-                                        ),
-                                      )
-                                    : const CircleAvatar(
-                                        backgroundColor: Colors.blue,
-                                        backgroundImage: AssetImage(
-                                            "assets/images/avatar.jpg"),
-                                        radius: 70,
                                       ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(30.0),
-                              child: Column(
-                                children: [
-                                  const Text("Nome",
-                                      style: TextStyle(color: Colors.blue)),
-                                  Text(data['motorista'],
-                                      style: const TextStyle(
-                                          color:
-                                              Color.fromARGB(100, 69, 69, 69))),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                children: [
-                                  const Text("Destino",
-                                      style: TextStyle(color: Colors.blue)),
-                                  Text(data['destino'],
-                                      style: const TextStyle(
-                                          color:
-                                              Color.fromARGB(100, 69, 69, 69))),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                children: [
-                                  const Text("Placa",
-                                      style: TextStyle(color: Colors.blue)),
-                                  Text(data['placa'],
-                                      style: const TextStyle(
-                                          color:
-                                              Color.fromARGB(100, 69, 69, 69))),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(20.0),
-                              child: Column(
-                                children: [
-                                  const Text("Numero de Vagas",
-                                      style: TextStyle(color: Colors.blue)),
-                                  Text(data['numeroVagas'],
-                                      style: const TextStyle(
-                                          color:
-                                              Color.fromARGB(100, 69, 69, 69))),
-                                ],
-                              ),
-                            ),
-                          ],
+                                    ),
+                                    imageBuilder: (context, imageProvider) =>
+                                        CircleAvatar(
+                                      backgroundColor: Colors.red,
+                                      radius: 60,
+                                      backgroundImage: imageProvider,
+                                    ),
+                                  )
+                                : const CircleAvatar(
+                                    backgroundColor: Colors.blue,
+                                    backgroundImage:
+                                        AssetImage("assets/images/avatar.jpg"),
+                                    radius: 70,
+                                  ),
+                          ),
                         ),
-                      );
-                    }
-                  }
+                        Padding(
+                          padding: const EdgeInsets.only(top: 50.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  SizedBox(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(30.0),
+                                      child: Column(
+                                        children: [
+                                          const Text("Nome",
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                          Text(data['motorista'],
+                                              style: const TextStyle(
+                                                  color: Color.fromARGB(
+                                                      100, 69, 69, 69))),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Column(
+                                        children: [
+                                          const Text("Destino",
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                          Text(data['destino'],
+                                              style: const TextStyle(
+                                                  color: Color.fromARGB(
+                                                      100, 69, 69, 69))),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  SizedBox(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(30.0),
+                                      child: Column(
+                                        children: [
+                                          const Text("Placa",
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                          Text(data['placa'],
+                                              style: const TextStyle(
+                                                  color: Color.fromARGB(
+                                                      100, 69, 69, 69))),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Column(
+                                        children: [
+                                          const Text("N. de Vagas",
+                                              style: TextStyle(
+                                                  color: Colors.blue)),
+                                          Text(data['numeroVagas'],
+                                              style: const TextStyle(
+                                                  color: Color.fromARGB(
+                                                      100, 69, 69, 69))),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              }
 
-                  return const Center(child: Text('Erro ao carregar os dados'));
-                },
-              )
-            ],
-          ),
-        ));
+              return const Center(child: Text('Erro ao carregar os dados'));
+            },
+          )
+        ],
+      ),
+    );
   }
 }

@@ -346,20 +346,22 @@ class _HomeViewState extends State<HomeView> {
 
       if (data.isNotEmpty) {
         final aluno = UserData(
-            nome: data['nome'],
-            cpf: data['cpf'],
-            profilePic: data['profilePic'],
-            data: data['data'],
-            curso: data['cursoAluno'],
-            faculdade: data['faculdade'],
-            telefone: data['telefone'],
-            senha: data['senha'],
-            status: data['status'],
-            id: data['id'],
-            idPrefeitura: data['idPrefeitura'],
-            idOnibus: data['idOnibus'],
-            token: data['token'],
-            qrCode: data['qrCode']);
+          nome: data['nome'],
+          cpf: data['cpf'],
+          profilePic: data['profilePic'],
+          data: data['data'],
+          curso: data['cursoAluno'],
+          faculdade: data['faculdade'],
+          telefone: data['telefone'],
+          senha: data['senha'],
+          status: data['status'],
+          id: data['id'],
+          idPrefeitura: data['idPrefeitura'],
+          idOnibus: data['idOnibus'],
+          token: data['token'],
+          qrCode: data['qrCode'],
+          nomePrefeitura: data["nomePrefeitura"],
+        );
 
         listaAlunos.add(aluno);
       }
@@ -381,20 +383,22 @@ class _HomeViewState extends State<HomeView> {
 
       if (data.isNotEmpty) {
         final aluno = UserData(
-            nome: data['nome'],
-            cpf: data['cpf'],
-            profilePic: data['profilePic'],
-            data: data['data'],
-            curso: data['cursoAluno'],
-            faculdade: data['faculdade'],
-            telefone: data['telefone'],
-            senha: data['senha'],
-            status: data['status'],
-            id: data['id'],
-            idPrefeitura: data['idPrefeitura'],
-            idOnibus: data['idOnibus'],
-            token: data['token'],
-            qrCode: data['qrCode']);
+          nome: data['nome'],
+          cpf: data['cpf'],
+          profilePic: data['profilePic'],
+          data: data['data'],
+          curso: data['cursoAluno'],
+          faculdade: data['faculdade'],
+          telefone: data['telefone'],
+          senha: data['senha'],
+          status: data['status'],
+          id: data['id'],
+          idPrefeitura: data['idPrefeitura'],
+          idOnibus: data['idOnibus'],
+          token: data['token'],
+          qrCode: data['qrCode'],
+          nomePrefeitura: data["nomePrefeitura"],
+        );
 
         listaAlunos.add(aluno);
       }
@@ -426,22 +430,26 @@ class _HomeViewState extends State<HomeView> {
       elevation: 0,
       actions: [
         IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: Colors.black,
-            )),
+          onPressed: () async {
+            Navigator.of(context).pushNamed(chatRoomRoute, arguments: dados);
+          },
+          icon: const Icon(
+            Icons.chat,
+            color: Colors.black,
+          ),
+        ),
         IconButton(
-            onPressed: () async {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                loginRoute,
-                (route) => false,
-              );
-            },
-            icon: const Icon(
-              Icons.logout_sharp,
-              color: Colors.black,
-            ))
+          onPressed: () async {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              loginRoute,
+              (route) => false,
+            );
+          },
+          icon: const Icon(
+            Icons.logout_sharp,
+            color: Colors.black,
+          ),
+        ),
       ],
     );
   }

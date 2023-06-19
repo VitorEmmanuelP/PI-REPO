@@ -19,4 +19,5 @@ const pagamentoPreviwRoute = '/pagamentoPreview/';
 const criarQrCodeRoute = '/criarQrCode/';
 const listaPagamentoPixRoute = '/listaPagamentos/';
 const qrScanner = '/qrScanner/';
-const esqueceSenha = 'esqueceSenha';
+const esqueceSenha = '/esqueceSenha/';
+const chatRoomRoute = '/chatroom/';

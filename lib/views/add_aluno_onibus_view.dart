@@ -311,7 +311,7 @@ class _AddALunoONibusViewState extends State<AddALunoONibusView> {
           padding: EdgeInsets.only(top: 8.0),
           child: Center(
               child: Text(
-            "Onibus heio",
+            "Onibus cheio",
           )),
         ),
       ));

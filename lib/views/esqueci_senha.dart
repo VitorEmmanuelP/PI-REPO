@@ -68,6 +68,7 @@ class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
                   "Informe seu cpf e data de nascimento para qual deseja redefinir a senha",
                   textAlign: TextAlign.center,
                   style: TextStyle(
+                    color: Colors.grey,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
@@ -126,8 +127,10 @@ class _EsqueceSenhaViewState extends State<EsqueceSenhaView> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 50.0),
-                child: OutlinedButton(
+                padding: const EdgeInsets.only(
+                    top: 50, bottom: 20.0, right: 40, left: 40),
+                child: ElevatedButton(
+                    style: styleButton(),
                     onPressed: () async {
                       bool isConnected = await checkInternetConnection();
 
