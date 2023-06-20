@@ -5,6 +5,7 @@ import 'package:pi/utils/styles.dart';
 
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../models/user_data.dart';
 import '../widgets/app_bar.dart';
 
 class PagamentoView extends StatefulWidget {
@@ -15,25 +16,25 @@ class PagamentoView extends StatefulWidget {
 }
 
 class _PagamentoViewState extends State<PagamentoView> {
-  QueryDocumentSnapshot<Map<String, dynamic>>? ref;
+  dynamic ref;
+  UserData? userData;
   Map<String, dynamic>? payload;
   String status = '';
   List<String> data = [];
 
   @override
   Widget build(BuildContext context) {
-    final QueryDocumentSnapshot<Map<String, dynamic>>? args =
-        ModalRoute.of(context)?.settings.arguments
-            as QueryDocumentSnapshot<Map<String, dynamic>>?;
+    final List? args = ModalRoute.of(context)?.settings.arguments as List?;
 
     if (args != null) {
-      ref = args;
-      payload = args.data();
+      ref = args[0];
+      payload = args[0];
+      userData = args[1];
 
-      criarData(payload!['data']);
+      criarData(payload!['dataHora']);
     }
 
-    criarData(payload!['data']);
+    criarData(payload!['dataHora']);
     return Scaffold(
       backgroundColor: scaffoldColor,
       appBar: appBar("Detalhes do Pagamento"),
@@ -78,11 +79,16 @@ class _PagamentoViewState extends State<PagamentoView> {
                           : Colors.green),
                 ),
                 IconButton(
-                    onPressed: () {
-                      ref!.reference.update({'status': 'Confirmado'});
-                      setState(() {
-                        status = 'Confirmado';
-                      });
+                    onPressed: () async {
+                      final reff = await FirebaseFirestore.instance
+                          .collection(
+                              'prefeituras/${userData!.idPrefeitura}/onibus/${userData!.idOnibus}/pagamentos')
+                          .where("data", isEqualTo: "${payload!['data']}")
+                          .limit(1)
+                          .get();
+
+                      reff.docs.first.reference
+                          .update({'status': 'Confirmado'});
                     },
                     icon: const Icon(Icons.check))
               ],

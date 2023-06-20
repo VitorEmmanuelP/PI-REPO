@@ -38,7 +38,6 @@ checkarBancoUser(cpf, senha, getData) async {
 
   if (snapshot.size > 0) {
     final dadosLogin = await getData(snapshot.docs[0].id, 'users');
-    print(dadosLogin['senha']);
     if (dadosLogin['senha'] == senha) {
       final loginId = dadosLogin["idPrefeitura"];
 

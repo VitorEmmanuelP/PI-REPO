@@ -136,8 +136,8 @@ class _PixState extends State<Pix> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                      style:
-                          ElevatedButton.styleFrom(minimumSize: Size(100, 50)),
+                      style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(100, 50)),
                       onPressed: () async {
                         if (user!.idOnibus == '') {
                           showErrorMessage(context,
@@ -165,6 +165,7 @@ class _PixState extends State<Pix> {
 
                             String formattedDateTime =
                                 DateFormat('dd-MM-yyyy HH:mm').format(now);
+                            String data = DateFormat('dd-MM-yyyy').format(now);
 
                             await FirebaseFirestore.instance
                                 .collection(
@@ -172,7 +173,8 @@ class _PixState extends State<Pix> {
                                 .add({
                               'criador': user!.nome,
                               'idCriador': user!.id,
-                              'data': formattedDateTime,
+                              'dataHora': formattedDateTime,
+                              "data": data,
                               'status': 'pendente',
                               'valor': valor,
                               'qrcode': payload.getPayload(),
@@ -188,7 +190,7 @@ class _PixState extends State<Pix> {
                     ),
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            minimumSize: Size(100, 50)),
+                            minimumSize: const Size(100, 50)),
                         onPressed: () {
                           Navigator.of(context).pushNamed(
                               listaPagamentoPixRoute,

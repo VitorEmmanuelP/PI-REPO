@@ -21,12 +21,14 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
   late final TextEditingController _placa;
   late final TextEditingController _destino;
   late final TextEditingController _numeroVagas;
+  late final TextEditingController _ida;
 
   var nomesError = false;
   var modeloError = false;
   var placaErro = false;
   var destinoError = false;
   var vagasError = false;
+  var idaError = false;
 
   @override
   void initState() {
@@ -35,6 +37,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
     _placa = TextEditingController();
     _destino = TextEditingController();
     _numeroVagas = TextEditingController();
+    _ida = TextEditingController();
 
     super.initState();
   }
@@ -46,6 +49,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
     _placa.dispose();
     _destino.dispose();
     _numeroVagas.dispose();
+    _ida.dispose();
     super.dispose();
   }
 
@@ -53,6 +57,10 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
   Widget build(BuildContext context) {
     final maskFormatterPlaca = MaskTextInputFormatter(
         mask: '###-####', filter: {"#": RegExp(r'[0-9A-Za-z]')});
+
+    final maskFormatterIda =
+        MaskTextInputFormatter(mask: '##:##', filter: {"#": RegExp(r'[0-9]')});
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -69,18 +77,21 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                     placaTextField(maskFormatterPlaca),
                     destinoTextField(),
                     vagasTextField(),
+                    idaTextField(maskFormatterIda),
                   ]),
                 ),
                 Padding(
                     padding: const EdgeInsets.only(top: 30),
-                    child: addButton(context, maskFormatterPlaca)),
+                    child: addButton(
+                        context, maskFormatterPlaca, maskFormatterIda)),
               ],
             ),
           )),
     );
   }
 
-  Padding addButton(BuildContext context, maskFormatterPlaca) {
+  Padding addButton(
+      BuildContext context, maskFormatterPlaca, maskFormatterIda) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20),
       child: ElevatedButton(
@@ -89,13 +100,14 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
             FocusScope.of(context).unfocus();
             bool isConnected = await checkInternetConnection();
             if (isConnected) {
-              final nome = _nomeMotorista.text;
-              final modelo = _modeloOnibus.text;
-              final placa = maskFormatterPlaca.unmaskText(_placa.text);
-              final destino = _destino.text;
-              final numeroVagas = _numeroVagas.text;
+              String nome = _nomeMotorista.text;
+              String modelo = _modeloOnibus.text;
+              String placa = maskFormatterPlaca.unmaskText(_placa.text);
+              String destino = _destino.text;
+              String numeroVagas = _numeroVagas.text;
+              String ida = maskFormatterIda.unmaskText(_ida.text);
 
-              validarRegistros(nome, modelo, placa, destino, numeroVagas);
+              validarRegistros(nome, modelo, placa, destino, numeroVagas, ida);
 
               if (checarErros()) {
                 final prefeitura = await getUser();
@@ -112,6 +124,7 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
                   'numeroVagas': numeroVagas,
                   'vagasRestantes': numeroVagas,
                   'profilePic': '',
+                  'ida': int.parse(ida.replaceAll(":", ''))
                 });
 
                 final idCurrent = docRef.id.toString();
@@ -155,20 +168,20 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
         !modeloError &&
         !placaErro &&
         !destinoError &&
-        !vagasError) {
+        !vagasError &&
+        !idaError) {
       return true;
     } else {
       return false;
     }
   }
 
-  void validarRegistros(
-      String nome, String modelo, String placa, String destino, String vagas) {
+  void validarRegistros(String nome, String modelo, String placa,
+      String destino, String vagas, String ida) {
     nome = nome.trim();
     modelo = modelo.trim();
     List<String> listaNome = nome.split(' ');
     List<String> listaModelo = modelo.split(' ');
-    print(placa.length);
     setState(() {
       if (listaNome.isEmpty || listaNome[0] == '') {
         nomesError = true;
@@ -186,6 +199,9 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
       if (vagas.isEmpty) {
         vagasError = true;
       }
+      if (ida.isEmpty || ida.length < 4) {
+        idaError = true;
+      }
       //
     });
   }
@@ -202,6 +218,26 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
           if (vagasError) {
             setState(() {
               vagasError = false;
+            });
+          }
+        },
+      ),
+    );
+  }
+
+  Padding idaTextField(maskFormatterIda) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: TextField(
+        controller: _ida,
+        inputFormatters: [maskFormatterIda],
+        keyboardType: TextInputType.number,
+        decoration: estiloTextField("Digite o horario de ida",
+            erro: idaError, msg: "Digite o horario de ida"),
+        onChanged: (value) {
+          if (idaError) {
+            setState(() {
+              idaError = false;
             });
           }
         },
@@ -251,7 +287,6 @@ class _RegistrarOnibusViewState extends State<RegistrarOnibusView> {
       padding: const EdgeInsets.all(20),
       child: TextField(
         controller: _modeloOnibus,
-        keyboardType: TextInputType.number,
         decoration: estiloTextField("Modelo do Onibus",
             erro: modeloError, msg: "Digite o modelo do ônibus"),
         onChanged: (value) {

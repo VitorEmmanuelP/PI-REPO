@@ -8,7 +8,6 @@ import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/styles.dart';
 import 'package:pi/views/aluno_list_view.dart';
 import 'package:pi/views/criar_qr_code_view.dart';
-import 'package:pi/views/presenca_view.dart';
 import 'package:pi/views/qr_code_scanner_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -66,7 +65,7 @@ class _HomeViewState extends State<HomeView> {
       },
       physics: const BouncingScrollPhysics(),
       controller: pageController,
-      children: [QRCodeScannerScreen(), pageOne(context), const Pix()],
+      children: [const QRCodeScannerScreen(), pageOne(context), const Pix()],
     );
   }
 

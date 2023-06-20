@@ -69,11 +69,16 @@ class _PagamentoPreviewViewState extends State<PagamentoPreviewView> {
                 ),
               ),
             ),
-            OutlinedButton(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: payload!.getPayload()));
-                },
-                child: const Text("COPIAR CHAVE PIX"))
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                  onPressed: () {
+                    styleButton();
+                    Clipboard.setData(
+                        ClipboardData(text: payload!.getPayload()));
+                  },
+                  child: const Text("COPIAR CHAVE PIX")),
+            )
           ],
         )),
       ),

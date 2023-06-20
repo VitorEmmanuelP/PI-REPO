@@ -24,39 +24,36 @@ class _InfoOnibusAlunoViewState extends State<InfoOnibusAlunoView> {
 
     if (args != null) {
       dados = args;
-      print(dados!.idOnibus);
     }
     return Scaffold(
       backgroundColor: scaffoldColor,
       appBar: appBar("Informações do Ônibus"),
-      body: dados!.idOnibus != ''
-          ? infoOnibus()
-          : naoCadrastado(),
+      body: dados!.idOnibus != '' ? infoOnibus() : naoCadrastado(),
     );
   }
 
   Center naoCadrastado() {
     return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Padding(
-                  padding: EdgeInsets.only(bottom: 20.0),
-                  child: Text(
-                    "Você ainda não esta cadastrado em nehum ônibus",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 0.0),
-                  child: Text(
-                    "Peça a sua prefeitura que te cadastre",
-                    style: TextStyle(fontSize: 15),
-                  ),
-                )
-              ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Padding(
+            padding: EdgeInsets.only(bottom: 20.0),
+            child: Text(
+              "Você ainda não esta cadastrado em nehum ônibus",
+              style: TextStyle(fontSize: 15),
             ),
-          );
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 0.0),
+            child: Text(
+              "Peça a sua prefeitura que te cadastre",
+              style: TextStyle(fontSize: 15),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   SingleChildScrollView infoOnibus() {
@@ -197,6 +194,21 @@ class _InfoOnibusAlunoViewState extends State<InfoOnibusAlunoView> {
                                     ),
                                   ),
                                 ],
+                              ),
+                              SizedBox(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    children: [
+                                      const Text("Modelo",
+                                          style: TextStyle(color: Colors.blue)),
+                                      Text(data['modelo'],
+                                          style: const TextStyle(
+                                              color: Color.fromARGB(
+                                                  100, 69, 69, 69))),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),

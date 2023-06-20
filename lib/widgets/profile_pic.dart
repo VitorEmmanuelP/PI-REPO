@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePictureWidget extends StatefulWidget {
   final Map? info;
-  ProfilePictureWidget({Key? key, this.info}) : super(key: key);
+  const ProfilePictureWidget({Key? key, this.info}) : super(key: key);
 
   @override
   State<ProfilePictureWidget> createState() => _ProfilePictureWidgetState();
@@ -136,7 +136,6 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
             .collection("prefeituras/${dados['idPrefeitura']}/onibus/")
             .doc(dados['id']);
 
-        print(usera);
         usera.update({'profilePic': downloadURL});
 
         dados!.profilePic = downloadURL;
@@ -151,6 +150,7 @@ class _ProfilePictureWidgetState extends State<ProfilePictureWidget> {
   }
 }
 
+// ignore: must_be_immutable
 class ImagemUsuario extends StatelessWidget {
   dynamic dados;
   ProfileImage? user;

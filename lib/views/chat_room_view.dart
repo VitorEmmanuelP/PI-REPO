@@ -1,8 +1,11 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/user_data.dart';
+import '../utils/enviar_mensagens.dart';
 
 class ChatRoomPage extends StatefulWidget {
   const ChatRoomPage({super.key});
@@ -45,7 +48,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Image.network(
-                    "https://portalfacilarquivos.blob.core.windows.net/uploads/TRESMARIAS/imgOrig/%7BAAC2DCBA-C47E-A8CC-6DDB-BCBD4AAB5BEE%7D.jpg",
+                    idPrefeitura == "SiAA09DYyS5UgeJtYG8r"
+                        ? "https://portalfacilarquivos.blob.core.windows.net/uploads/TRESMARIAS/imgOrig/%7BAAC2DCBA-C47E-A8CC-6DDB-BCBD4AAB5BEE%7D.jpg"
+                        : "https://lagoaformosa.mg.gov.br/wp-content/uploads/2016/03/brasao.png",
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -136,12 +141,11 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                           horizontal: 10,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: (currentMessage["sender"] ==
+                                          color: (currentMessage["senderId"] ==
                                                   dados!.id)
-                                              ? Colors.grey
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
+                                              ? Color.fromARGB(255, 8, 123, 217)
+                                              : Color.fromARGB(
+                                                  255, 105, 157, 246),
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
@@ -215,7 +219,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Color.fromARGB(255, 233, 230, 230)),
+                    color: const Color.fromARGB(255, 233, 230, 230)),
                 child: Row(
                   children: [
                     Flexible(
@@ -276,6 +280,35 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           "text": msg,
         });
       }
+      final ultimaMensagem = await FirebaseFirestore.instance
+          .collection(
+              "prefeituras/${dados.runtimeType == UserData ? dados!.idPrefeitura : dados.id}/chatroom")
+          .doc("ultimaMensagem")
+          .get()
+          .then((value) => value.data());
+
+      final ultimahora = ultimaMensagem!['horario'];
+
+      final horaAtual = int.parse(DateFormat('HHmm').format(now));
+      if (ultimahora + 10 < horaAtual) {
+        final alunoDados = await FirebaseFirestore.instance
+            .collection("prefeituras/${dados!.idPrefeitura}/users/")
+            .where('idOnibus', isEqualTo: dados!.idOnibus)
+            .get();
+
+        await enviarMensagem(alunoDados);
+
+        await FirebaseFirestore.instance
+            .collection(
+                "prefeituras/${dados.runtimeType == UserData ? dados!.idPrefeitura : dados.id}/chatroom")
+            .doc("ultimaMensagem")
+            .update({"horario": horaAtual});
+      }
     }
+  }
+
+  enviarMensagem(alunoDados) {
+    sendFcmMessage(
+        alunoDados.docs, "Uma nova mensagem foi enviada no chatroom");
   }
 }

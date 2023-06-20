@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/utils/styles.dart';
 
@@ -52,21 +53,34 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
                     child: CircularProgressIndicator(),
                   );
                 }
-
                 final dados = snapshot.data!.docs;
+
+                var listaData = [];
+
+                for (var i in dados) {
+                  var dict = i.data();
+
+                  listaData.add(dict);
+                }
+
+                DateFormat format = DateFormat("dd-MM-yyyy");
+
+                listaData.sort((a, b) =>
+                    format.parse(b['data']).compareTo(format.parse(a['data'])));
+
                 return ListView.builder(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: dados.length,
+                  itemCount: listaData.length,
                   itemBuilder: (context, index) {
-                    final data = dados[index];
+                    final data = listaData[index];
 
                     if (name.isEmpty) {
                       return Column(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              Navigator.of(context)
-                                  .pushNamed(pagamentoRoute, arguments: data);
+                              Navigator.of(context).pushNamed(pagamentoRoute,
+                                  arguments: [data, userDados]);
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
@@ -123,7 +137,7 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
     }
   }
 
-  Row card(QueryDocumentSnapshot<Map<String, dynamic>> data) {
+  Row card(data) {
     return Row(
       children: [
         SizedBox(
@@ -131,8 +145,17 @@ class _ListaPagamentosViewState extends State<ListaPagamentosView> {
           width: 100,
           child: Image.asset('assets/images/pix.png'),
         ),
-        Text(data['criador']),
-        Text("\$${data['valor']} reais")
+        RichText(
+          text: TextSpan(
+            text: "${data['criador']}\n",
+            style: const TextStyle(color: Colors.black),
+            children: <TextSpan>[
+              TextSpan(
+                text: "\$${data['valor']} reais",
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

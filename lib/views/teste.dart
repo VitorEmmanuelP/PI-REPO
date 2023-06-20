@@ -1,13 +1,14 @@
-import 'dart:developer';
+// ignore_for_file: library_private_types_in_public_api
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/user_data.dart';
 
 class ChatRoomPage extends StatefulWidget {
+  const ChatRoomPage({super.key});
+
   @override
   _ChatRoomPageState createState() => _ChatRoomPageState();
 }
@@ -48,7 +49,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          iconTheme: IconThemeData(color: Colors.black),
+          iconTheme: const IconThemeData(color: Colors.black),
           backgroundColor: Colors.white,
           elevation: 0,
           title: Row(
@@ -67,12 +68,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Text(
-                "${dados!.nomePrefeitura}",
-                style: TextStyle(color: Colors.black),
+                dados!.nomePrefeitura,
+                style: const TextStyle(color: Colors.black),
               ),
             ],
           ),
@@ -111,7 +112,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       child: Container(
         child: Column(
           children: [
-            // This is where the chats will go
             Expanded(
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 10),
@@ -212,7 +212,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                 ),
               ),
             ),
-
             Container(
               color: Colors.grey[200],
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),

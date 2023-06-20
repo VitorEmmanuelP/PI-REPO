@@ -9,7 +9,6 @@ import 'package:pi/constants/routes.dart';
 import 'package:pi/models/bus_data.dart';
 
 import 'package:pi/models/user_data.dart';
-import 'package:pi/utils/dados_users.dart';
 import 'package:pi/utils/styles.dart';
 
 import '../utils/enviar_mensagens.dart';
@@ -27,6 +26,7 @@ class _PresencaViewState extends State<PresencaView> {
   BusData? onibusInfo;
   List listaPresensaTodos = [];
   String formattedDate = '';
+  int horas = 0;
   String? infoQr;
   bool isLoading = true;
   @override
@@ -43,6 +43,8 @@ class _PresencaViewState extends State<PresencaView> {
     if (args != null) {
       dados = args[0];
       onibusInfo = args[1];
+      horas = int.parse(DateFormat('HHmm').format(now));
+      //horas = 1200;
       formattedDate = DateFormat('dd-MM-yyyy').format(now);
     }
 
@@ -150,14 +152,14 @@ class _PresencaViewState extends State<PresencaView> {
                   if (infoQr != '-1') {
                     final ref = await FirebaseFirestore.instance
                         .collection(
-                            'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/alunos/')
+                            'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/${listaData[0]["ida"] > horas ? "ida" : "volta"}/')
                         .where("id", isEqualTo: info)
                         .limit(1)
                         .get();
 
                     if (ref.docs.isNotEmpty) {
                       ref.docs[0].reference.update({"status": "confirmado"});
-                    }
+                    } else {}
                   }
                 },
                 icon: const Icon(Icons.qr_code)),
@@ -198,7 +200,7 @@ class _PresencaViewState extends State<PresencaView> {
                                       int.parse(listaData[i]['numerosAlunos']
                                           .toString()) >
                                   0
-                              ? 'Vagas disponíveis: ${int.parse(onibusInfo!.numeroVagas) - int.parse(listaData[i]['numerosAlunos'].toString())}'
+                              ? ' ${listaData[i]["ida"] > horas ? "Lista da Ida" : "Lista da Volta"} - Vagas disponíveis: ${int.parse(onibusInfo!.numeroVagas) - int.parse(listaData[i]['numerosAlunos'].toString())}'
                               : "O onibus esta cheio.",
                           style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
@@ -208,7 +210,7 @@ class _PresencaViewState extends State<PresencaView> {
                       child: StreamBuilder(
                         stream: FirebaseFirestore.instance
                             .collection(
-                                'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/${listaData[i]['nome']}/alunos')
+                                'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/${listaData[i]['nome']}/${listaData[i]["ida"] > horas ? "ida" : "volta"}')
                             .snapshots()
                             .asyncMap((querySnapshot1) async {
                           var querySnapshot2 = await FirebaseFirestore.instance
@@ -320,7 +322,6 @@ class _PresencaViewState extends State<PresencaView> {
         var data = sortedDocs[index].data() as Map<String, dynamic>;
 
         final nome = data['nome'].toUpperCase().trim().split(' ');
-
         return Column(
           children: [
             Container(
@@ -390,7 +391,7 @@ class _PresencaViewState extends State<PresencaView> {
                   child: RichText(
                     text: TextSpan(
                       text: '${data["nome"]}\n',
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                       children: <TextSpan>[
                         TextSpan(
                           text: '${data["status"]}',
@@ -442,32 +443,45 @@ class _PresencaViewState extends State<PresencaView> {
     if (await checkIfExists(formattedDate)) {
       await atualizarLista();
     } else {
-      QuerySnapshot<Map<String, dynamic>> alunoDados = await criarNovaLista();
+      QuerySnapshot<Map<String, dynamic>> alunoDados =
+          await criarNovaLista(formattedDate);
       await enviarMensagem(alunoDados);
     }
   }
 
-  Future<QuerySnapshot<Map<String, dynamic>>> criarNovaLista() async {
+  Future<QuerySnapshot<Map<String, dynamic>>> criarNovaLista(a) async {
     final usera = FirebaseFirestore.instance
         .collection(
             "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/")
-        .doc(formattedDate);
+        .doc(a);
 
-    final alunos = usera.collection('alunos');
+    final alunosIda = usera.collection('ida');
+    final alunosVolta = usera.collection('volta');
 
     final alunoDados = await FirebaseFirestore.instance
         .collection("prefeituras/${dados!.idPrefeitura}/users/")
         .where('idOnibus', isEqualTo: dados!.idOnibus)
         .get();
 
+    final onibusDados = await FirebaseFirestore.instance
+        .collection("prefeituras/${dados!.idPrefeitura}/onibus/")
+        .where('id', isEqualTo: dados!.idOnibus)
+        .get();
+
+    final onibusData = onibusDados.docs.first;
+
     final numerosAlunos = alunoDados.docs.length;
 
-    usera.set({'nome': formattedDate, 'numerosAlunos': numerosAlunos});
+    usera.set({
+      'nome': a,
+      'numerosAlunos': numerosAlunos,
+      "ida": onibusData["ida"],
+    });
 
     for (var data in alunoDados.docs) {
       final pessoa = data.data();
 
-      final aluno = alunos.doc(pessoa['nome']);
+      final aluno = alunosIda.doc(pessoa['nome']);
       aluno.set({
         'id': pessoa['id'],
         'nome': pessoa['nome'],
@@ -475,6 +489,19 @@ class _PresencaViewState extends State<PresencaView> {
         'data': formattedDate,
       });
     }
+
+    for (var data in alunoDados.docs) {
+      final pessoa = data.data();
+
+      final aluno = alunosVolta.doc(pessoa['nome']);
+      aluno.set({
+        'id': pessoa['id'],
+        'nome': pessoa['nome'],
+        'status': 'ausente',
+        'data': formattedDate,
+      });
+    }
+
     return alunoDados;
   }
 
@@ -489,7 +516,7 @@ class _PresencaViewState extends State<PresencaView> {
 
     final userQuery = await FirebaseFirestore.instance
         .collection(
-            "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/alunos")
+            "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/ida")
         .get()
         .then((value) => value.docs);
 
@@ -501,7 +528,18 @@ class _PresencaViewState extends State<PresencaView> {
         numeroAlunosNovos++;
         await FirebaseFirestore.instance
             .collection(
-                "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/alunos")
+                "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/ida")
+            .doc(info['nome'])
+            .set({
+          'id': info['id'],
+          'nome': info['nome'],
+          'status': 'ausente',
+          'data': formattedDate,
+        });
+
+        await FirebaseFirestore.instance
+            .collection(
+                "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/volta")
             .doc(info['nome'])
             .set({
           'id': info['id'],
@@ -513,6 +551,13 @@ class _PresencaViewState extends State<PresencaView> {
     }
 
     if (numeroAlunosNovos != 0) {
+      final onibusDados = await FirebaseFirestore.instance
+          .collection("prefeituras/${dados!.idPrefeitura}/onibus/")
+          .where('id', isEqualTo: dados!.idOnibus)
+          .get();
+
+      final onibusData = onibusDados.docs.first;
+
       final usera = FirebaseFirestore.instance
           .collection(
               "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/")
@@ -520,11 +565,14 @@ class _PresencaViewState extends State<PresencaView> {
 
       var data = await usera.get().then((value) => value.data()) as Map;
 
-      usera.set({
-        'nome': formattedDate,
-        'numerosAlunos':
-            "${int.parse(data['numerosAlunos'].toString()) + numeroAlunosNovos}"
-      });
+      usera.set(
+        {
+          'nome': formattedDate,
+          'numerosAlunos':
+              "${int.parse(data['numerosAlunos'].toString()) + numeroAlunosNovos}",
+          "ida": onibusData["ida"],
+        },
+      );
     }
   }
 
@@ -532,14 +580,15 @@ class _PresencaViewState extends State<PresencaView> {
     final querySnapshot = await FirebaseFirestore.instance
         .collection(
             "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/")
-        .where("nome", isEqualTo: formattedDate)
+        .where("nome", isEqualTo: data)
         .get();
 
     return querySnapshot.docs.isNotEmpty;
   }
 
   enviarMensagem(alunoDados) {
-    sendFcmMessage(alunoDados.docs);
+    sendFcmMessage(
+        alunoDados.docs, 'Uma nova lista foi criada, corra para marca preseça');
   }
 
   Center naoCadrastado() {

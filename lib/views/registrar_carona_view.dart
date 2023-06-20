@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -150,7 +149,13 @@ class _RegistrarCaronaViewState extends State<RegistrarCaronaView> {
                               .collection(
                                   "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/")
                               .doc(formattedDate);
+                          final onibusDados = await FirebaseFirestore.instance
+                              .collection(
+                                  "prefeituras/${dados!.idPrefeitura}/onibus/")
+                              .where('id', isEqualTo: dados!.idOnibus)
+                              .get();
 
+                          final onibusData = onibusDados.docs.first;
                           var data = await usera
                               .get()
                               .then((value) => value.data()) as Map;
@@ -159,7 +164,7 @@ class _RegistrarCaronaViewState extends State<RegistrarCaronaView> {
                               int.parse(onibusInfo!.numeroVagas)) {
                             await FirebaseFirestore.instance
                                 .collection(
-                                    "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/alunos")
+                                    "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/ida")
                                 .doc(nome)
                                 .set({
                               "nome": nome,
@@ -171,7 +176,26 @@ class _RegistrarCaronaViewState extends State<RegistrarCaronaView> {
                             usera.set({
                               'nome': formattedDate,
                               'numerosAlunos':
-                                  "${int.parse(data['numerosAlunos'].toString()) + 1}"
+                                  "${int.parse(data['numerosAlunos'].toString()) + 1}",
+                              "ida": onibusData["ida"]
+                            });
+
+                            await FirebaseFirestore.instance
+                                .collection(
+                                    "prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/$formattedDate/volta")
+                                .doc(nome)
+                                .set({
+                              "nome": nome,
+                              "data": formattedDate,
+                              "telefone": telefone,
+                              "status": status,
+                            });
+
+                            usera.set({
+                              'nome': formattedDate,
+                              'numerosAlunos':
+                                  "${int.parse(data['numerosAlunos'].toString()) + 1}",
+                              "ida": onibusData["ida"]
                             });
 
                             Navigator.of(context).pop();

@@ -28,7 +28,6 @@ class _InfoBusViewState extends State<InfoBusView> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
       dados = args;
-      print(dados);
     }
     return Scaffold(
       backgroundColor: scaffoldColor,
@@ -113,6 +112,20 @@ class _InfoBusViewState extends State<InfoBusView> {
                         ),
                       ),
                     ],
+                  ),
+                  SizedBox(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          const Text("Modelo",
+                              style: TextStyle(color: Colors.blue)),
+                          Text(dados!['modelo'],
+                              style: const TextStyle(
+                                  color: Color.fromARGB(100, 69, 69, 69))),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),

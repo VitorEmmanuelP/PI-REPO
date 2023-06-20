@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

@@ -89,7 +89,7 @@ class MyApp extends StatelessWidget {
         listaPagamentoPixRoute: (context) => const ListaPagamentosView(),
         qrScanner: (context) => const QRCodeScannerScreen(),
         esqueceSenha: (context) => const EsqueceSenhaView(),
-        chatRoomRoute: (context) => ChatRoomPage(),
+        chatRoomRoute: (context) => const ChatRoomPage(),
       },
       //home: const LoginView()
       home: dados.runtimeType == UserData || dados.runtimeType == PrefeituraData

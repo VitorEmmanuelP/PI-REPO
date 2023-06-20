@@ -16,7 +16,7 @@ Future<void> showErrorMessage(BuildContext context, String text) {
             child: Center(
                 child: Text(
               text,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ))),
         actions: [
           TextButton(

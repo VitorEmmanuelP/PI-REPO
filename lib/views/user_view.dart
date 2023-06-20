@@ -105,7 +105,7 @@ class _UserViewState extends State<UserView> {
                     ],
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: 200,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

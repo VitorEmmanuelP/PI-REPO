@@ -215,7 +215,7 @@ class _ListaAlunoViewState extends State<ListaAlunoView> {
           child: RichText(
             text: TextSpan(
               text: '${data["nome"]}\n',
-              style: TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.black),
               children: <TextSpan>[
                 TextSpan(
                   text: '${data["status"]}',

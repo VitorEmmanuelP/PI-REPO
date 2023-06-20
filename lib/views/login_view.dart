@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+//import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pi/constants/routes.dart';
 import 'package:pi/services/auth_expection.dart';
 import 'package:pi/utils/dados_users.dart';
@@ -41,8 +41,8 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    final maskFormatterCpf = MaskTextInputFormatter(
-        mask: '###-###-###-##', filter: {"#": RegExp(r'[0-9]')});
+    // final maskFormatterCpf = MaskTextInputFormatter(
+    //     mask: '###-###-###-##', filter: {"#": RegExp(r'[0-9]')});
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),

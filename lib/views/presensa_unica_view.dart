@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:pi/models/user_data.dart';
 import 'package:pi/utils/styles.dart';
 
-import '../widgets/app_bar.dart';
-
 class PresencaUnicaView extends StatefulWidget {
   const PresencaUnicaView({super.key});
 
@@ -24,91 +22,97 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
       dados = args[0];
       data = args[1];
     }
-    return Scaffold(
-      backgroundColor: scaffoldColor,
-      appBar: appBar("Presenca do dia ${data!['nome']}"),
-      body: listazada(context),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: scaffoldColor,
+        appBar: appBar(),
+        body: listazada(context),
+      ),
     );
   }
 
-  SizedBox listazada(BuildContext context) {
-    return SizedBox(
-      child: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection(
-                'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/${data!['nome']}/alunos')
-            .snapshots()
-            .asyncMap((querySnapshot1) async {
-          var querySnapshot2 = await FirebaseFirestore.instance
-              .collection('prefeituras/${dados!.idPrefeitura}/users/')
-              .where('idOnibus', isEqualTo: dados!.idOnibus)
-              .get();
-          return [querySnapshot1, querySnapshot2];
-        }),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            if (snapshot.data != null) {
-              final snapshot1 = snapshot.data![0];
-              final snapshot2 = snapshot.data![1];
+  listazada(BuildContext context) {
+    return TabBarView(children: [
+      for (int i = 0; i < 2; i++)
+        SizedBox(
+          child: StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection(
+                    'prefeituras/${dados!.idPrefeitura}/onibus/${dados!.idOnibus}/listaPresensa/${data!['nome']}/${i == 0 ? "ida" : "volta"}')
+                .snapshots()
+                .asyncMap((querySnapshot1) async {
+              var querySnapshot2 = await FirebaseFirestore.instance
+                  .collection('prefeituras/${dados!.idPrefeitura}/users/')
+                  .where('idOnibus', isEqualTo: dados!.idOnibus)
+                  .get();
+              return [querySnapshot1, querySnapshot2];
+            }),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                if (snapshot.data != null) {
+                  final snapshot1 = snapshot.data![0];
+                  final snapshot2 = snapshot.data![1];
 
-              List<QueryDocumentSnapshot> sortedDocs1 =
-                  List<QueryDocumentSnapshot>.from(snapshot1.docs);
+                  List<QueryDocumentSnapshot> sortedDocs1 =
+                      List<QueryDocumentSnapshot>.from(snapshot1.docs);
 
-              int? inde;
+                  int? inde;
 
-              sortedDocs1.removeWhere((element) {
-                var info = element.data() as Map;
-                if (info['nome'] == dados!.nome) {
-                  inde = sortedDocs1.indexOf(element);
-                  return true;
+                  sortedDocs1.removeWhere((element) {
+                    var info = element.data() as Map;
+                    if (info['nome'] == dados!.nome) {
+                      inde = sortedDocs1.indexOf(element);
+                      return true;
+                    }
+                    return false;
+                  });
+
+                  sortedDocs1.sort((a, b) {
+                    var nomeA = a.data() as Map;
+                    var nomeB = b.data() as Map;
+
+                    String aa = nomeA['nome'];
+                    String bb = nomeB['nome'];
+
+                    aa = aa.toString().toUpperCase();
+                    bb = bb.toString().toUpperCase();
+
+                    return aa.compareTo(bb);
+                  });
+
+                  try {
+                    sortedDocs1.insert(0, snapshot1.docs[inde!]);
+                    final mapzada = {};
+
+                    for (var i in snapshot2.docs) {
+                      final dados = i.data() as Map;
+                      mapzada[dados['id']] = dados['profilePic'];
+                    }
+
+                    return listaPresensa(sortedDocs1, mapzada);
+                  } finally {
+                    final mapzada = {};
+
+                    for (var i in snapshot2.docs) {
+                      final dados = i.data();
+                      mapzada[dados['id']] = dados['profilePic'];
+                    }
+
+                    return listaPresensa(sortedDocs1, mapzada);
+                  }
+                } else {
+                  return Container();
                 }
-                return false;
-              });
-
-              sortedDocs1.sort((a, b) {
-                var nomeA = a.data() as Map;
-                var nomeB = b.data() as Map;
-
-                String aa = nomeA['nome'];
-                String bb = nomeB['nome'];
-
-                aa = aa.toString().toUpperCase();
-                bb = bb.toString().toUpperCase();
-
-                return aa.compareTo(bb);
-              });
-
-              try {
-                sortedDocs1.insert(0, snapshot1.docs[inde!]);
-                final mapzada = {};
-
-                for (var i in snapshot2.docs) {
-                  final dados = i.data() as Map;
-                  mapzada[dados['id']] = dados['profilePic'];
-                }
-
-                return listaPresensa(sortedDocs1, mapzada);
-              } finally {
-                final mapzada = {};
-
-                for (var i in snapshot2.docs) {
-                  final dados = i.data();
-                  mapzada[dados['id']] = dados['profilePic'];
-                }
-
-                return listaPresensa(sortedDocs1, mapzada);
               }
-            } else {
-              return Container();
-            }
-          }
-        },
-      ),
-    );
+            },
+          ),
+        ),
+    ]);
   }
 
   ListView listaPresensa(
@@ -183,7 +187,7 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
                   child: RichText(
                     text: TextSpan(
                       text: '${data["nome"]}\n',
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                       children: <TextSpan>[
                         TextSpan(
                           text: '${data["status"]}',
@@ -202,6 +206,32 @@ class _PresencaUnicaViewState extends State<PresencaUnicaView> {
           ],
         );
       },
+    );
+  }
+
+  AppBar appBar() {
+    return AppBar(
+      title: Text('Lista do dia ${data!["nome"]}',
+          style: const TextStyle(color: Colors.black)),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      iconTheme: const IconThemeData(color: Colors.black),
+      bottom: const TabBar(
+        labelColor: Colors.black,
+        unselectedLabelColor: Colors.grey,
+        indicatorColor: Colors.transparent,
+        physics: BouncingScrollPhysics(),
+        tabs: [
+          Tab(
+            height: 50,
+            text: 'Ida',
+          ),
+          Tab(
+            height: 50,
+            text: 'Volta',
+          ),
+        ],
+      ),
     );
   }
 }

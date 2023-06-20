@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<void> sendFcmMessage(alunosToken) async {
+Future<void> sendFcmMessage(alunosToken, mensagem) async {
   for (var data in alunosToken) {
     final token = data.data();
 
@@ -12,7 +12,7 @@ Future<void> sendFcmMessage(alunosToken) async {
 
       final Map<String, dynamic> message = <String, dynamic>{
         'notification': <String, dynamic>{
-          'body': 'Uma nova lista foi criada, corra para marca preseça',
+          'body': mensagem,
           'title': 'Ola ${token['nome']}',
         },
         'priority': 'high',

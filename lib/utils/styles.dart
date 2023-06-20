@@ -16,8 +16,8 @@ InputDecoration estiloTextField(String label,
 
 OutlineInputBorder fazerBorda({bool erro = false}) {
   return OutlineInputBorder(
-    borderSide:
-        BorderSide(color: erro ? Colors.red : Color.fromARGB(100, 69, 69, 69)),
+    borderSide: BorderSide(
+        color: erro ? Colors.red : const Color.fromARGB(100, 69, 69, 69)),
     borderRadius: BorderRadius.circular(10),
   );
 }
@@ -30,7 +30,7 @@ styleButton() {
   );
 }
 
-final scaffoldColor = Colors.white;
-final blue = Colors.blue;
+const scaffoldColor = Colors.white;
+const blue = Colors.blue;
 
 const textColor = Colors.white;

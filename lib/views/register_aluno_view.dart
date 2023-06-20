@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:path_provider/path_provider.dart';
 import 'dart:typed_data';
@@ -391,7 +390,6 @@ class _RegistrarAlunoViewState extends State<RegistrarAlunoView> {
         telefoneError = true;
       }
       if (!validarData(data)) {
-        print('aa $data');
         setState(() {
           dataError = true;
         });
